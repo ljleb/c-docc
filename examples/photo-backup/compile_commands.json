@@ -1,6 +1,6 @@
 [
   {
-    "directory": "/absolute/path/to/photo-backup",
+    "directory": "REPLACE_WITH_ABSOLUTE_PATH",
     "file": "retries.c",
     "arguments": ["clang", "-std=c17", "-c", "retries.c"]
   }

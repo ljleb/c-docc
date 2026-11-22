@@ -27,14 +27,14 @@ Create `compile_commands.json` in the same folder. It gives Dagdocdiff the sourc
 ```json
 [
   {
-    "directory": "/absolute/path/to/photo-backup",
+    "directory": "REPLACE_WITH_ABSOLUTE_PATH",
     "file": "retries.c",
     "arguments": ["clang", "-std=c17", "-c", "retries.c"]
   }
 ]
 ```
 
-Open a terminal in your example folder. The command `pwd` prints the folder's full path. Save that path in the `directory` field in place of `/absolute/path/to/photo-backup`. Run the remaining commands from this folder.
+Open a terminal in your example folder. The command `pwd` prints the folder's full path. Save that path in the `directory` field in place of `REPLACE_WITH_ABSOLUTE_PATH`. Run the remaining commands from this folder.
 
 ## Run Dagdocdiff
 

@@ -36,19 +36,19 @@ Create `compile_commands.json` next to the C files. It lists both files and thei
 ```json
 [
   {
-    "directory": "/absolute/path/to/parcel-tracking",
+    "directory": "REPLACE_WITH_ABSOLUTE_PATH",
     "file": "request_limit.c",
     "arguments": ["clang", "-std=c17", "-c", "request_limit.c"]
   },
   {
-    "directory": "/absolute/path/to/parcel-tracking",
+    "directory": "REPLACE_WITH_ABSOLUTE_PATH",
     "file": "retry_limit.c",
     "arguments": ["clang", "-std=c17", "-c", "retry_limit.c"]
   }
 ]
 ```
 
-Open a terminal in your example folder. The command `pwd` prints the folder's full path. Save that path in both `directory` fields in place of `/absolute/path/to/parcel-tracking`. Run the remaining commands from this folder.
+Open a terminal in your example folder. The command `pwd` prints the folder's full path. Save that path in both `directory` fields in place of `REPLACE_WITH_ABSOLUTE_PATH`. Run the remaining commands from this folder.
 
 ## Run Dagdocdiff
 
