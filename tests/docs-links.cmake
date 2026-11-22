@@ -108,9 +108,9 @@ file(WRITE "${WORK_DIR}/api.hpp" "${changed}")
 file(APPEND "${WORK_DIR}/a.cpp" "int x() { return 0; } int y() { return 0; }\n")
 file(WRITE "${page}" "${markdown}\n[Ambiguous](../a.cpp#L7)\n")
 run_cli(1 [=["Ambiguous": multiple declarations]=] check ${path_options})
-run_interactive("y\n" "Fix the source links before approving this section")
+run_interactive("y\n" "Fix the broken links before approving this section")
 file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" before)
-run_cli(1 "resolve source links before approving this page" approve guide.md ${path_options} --reason "Blocked")
+run_cli(1 "resolve links before approving this page" approve guide.md ${path_options} --reason "Blocked")
 file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" after)
 if(NOT before STREQUAL after)
     message(FATAL_ERROR "Approving a page with a broken link changed its approvals")
@@ -121,7 +121,7 @@ file(WRITE "${page}" "${markdown}\n[Member](../api.hpp#L6)\n")
 run_cli(1 "no indexed declaration" check ${path_options})
 
 file(WRITE "${page}" "# Guide\n\nThe linked sections were removed.\n")
-run_cli(1 "approved section or its source links were removed" check ${path_options})
+run_cli(1 "approved section or its tracked links were removed" check ${path_options})
 run_cli(0 "Recorded review" approve ${path_options} guide.md "Guide / Header")
 run_interactive("y\n" "approve the removal.*Recorded review for guide.md / Guide / Result")
 run_cli(0 "Approved documentation sections: 0" check ${path_options})
@@ -141,13 +141,23 @@ run_cli(0 "Approved documentation sections: 1" check)
 set(navigation "${WORK_DIR}/navigation")
 file(MAKE_DIRECTORY "${navigation}/topics")
 file(WRITE "${navigation}/topics/README.md" "# More details\n")
-file(WRITE "${navigation}/topics/Build notes.md" [=[
-# Café *Build*!
+set(topic "${navigation}/topics/Build notes.md")
+set(topic_contents [=[
+# Notes
+
+## Café *Build*!
 First section.
+
+### Subsection
+Nested details.
 
 ## Café Build!
 Second section.
+
+## Other topic
+Unrelated details.
 ]=])
+file(WRITE "${topic}" "${topic_contents}")
 set(navigation_page [=[
 # Start here
 
@@ -161,16 +171,41 @@ set(navigation_page [=[
 ~~~markdown
 [Sample](missing.md)
 ~~~
+
+## Whole files
+
+[Build notes](topics/Build%20notes.md).
+[Full header](../api.hpp).
+[Topics directory](topics/).
 ]=])
 file(WRITE "${navigation}/README.md" "${navigation_page}")
-run_cli(0 "Approved documentation sections: 0" check --docs-dir navigation)
+run_cli(1 "approval required" check --docs-dir navigation)
+run_cli(0 "Recorded review for README.md" approve README.md --docs-dir navigation)
+run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
 
-file(RENAME "${navigation}/topics/Build notes.md" "${navigation}/topics/Getting started.md")
+string(REPLACE "Unrelated details." "Additional unrelated details." outside "${topic_contents}")
+file(WRITE "${topic}" "${outside}")
+run_cli(1 [=["Build notes": linked file changed: topics/Build%20notes[.]md]=] check --docs-dir navigation)
+run_cli(0 "Recorded review" approve README.md "Start here / Whole files" --docs-dir navigation)
+run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
+
+string(REPLACE "Nested details." "More nested details." nested "${outside}")
+file(WRITE "${topic}" "${nested}")
+run_cli(1 [=["Other page": linked section changed: topics/Build%20notes[.]md#caf%C3%A9-build]=]
+    check --docs-dir navigation)
+file(APPEND "${WORK_DIR}/api.hpp" "\n// A comment in the whole-file target.\n")
+run_cli(1 [=["Full header": linked file changed: ../api[.]hpp]=] check --docs-dir navigation)
+run_cli(0 "Recorded review for README.md" approve README.md --docs-dir navigation)
+run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
+
+file(RENAME "${topic}" "${navigation}/topics/Getting started.md")
 run_cli(1 [=[README[.]md:5: Start here: "Other page": local link target does not exist: topics/Build%20notes[.]md#caf%C3%A9-build]=]
     check --docs-dir navigation)
 string(REPLACE "Build%20notes.md" "Getting%20started.md" updated_navigation "${navigation_page}")
 file(WRITE "${navigation}/README.md" "${updated_navigation}")
-run_cli(0 "Approved documentation sections: 0" check --docs-dir navigation)
+run_cli(1 "approval lacks a fingerprint" check --docs-dir navigation)
+run_cli(0 "Recorded review for README.md" approve README.md --docs-dir navigation)
+run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
 
 file(WRITE "${navigation}/topics/Getting started.md" "# Setup\n")
 run_cli(1 [=[README[.]md:5: Start here: "Other page": Markdown heading not found: topics/Getting%20started[.]md#caf%C3%A9-build]=]

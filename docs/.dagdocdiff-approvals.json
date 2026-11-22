@@ -3,6 +3,88 @@
   "sections": [
     {
       "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "explanation/symbol-graphs.md": "5de1e4e12f4f4823c92164baf07449dc4aa5c7373a19648fcc77beb42ddd0f6a"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Dagdocdiff documentation / Explanation",
+      "symbols": {},
+      "text_hash": "476d7c1a49ba0ed4255e9183a60a5f8c3a70c7740ca0e00b2f52fa4bc2917738"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "how-to/build-release.md": "bb0ccf4d6f74ad2e26c8a3acddfe1ae6c8313af60be3d69fd092070e2dac1c6e",
+        "how-to/compare-revisions.md": "24e3e06cb99b3b3085eddf446977a43f232b988026faa47523cce2d64172651d",
+        "how-to/review-linked-docs.md": "6d02e9b026ce3b8a75cbf7f08025abadb2fb1cbc29084bfa0b58daca4e9a1c21",
+        "how-to/scan-repository.md": "9898288bf5a0873b9359bacd07d8bab6b0d1e5ed4b4085858a4384dc6537ac9e"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Dagdocdiff documentation / How-to guides",
+      "symbols": {},
+      "text_hash": "29169a3d5f13ac031bb7e43292b5966b7d6e9e88338f94c0c02ae65215a42fbd"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../README.md#build": "5e5825ffea97b34839accd41b102115f913bbd71e3ce6960b9b3ce30667758d5"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Dagdocdiff documentation / Published package",
+      "symbols": {},
+      "text_hash": "c6278cd954496cf389550e0ec6fa738ebe70f04e4e8d77e126bf873af1a77095"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "reference/cli.md": "431d48d9adb13801537b037fef6a9e6f50bf3c824bb72b09698c0c094faf53f1"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Dagdocdiff documentation / Reference",
+      "symbols": {},
+      "text_hash": "c4b2a0815f4ac1b8b5fd45062bb5c0c56a69a0dcc9a0e03ee615708bc44c3618"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "tutorials/first-diff.md": "fdb6c2d1604d659aa480cf4cdde3bca3647dfe5954235967f85b0c5622bde948",
+        "tutorials/first-doc-check.md": "869b0f01d79d802d90a94a8aebe9c06a206e8b223f25ceca4d53ed19c9d4d5a7"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Dagdocdiff documentation / Tutorials",
+      "symbols": {},
+      "text_hash": "9123079d7f16f238d704da5ca7379a1060731d013df96ae1de3d6152e865f828"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "symbol-graphs.md": "5de1e4e12f4f4823c92164baf07449dc4aa5c7373a19648fcc77beb42ddd0f6a"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "explanation/README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Explanation",
+      "symbols": {},
+      "text_hash": "37ef3ffb8db521315a31230e2f99d5c3e9d2918e12a0703a1befbc07e1a4d003"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
       "inputs": {
         "dagdocdiff::Change": "02e4c7ac73fdfdcfa16823bdc2e688a5df97255b6be115b1ea73ed7619cb7e93",
         "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
@@ -42,6 +124,52 @@
     },
     {
       "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "build-release.md": "bb0ccf4d6f74ad2e26c8a3acddfe1ae6c8313af60be3d69fd092070e2dac1c6e",
+        "compare-revisions.md": "24e3e06cb99b3b3085eddf446977a43f232b988026faa47523cce2d64172651d",
+        "review-linked-docs.md": "6d02e9b026ce3b8a75cbf7f08025abadb2fb1cbc29084bfa0b58daca4e9a1c21",
+        "scan-repository.md": "9898288bf5a0873b9359bacd07d8bab6b0d1e5ed4b4085858a4384dc6537ac9e"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "how-to/README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "How-to guides",
+      "symbols": {},
+      "text_hash": "a7da553c5590ee87804ea76277ca04b81b962e90624e002ec38210c589745f71"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../reference/cli.md#diff-output": "6baf58b24ec6cc408a27a407492b67579557b38053abfbe8589efe4c070ce554"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "how-to/compare-revisions.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Git revision comparison / Diff command and output",
+      "symbols": {},
+      "text_hash": "47d196d27edb20e541171643e304e7ef54aa9e0ccb78c0fc00d5e3c4005ddce6"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../reference/cli.md#source-links-and-approvals": "18633e6c672ce5cddc4d108ee51b825347eb4a23d3128fd0d81dd8ac5a3529f0",
+        "scan-repository.md": "9898288bf5a0873b9359bacd07d8bab6b0d1e5ed4b4085858a4384dc6537ac9e"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "how-to/review-linked-docs.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Code changes and linked docs",
+      "symbols": {},
+      "text_hash": "9dd135e5cce02b3fa6f9ed2d56bff3964f948a03d0a3d5fbdb809186cdc1b3cf"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../reference/cli.md#scan-output": "e0e8f2ccec619589be0a718cae6da78701ca9a9cabec30a98feb370973eb5512"
+      },
       "inputs": {
         "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
         "dagdocdiff::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
@@ -68,12 +196,25 @@
         ]
       },
       "page": "how-to/scan-repository.md",
-      "reason": "Codex verified the linked analyzer declaration and the descriptions of the symbol ID and source location fields.",
+      "reason": "Verified the local links and the content the referring page describes.",
       "section": "Dagdocdiff symbol index / Symbol IDs and locations",
       "symbols": {
         "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "1bd51d6f5bbf1d97d4de803e1038ab3af6332fa118acf439b9e31b07b54dfa67"
       },
       "text_hash": "08646fb2f116d290588f9038cb8e61d6f0389815a4b373e34eb8105d96fe5299"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "cli.md": "431d48d9adb13801537b037fef6a9e6f50bf3c824bb72b09698c0c094faf53f1"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "reference/README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Reference",
+      "symbols": {},
+      "text_hash": "18ed2ae2c19d6593dabf64f1e414b559a9660fb3e8fa7bf5ed3c598b692cc495"
     },
     {
       "clang_version": "clang version 23.1.0",
@@ -112,6 +253,24 @@
     },
     {
       "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "first-diff.md": "fdb6c2d1604d659aa480cf4cdde3bca3647dfe5954235967f85b0c5622bde948",
+        "first-doc-check.md": "869b0f01d79d802d90a94a8aebe9c06a206e8b223f25ceca4d53ed19c9d4d5a7"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "tutorials/README.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Tutorials",
+      "symbols": {},
+      "text_hash": "c0165de8dd5ebe545ea69a06a7c8d46a5787ddafb314016e6fc134cf216b902b"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../../examples/parcel-tracking/compile_commands.json": "fb4936b1e2bdaf6ef9e32a929f4053165d25e4433fd0609df260ba389e444d34",
+        "../../examples/parcel-tracking/delivery.md": "bd885bb762377d470265239d4b09adacf00de52591b902ec0b658828063c0f49"
+      },
       "inputs": {
         "delivery_estimate_days": "93ab29da30e004da0ac82af3f6bf6470d591f7082a05afba1b07b82b04d0e156",
         "depot_sorting_days": "620a9a8b808216bacd015b871eec9dac7277cb9d8811c436078276c199ee4fcb"
@@ -125,7 +284,7 @@
         ]
       },
       "page": "tutorials/first-diff.md",
-      "reason": "Verified the tutorial snippets and walkthrough against the starter files.",
+      "reason": "Verified the local links and the content the referring page describes.",
       "section": "Trace a change in a delivery estimate / The estimate and its guide",
       "symbols": {
         "delivery_estimate_days": "73d90910955af1f1754ac3738eb62287a335ce6968bb098205dd7e8593dc58e1",
@@ -135,6 +294,10 @@
     },
     {
       "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../../examples/photo-backup/compile_commands.json": "1331561b8366878277e750ed559aaaadea4be3fc227536fc0e7f7533d51d30ef",
+        "../../examples/photo-backup/retries.md": "a20421ac9c3618bffd2c29d7632e6c6d3b77517d21b56e4ac1845998ac4e8830"
+      },
       "inputs": {
         "retry_limit": "386dd76f451343e9400ab751f6ada681f4b48261746707abb7d74037ed68822e"
       },
@@ -144,12 +307,25 @@
         ]
       },
       "page": "tutorials/first-doc-check.md",
-      "reason": "Verified the tutorial snippets and walkthrough against the starter files.",
+      "reason": "Verified the local links and the content the referring page describes.",
       "section": "Change a retry limit and update its docs / A function and its guide",
       "symbols": {
         "retry_limit": "9a86cd81d9ccd79a31b43d9c0fde5f0bff69d41503fdd0b230740495ae9d8378"
       },
       "text_hash": "6da2dd0c76f16f113763aa0a561d951c1ac074c6ebd99078d857fa77b68dc30c"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "first-diff.md": "fdb6c2d1604d659aa480cf4cdde3bca3647dfe5954235967f85b0c5622bde948"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "tutorials/first-doc-check.md",
+      "reason": "Verified the local links and the content the referring page describes.",
+      "section": "Change a retry limit and update its docs / A recorded review of the change",
+      "symbols": {},
+      "text_hash": "729bfab06d562fe65bac4b6c8f89a3b2e8225acb30536f28d629680cba5af34d"
     }
   ]
 }

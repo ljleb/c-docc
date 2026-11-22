@@ -50,6 +50,10 @@ Link diagnostics include the link text and its line in the Markdown page. For co
 
 Relative paths start at the referring page. A link that starts with `/` starts at the source directory. Fix a broken navigation link by updating its destination.
 
+A whole-file link tracks the contents of the target file. A link to a heading in another page tracks that heading and its contents, including nested headings. Directory links without a heading and links within the current page check that the destination exists.
+
+When tracked contents change, Dagdocdiff reports the link in the referring page. Review that page and approve it again. Links to C and C++ declarations with a line anchor continue to track the symbol and its code dependencies.
+
 ## Common JSON fields
 
 | Field | Meaning |
@@ -94,7 +98,7 @@ Each entry in `changes` has an `id` and a `kind`. The entry has `before` or `aft
 | Anchor | One `#L<number>` anchor on the line that spells an indexed declaration name. |
 | Context | A Markdown link in the page body. A link inside a code block is example text. |
 
-The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
+The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores fingerprints of any linked files or headings and any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
 
 Passing only the page to `approve` updates all its linked sections and clears approvals for sections or links removed from that page. If any source link in the page fails to resolve, the command leaves the page's approvals as they were.
 

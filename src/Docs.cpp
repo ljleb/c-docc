@@ -33,7 +33,6 @@ using Hashes = std::map<std::string, std::string>;
 using Links = std::map<std::string, std::set<std::string>>;
 using Key = std::pair<std::string, std::string>;
 using Issues = std::vector<std::pair<unsigned, std::string>>;
-using MarkdownIssues = std::map<Key, Issues>;
 
 constexpr auto approvalName = ".dagdocdiff-approvals.json";
 
@@ -44,11 +43,13 @@ struct LinkOccurrence {
 };
 
 struct Section {
-    unsigned line;
+    unsigned line = 1;
     std::string textHash;
     Links links;
     Issues issues;
     std::vector<LinkOccurrence> occurrences;
+    Hashes fileLinks;
+    std::vector<LinkOccurrence> fileOccurrences;
 };
 
 struct Review {
@@ -58,6 +59,7 @@ struct Review {
     Links links;
     Hashes symbols;
     Hashes inputs;
+    Hashes fileLinks;
 
     bool operator==(const Review &) const = default;
 };
@@ -191,7 +193,29 @@ std::string headingSlug(llvm::StringRef heading) {
     return slug;
 }
 
-std::set<std::string> headingAnchors(cmark_node *tree) {
+std::vector<size_t> lineOffsets(llvm::StringRef text) {
+    std::vector<size_t> starts{0};
+    for (size_t i = 0; i < text.size(); ++i)
+        if (text[i] == '\n')
+            starts.push_back(i + 1);
+    return starts;
+}
+
+std::string contentFingerprint(llvm::StringRef path, llvm::StringRef text) {
+    Fingerprint hash("dagdocdiff.linked-content.v1");
+    hash.add(path);
+    hash.add(text);
+    return hash.finish();
+}
+
+Hashes headingFingerprints(llvm::StringRef path, llvm::StringRef text, cmark_node *tree) {
+    struct Heading {
+        int level;
+        size_t start;
+        std::string anchor;
+    };
+    const auto starts = lineOffsets(text);
+    std::vector<Heading> headings;
     std::set<std::string> anchors;
     std::map<std::string, unsigned> suffixes;
     std::unique_ptr<cmark_iter, decltype(&cmark_iter_free)> nodes(cmark_iter_new(tree), cmark_iter_free);
@@ -201,71 +225,98 @@ std::set<std::string> headingAnchors(cmark_node *tree) {
         if (event != CMARK_EVENT_ENTER || cmark_node_get_type(node) != CMARK_NODE_HEADING)
             continue;
         const auto slug = headingSlug(inlineText(node, " ", true));
-        if (slug.empty())
-            continue;
         auto anchor = slug;
-        while (!anchors.insert(anchor).second)
-            anchor = slug + "-" + std::to_string(++suffixes[slug]);
+        if (!anchor.empty()) {
+            while (!anchors.insert(anchor).second)
+                anchor = slug + "-" + std::to_string(++suffixes[slug]);
+        }
+        headings.push_back({cmark_node_get_heading_level(node),
+                            starts.at(cmark_node_get_start_line(node) - 1), std::move(anchor)});
     }
-    return anchors;
+
+    Hashes result;
+    for (auto heading = headings.begin(); heading != headings.end(); ++heading) {
+        if (heading->anchor.empty())
+            continue;
+        auto end = std::next(heading);
+        while (end != headings.end() && end->level > heading->level)
+            ++end;
+        const auto offset = end == headings.end() ? text.size() : end->start;
+        const auto contents = text.slice(heading->start, offset).rtrim();
+        result.emplace(heading->anchor, contentFingerprint(path, contents));
+    }
+    return result;
 }
 
 class MarkdownLinks {
 public:
     explicit MarkdownLinks(const fs::path &source) : source(source) {}
 
-    std::optional<std::string> issue(llvm::StringRef url, const fs::path &page) {
+    // An empty fingerprint means the link is valid and has no content dependency.
+    llvm::Expected<std::string> resolve(llvm::StringRef url, const fs::path &page) {
         const auto [destination, fragment] = url.split('#');
         const auto encodedPath = destination.split('?').first;
         if (encodedPath.starts_with("//") || encodedPath.split('/').first.contains(':'))
-            return std::nullopt;
+            return std::string{};
         const auto decoded = decodePath(encodedPath);
         if (!decoded)
-            return ("invalid encoding in local link: " + url).str();
+            return error("invalid encoding in local link: " + url);
 
         const fs::path path(*decoded);
         const auto base = path.is_absolute() ? source : page.parent_path();
         std::error_code ec;
         auto target = fs::weakly_canonical(path.empty() ? page : base / path.relative_path(), ec);
         if (ec || !inside(target, source))
-            return ("local link leaves the source directory or cannot be read: " + url).str();
+            return error("local link leaves the source directory or cannot be read: " + url);
         const auto status = fs::status(target, ec);
         if (!fs::exists(status))
-            return ("local link target does not exist: " + url).str();
-        if (fragment.empty())
-            return std::nullopt;
+            return error("local link target does not exist: " + url);
 
-        if (fs::is_directory(status)) {
+        if (fs::is_directory(status) && !fragment.empty()) {
             target = fs::weakly_canonical(target / "README.md", ec);
             if (ec || !inside(target, source) || !fs::is_regular_file(target, ec))
-                return ("local link directory has no Markdown index for the fragment: " + url).str();
-        } else if (!fs::is_regular_file(status) || !markdownFile(target)) {
-            return std::nullopt;
+                return error("local link directory has no Markdown index for the fragment: " + url);
+        } else if (!fs::is_regular_file(status) || (!fragment.empty() && !markdownFile(target))) {
+            return std::string{};
         }
-        const auto anchor = decodePath(fragment);
-        if (!anchor)
-            return ("invalid encoding in local link fragment: " + url).str();
+        const bool samePage = path.empty() || target == page;
+        if (fragment.empty() && samePage)
+            return std::string{};
 
-        auto found = anchors.find(target);
-        if (found == anchors.end()) {
+        auto found = files.find(target);
+        if (found == files.end()) {
             auto contents = llvm::MemoryBuffer::getFile(target.string());
             if (!contents)
-                return ("cannot read local Markdown link target: " + url).str();
+                return error("cannot read local link target: " + url);
             const auto text = (*contents)->getBuffer();
-            std::unique_ptr<cmark_node, decltype(&cmark_node_free)> tree(
-                cmark_parse_document(text.data(), text.size(), CMARK_OPT_DEFAULT), cmark_node_free);
-            found = anchors.emplace(target, headingAnchors(tree.get())).first;
+            const auto relative = target.lexically_relative(source).generic_string();
+            FileFingerprints fingerprints{contentFingerprint(relative, text), {}};
+            if (markdownFile(target)) {
+                std::unique_ptr<cmark_node, decltype(&cmark_node_free)> tree(
+                    cmark_parse_document(text.data(), text.size(), CMARK_OPT_DEFAULT), cmark_node_free);
+                fingerprints.headings = headingFingerprints(relative, text, tree.get());
+            }
+            found = files.emplace(target, std::move(fingerprints)).first;
         }
-        if (!found->second.contains(*anchor))
-            return ("Markdown heading not found: " + url).str();
-        return std::nullopt;
+        if (fragment.empty())
+            return found->second.whole;
+        const auto anchor = decodePath(fragment);
+        if (!anchor)
+            return error("invalid encoding in local link fragment: " + url);
+        const auto heading = found->second.headings.find(*anchor);
+        if (heading == found->second.headings.end())
+            return error("Markdown heading not found: " + url);
+        return samePage ? std::string{} : heading->second;
     }
 
-    MarkdownIssues issues;
-
 private:
+    struct FileFingerprints {
+        std::string whole;
+        Hashes headings;
+    };
+
     const fs::path &source;
-    std::map<fs::path, std::set<std::string>> anchors;
+    std::map<fs::path, FileFingerprints> files;
 };
 
 std::string linkMessage(llvm::StringRef text, llvm::StringRef message) {
@@ -285,7 +336,7 @@ unsigned linkLine(cmark_node *node, unsigned fallback) {
 
 void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
                   const fs::path &source, const Snapshot &snapshot, Section &section,
-                  llvm::function_ref<void(cmark_node *, unsigned)> checkLocalLink) {
+                  MarkdownLinks &markdown) {
     if (cmark_node_get_type(node) == CMARK_NODE_LINK) {
         const auto url = llvm::StringRef(cmark_node_get_url(node));
         auto ids = resolve(url, page, source, snapshot);
@@ -296,15 +347,22 @@ void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
             section.links.try_emplace(url.str(), std::move(*ids));
             section.occurrences.push_back({line, inlineText(node, " "), url.str()});
         } else {
-            checkLocalLink(node, line);
+            auto fingerprint = markdown.resolve(url, page);
+            if (!fingerprint) {
+                section.issues.emplace_back(line, linkMessage(inlineText(node, " "),
+                                                               llvm::toString(fingerprint.takeError())));
+            } else if (!fingerprint->empty()) {
+                section.fileLinks.try_emplace(url.str(), std::move(*fingerprint));
+                section.fileOccurrences.push_back({line, inlineText(node, " "), url.str()});
+            }
         }
     }
     for (auto *child = cmark_node_first_child(node); child; child = cmark_node_next(child))
-        collectLinks(child, blockLine, page, source, snapshot, section, checkLocalLink);
+        collectLinks(child, blockLine, page, source, snapshot, section, markdown);
 }
 
 llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path &source,
-                     const Snapshot &snapshot, Sections &sections, MarkdownLinks *markdown) {
+                     const Snapshot &snapshot, Sections &sections, MarkdownLinks &markdown) {
     auto file = llvm::MemoryBuffer::getFile(page.string());
     if (!file)
         return fileError(page, file.getError());
@@ -312,17 +370,13 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path 
     std::unique_ptr<cmark_node, decltype(&cmark_node_free)> tree(
         cmark_parse_document(text.data(), text.size(), CMARK_OPT_DEFAULT), cmark_node_free);
     const auto relative = page.lexically_relative(docs).generic_string();
-    std::vector<size_t> starts{0};
-    for (size_t i = 0; i < text.size(); ++i)
-        if (text[i] == '\n')
-            starts.push_back(i + 1);
-    starts.push_back(text.size());
+    const auto starts = lineOffsets(text);
 
     std::vector<std::pair<int, std::string>> headings;
     std::string name = "(preamble)";
-    Section section{1, {}, {}, {}, {}};
+    Section section;
     auto finish = [&](size_t end) -> llvm::Error {
-        if (section.links.empty() && section.issues.empty())
+        if (section.links.empty() && section.fileLinks.empty() && section.issues.empty())
             return llvm::Error::success();
         Fingerprint hash("dagdocdiff.doc-section.v1");
         hash.add(text.slice(starts.at(section.line - 1), end));
@@ -347,20 +401,16 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path 
                     name += " / ";
                 name += heading;
             }
-            section = Section{line, {}, {}, {}, {}};
+            section = Section{.line = line};
         }
-        collectLinks(block, line, page, source, snapshot, section, [&](cmark_node *node, unsigned linkLine) {
-            if (markdown) {
-                if (auto issue = markdown->issue(cmark_node_get_url(node), page))
-                    markdown->issues[{relative, name}].emplace_back(linkLine, linkMessage(inlineText(node, " "), *issue));
-            }
-        });
+        collectLinks(block, line, page, source, snapshot, section, markdown);
     }
     return finish(text.size());
 }
 
 llvm::Expected<Sections> readDocs(const fs::path &docs, const fs::path &source,
-                                 const Snapshot &snapshot, MarkdownLinks *markdown) {
+                                 const Snapshot &snapshot) {
+    MarkdownLinks markdown(source);
     std::error_code ec;
     Sections sections;
     for (fs::recursive_directory_iterator it(docs, ec), end; it != end && !ec; it.increment(ec)) {
@@ -433,10 +483,12 @@ llvm::Expected<Reviews> loadReviews(const fs::path &path) {
         const auto reason = entry->getString("reason");
         if (!page || !section || !text || !clang || !reason)
             return error("incomplete approval in " + path.string());
-        Review review{text->str(), clang->str(), reason->str(), {}, {}, {}};
+        Review review{text->str(), clang->str(), reason->str(), {}, {}, {}, {}};
+        const auto *fileLinks = entry->get("file_links");
         if (!readLinks(entry->getObject("links"), review.links) ||
             !readHashes(entry->getObject("symbols"), review.symbols) ||
             !readHashes(entry->getObject("inputs"), review.inputs) ||
+            (fileLinks && !readHashes(fileLinks->getAsObject(), review.fileLinks)) ||
             !result.try_emplace({page->str(), section->str()}, std::move(review)).second)
             return error("invalid or duplicate approval for " + *page + " / " + *section);
     }
@@ -456,12 +508,15 @@ llvm::Error saveReviews(const fs::path &path, const Reviews &reviews) {
         json::Object links;
         for (const auto &[url, ids] : review.links)
             links[url] = json::Array(std::vector<std::string>(ids.begin(), ids.end()));
-        sections.push_back(json::Object{
+        json::Object entry{
             {"page", key.first}, {"section", key.second}, {"text_hash", review.textHash},
             {"clang_version", review.clangVersion}, {"reason", review.reason},
             {"links", std::move(links)}, {"symbols", hashesJson(review.symbols)},
             {"inputs", hashesJson(review.inputs)}
-        });
+        };
+        if (!review.fileLinks.empty())
+            entry["file_links"] = hashesJson(review.fileLinks);
+        sections.push_back(std::move(entry));
     }
     auto temp = llvm::sys::fs::TempFile::create(path.string() + ".%%%%%%");
     if (!temp)
@@ -480,7 +535,8 @@ llvm::Error saveReviews(const fs::path &path, const Reviews &reviews) {
 }
 
 Review currentReview(const Section &section, const Snapshot &snapshot, llvm::StringRef reason) {
-    Review result{section.textHash, clang::getClangFullVersion(), reason.str(), section.links, {}, {}};
+    Review result{section.textHash, clang::getClangFullVersion(), reason.str(), section.links,
+                  {}, {}, section.fileLinks};
     std::vector<std::string> pending;
     for (const auto &[url, ids] : section.links) {
         for (const auto &id : ids) {
@@ -550,11 +606,10 @@ struct Inputs {
     fs::path docs;
     Snapshot snapshot;
     Sections sections;
-    MarkdownIssues markdownIssues;
 };
 
 llvm::Expected<Inputs> loadInputs(llvm::StringRef source, llvm::StringRef build,
-                                 llvm::StringRef docs, bool checkMarkdown = false) {
+                                 llvm::StringRef docs) {
     std::error_code ec;
     const auto root = fs::canonical(source.str(), ec);
     if (ec)
@@ -567,11 +622,10 @@ llvm::Expected<Inputs> loadInputs(llvm::StringRef source, llvm::StringRef build,
     auto snapshot = analyze(source, build);
     if (!snapshot)
         return snapshot.takeError();
-    MarkdownLinks markdown(root);
-    auto sections = readDocs(docsRoot, root, *snapshot, checkMarkdown ? &markdown : nullptr);
+    auto sections = readDocs(docsRoot, root, *snapshot);
     if (!sections)
         return sections.takeError();
-    return Inputs{docsRoot, std::move(*snapshot), std::move(*sections), std::move(markdown.issues)};
+    return Inputs{docsRoot, std::move(*snapshot), std::move(*sections)};
 }
 
 Issues reviewIssues(const Section &section, const Review &before, const Snapshot &snapshot) {
@@ -579,7 +633,7 @@ Issues reviewIssues(const Section &section, const Review &before, const Snapshot
     Issues issues;
     if (before.textHash != after.textHash)
         issues.emplace_back(section.line, "section text changed");
-    if (before.clangVersion != after.clangVersion)
+    if (!after.links.empty() && before.clangVersion != after.clangVersion)
         issues.emplace_back(section.line, "Clang version changed");
     if (before.links != after.links)
         issues.emplace_back(section.line, "source link targets changed");
@@ -604,6 +658,15 @@ Issues reviewIssues(const Section &section, const Review &before, const Snapshot
             const auto issue = symbolIssues.find(id);
             if (issue != symbolIssues.end())
                 issues.emplace_back(link.line, linkMessage(link.text, issue->second));
+        }
+    }
+    for (const auto &link : section.fileOccurrences) {
+        const auto previous = before.fileLinks.find(link.url);
+        if (previous == before.fileLinks.end()) {
+            issues.emplace_back(link.line, linkMessage(link.text, "approval lacks a fingerprint for " + link.url));
+        } else if (previous->second != after.fileLinks.at(link.url)) {
+            const auto kind = llvm::StringRef(link.url).split('#').second.empty() ? "file" : "section";
+            issues.emplace_back(link.line, linkMessage(link.text, "linked " + std::string(kind) + " changed: " + link.url));
         }
     }
     return issues;
@@ -633,7 +696,7 @@ std::vector<PendingReview> pendingReviews(const Inputs &inputs, const Reviews &r
     for (const auto &[key, review] : reviews) {
         if (!inputs.sections.contains(key)) {
             result.push_back({key, 0, nullptr,
-                              {{0, "approved section or its source links were removed; approve the removal"}}});
+                              {{0, "approved section or its tracked links were removed; approve the removal"}}});
         }
     }
     llvm::sort(result, [](const PendingReview &a, const PendingReview &b) {
@@ -706,7 +769,7 @@ Decision askForDecision() {
 } // namespace
 
 llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs) {
-    auto inputs = loadInputs(source, build, docs, true);
+    auto inputs = loadInputs(source, build, docs);
     if (!inputs)
         return inputs.takeError();
     auto reviews = loadReviews(inputs->docs / approvalName);
@@ -717,11 +780,7 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
         for (const auto &[line, message] : item.issues)
             report(item.key, line, message);
     }
-    for (const auto &[key, issues] : inputs->markdownIssues) {
-        for (const auto &[line, message] : issues)
-            report(key, line, message);
-    }
-    if (!pending.empty() || !inputs->markdownIssues.empty())
+    if (!pending.empty())
         return error("documentation needs review");
     std::vector<std::tuple<llvm::StringRef, unsigned, llvm::StringRef>> approved;
     approved.reserve(inputs->sections.size());
@@ -759,7 +818,7 @@ llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::Stri
             llvm::outs() << message << '\n';
         }
         if (item.section && !item.section->issues.empty()) {
-            llvm::outs() << "Fix the source links before approving this section.\n";
+            llvm::outs() << "Fix the broken links before approving this section.\n";
             continue;
         }
 
@@ -801,7 +860,7 @@ llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::Str
         replacements.emplace(key, currentReview(section, inputs->snapshot, reason.trim()));
     }
     if (blocked)
-        return error("resolve source links before approving this page");
+        return error("resolve links before approving this page");
 
     auto result = updateReviews(inputs->docs / approvalName, [&](Reviews &reviews) -> llvm::Error {
         const auto count = std::erase_if(reviews, [&](const auto &entry) {
@@ -830,7 +889,7 @@ llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::Str
         if (!current->second.issues.empty()) {
             for (const auto &[line, message] : current->second.issues)
                 report(key, line, message);
-            return error("resolve source links before approving this section");
+            return error("resolve links before approving this section");
         }
         review = currentReview(current->second, inputs->snapshot, reason.trim());
     }
