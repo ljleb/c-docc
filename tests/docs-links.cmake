@@ -18,6 +18,7 @@ function(run_interactive answers expected)
     endif()
 endfunction()
 
+file(REMOVE_RECURSE "${WORK_DIR}/navigation")
 file(MAKE_DIRECTORY "${WORK_DIR}/docs" "${WORK_DIR}/build")
 file(REMOVE "${WORK_DIR}/docs/.dagdocdiff-approvals.json"
     "${WORK_DIR}/.dagdocdiff-approvals.json" "${WORK_DIR}/compile_commands.json")
@@ -136,3 +137,41 @@ file(WRITE "${WORK_DIR}/local.md" "# Local\n\n[Parse integer input](api.hpp#L2).
 run_cli(1 "approval required" check)
 run_cli(0 "Recorded review for local.md / Local" approve local.md Local)
 run_cli(0 "Approved documentation sections: 1" check)
+
+set(navigation "${WORK_DIR}/navigation")
+file(MAKE_DIRECTORY "${navigation}/topics")
+file(WRITE "${navigation}/topics/README.md" "# More details\n")
+file(WRITE "${navigation}/topics/Build notes.md" [=[
+# Café *Build*!
+First section.
+
+## Café Build!
+Second section.
+]=])
+set(navigation_page [=[
+# Start here
+
+[Same page](#start-here).
+[Directory index](topics/#more-details).
+[Other page](topics/Build%20notes.md#caf%C3%A9-build).
+[Duplicate heading](topics/Build%20notes.md#caf%C3%A9-build-1).
+[Project-root link](/local.md#local).
+[External link](https://example.invalid/not.md#missing).
+
+~~~markdown
+[Sample](missing.md)
+~~~
+]=])
+file(WRITE "${navigation}/README.md" "${navigation_page}")
+run_cli(0 "Approved documentation sections: 0" check --docs-dir navigation)
+
+file(RENAME "${navigation}/topics/Build notes.md" "${navigation}/topics/Getting started.md")
+run_cli(1 [=[README[.]md:5: Start here: "Other page": local link target does not exist: topics/Build%20notes[.]md#caf%C3%A9-build]=]
+    check --docs-dir navigation)
+string(REPLACE "Build%20notes.md" "Getting%20started.md" updated_navigation "${navigation_page}")
+file(WRITE "${navigation}/README.md" "${updated_navigation}")
+run_cli(0 "Approved documentation sections: 0" check --docs-dir navigation)
+
+file(WRITE "${navigation}/topics/Getting started.md" "# Setup\n")
+run_cli(1 [=[README[.]md:5: Start here: "Other page": Markdown heading not found: topics/Getting%20started[.]md#caf%C3%A9-build]=]
+    check --docs-dir navigation)

@@ -11,6 +11,7 @@
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/raw_ostream.h"
 #include <cmark.h>
+#include <utf8proc.h>
 
 #include <deque>
 #include <filesystem>
@@ -32,6 +33,7 @@ using Hashes = std::map<std::string, std::string>;
 using Links = std::map<std::string, std::set<std::string>>;
 using Key = std::pair<std::string, std::string>;
 using Issues = std::vector<std::pair<unsigned, std::string>>;
+using MarkdownIssues = std::map<Key, Issues>;
 
 constexpr auto approvalName = ".dagdocdiff-approvals.json";
 
@@ -143,17 +145,128 @@ llvm::Expected<std::set<std::string>> resolve(llvm::StringRef url, const fs::pat
     return match->second;
 }
 
-std::string inlineText(cmark_node *node, llvm::StringRef lineBreak = "") {
+std::string inlineText(cmark_node *node, llvm::StringRef lineBreak = "", bool omitHtml = false) {
     const auto type = cmark_node_get_type(node);
     if (type == CMARK_NODE_SOFTBREAK || type == CMARK_NODE_LINEBREAK)
         return lineBreak.str();
+    if (omitHtml && type == CMARK_NODE_HTML_INLINE)
+        return {};
     std::string result;
     if (auto *text = cmark_node_get_literal(node))
         result = text;
     for (auto *child = cmark_node_first_child(node); child; child = cmark_node_next(child))
-        result += inlineText(child, lineBreak);
+        result += inlineText(child, lineBreak, omitHtml);
     return result;
 }
+
+bool markdownFile(const fs::path &path) {
+    const auto extension = path.extension().string();
+    const auto ext = llvm::StringRef(extension);
+    return ext.equals_insensitive(".md") || ext.equals_insensitive(".markdown");
+}
+
+std::string headingSlug(llvm::StringRef heading) {
+    std::string slug;
+    heading = heading.trim();
+    while (!heading.empty()) {
+        utf8proc_int32_t character;
+        const auto size = utf8proc_iterate(
+            reinterpret_cast<const utf8proc_uint8_t *>(heading.data()), heading.size(), &character);
+        if (size < 0) {
+            heading = heading.drop_front();
+            continue;
+        }
+        heading = heading.drop_front(size);
+        if (character == ' ' || character == '-' || character == '_') {
+            slug += character == ' ' ? '-' : static_cast<char>(character);
+            continue;
+        }
+        const auto category = utf8proc_category(character);
+        if (category >= UTF8PROC_CATEGORY_LU && category <= UTF8PROC_CATEGORY_NO) {
+            utf8proc_uint8_t bytes[4];
+            const auto length = utf8proc_encode_char(utf8proc_tolower(character), bytes);
+            slug.append(reinterpret_cast<const char *>(bytes), length);
+        }
+    }
+    return slug;
+}
+
+std::set<std::string> headingAnchors(cmark_node *tree) {
+    std::set<std::string> anchors;
+    std::map<std::string, unsigned> suffixes;
+    std::unique_ptr<cmark_iter, decltype(&cmark_iter_free)> nodes(cmark_iter_new(tree), cmark_iter_free);
+    for (auto event = cmark_iter_next(nodes.get()); event != CMARK_EVENT_DONE;
+         event = cmark_iter_next(nodes.get())) {
+        auto *node = cmark_iter_get_node(nodes.get());
+        if (event != CMARK_EVENT_ENTER || cmark_node_get_type(node) != CMARK_NODE_HEADING)
+            continue;
+        const auto slug = headingSlug(inlineText(node, " ", true));
+        if (slug.empty())
+            continue;
+        auto anchor = slug;
+        while (!anchors.insert(anchor).second)
+            anchor = slug + "-" + std::to_string(++suffixes[slug]);
+    }
+    return anchors;
+}
+
+class MarkdownLinks {
+public:
+    explicit MarkdownLinks(const fs::path &source) : source(source) {}
+
+    std::optional<std::string> issue(llvm::StringRef url, const fs::path &page) {
+        const auto [destination, fragment] = url.split('#');
+        const auto encodedPath = destination.split('?').first;
+        if (encodedPath.starts_with("//") || encodedPath.split('/').first.contains(':'))
+            return std::nullopt;
+        const auto decoded = decodePath(encodedPath);
+        if (!decoded)
+            return ("invalid encoding in local link: " + url).str();
+
+        const fs::path path(*decoded);
+        const auto base = path.is_absolute() ? source : page.parent_path();
+        std::error_code ec;
+        auto target = fs::weakly_canonical(path.empty() ? page : base / path.relative_path(), ec);
+        if (ec || !inside(target, source))
+            return ("local link leaves the source directory or cannot be read: " + url).str();
+        const auto status = fs::status(target, ec);
+        if (!fs::exists(status))
+            return ("local link target does not exist: " + url).str();
+        if (fragment.empty())
+            return std::nullopt;
+
+        if (fs::is_directory(status)) {
+            target = fs::weakly_canonical(target / "README.md", ec);
+            if (ec || !inside(target, source) || !fs::is_regular_file(target, ec))
+                return ("local link directory has no Markdown index for the fragment: " + url).str();
+        } else if (!fs::is_regular_file(status) || !markdownFile(target)) {
+            return std::nullopt;
+        }
+        const auto anchor = decodePath(fragment);
+        if (!anchor)
+            return ("invalid encoding in local link fragment: " + url).str();
+
+        auto found = anchors.find(target);
+        if (found == anchors.end()) {
+            auto contents = llvm::MemoryBuffer::getFile(target.string());
+            if (!contents)
+                return ("cannot read local Markdown link target: " + url).str();
+            const auto text = (*contents)->getBuffer();
+            std::unique_ptr<cmark_node, decltype(&cmark_node_free)> tree(
+                cmark_parse_document(text.data(), text.size(), CMARK_OPT_DEFAULT), cmark_node_free);
+            found = anchors.emplace(target, headingAnchors(tree.get())).first;
+        }
+        if (!found->second.contains(*anchor))
+            return ("Markdown heading not found: " + url).str();
+        return std::nullopt;
+    }
+
+    MarkdownIssues issues;
+
+private:
+    const fs::path &source;
+    std::map<fs::path, std::set<std::string>> anchors;
+};
 
 std::string linkMessage(llvm::StringRef text, llvm::StringRef message) {
     return llvm::formatv("{0}: {1}", json::Value(text), message).str();
@@ -171,7 +284,8 @@ unsigned linkLine(cmark_node *node, unsigned fallback) {
 }
 
 void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
-                  const fs::path &source, const Snapshot &snapshot, Section &section) {
+                  const fs::path &source, const Snapshot &snapshot, Section &section,
+                  llvm::function_ref<void(cmark_node *, unsigned)> checkLocalLink) {
     if (cmark_node_get_type(node) == CMARK_NODE_LINK) {
         const auto url = llvm::StringRef(cmark_node_get_url(node));
         auto ids = resolve(url, page, source, snapshot);
@@ -181,14 +295,16 @@ void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
         } else if (!ids->empty()) {
             section.links.try_emplace(url.str(), std::move(*ids));
             section.occurrences.push_back({line, inlineText(node, " "), url.str()});
+        } else {
+            checkLocalLink(node, line);
         }
     }
     for (auto *child = cmark_node_first_child(node); child; child = cmark_node_next(child))
-        collectLinks(child, blockLine, page, source, snapshot, section);
+        collectLinks(child, blockLine, page, source, snapshot, section, checkLocalLink);
 }
 
 llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path &source,
-                     const Snapshot &snapshot, Sections &sections) {
+                     const Snapshot &snapshot, Sections &sections, MarkdownLinks *markdown) {
     auto file = llvm::MemoryBuffer::getFile(page.string());
     if (!file)
         return fileError(page, file.getError());
@@ -233,18 +349,23 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path 
             }
             section = Section{line, {}, {}, {}, {}};
         }
-        collectLinks(block, line, page, source, snapshot, section);
+        collectLinks(block, line, page, source, snapshot, section, [&](cmark_node *node, unsigned linkLine) {
+            if (markdown) {
+                if (auto issue = markdown->issue(cmark_node_get_url(node), page))
+                    markdown->issues[{relative, name}].emplace_back(linkLine, linkMessage(inlineText(node, " "), *issue));
+            }
+        });
     }
     return finish(text.size());
 }
 
 llvm::Expected<Sections> readDocs(const fs::path &docs, const fs::path &source,
-                                 const Snapshot &snapshot) {
+                                 const Snapshot &snapshot, MarkdownLinks *markdown) {
     std::error_code ec;
     Sections sections;
     for (fs::recursive_directory_iterator it(docs, ec), end; it != end && !ec; it.increment(ec)) {
-        if (it->is_regular_file(ec) && it->path().extension() == ".md") {
-            if (auto result = readPage(it->path(), docs, source, snapshot, sections))
+        if (it->is_regular_file(ec) && markdownFile(it->path())) {
+            if (auto result = readPage(it->path(), docs, source, snapshot, sections, markdown))
                 return std::move(result);
         }
         if (ec)
@@ -429,10 +550,11 @@ struct Inputs {
     fs::path docs;
     Snapshot snapshot;
     Sections sections;
+    MarkdownIssues markdownIssues;
 };
 
 llvm::Expected<Inputs> loadInputs(llvm::StringRef source, llvm::StringRef build,
-                                 llvm::StringRef docs) {
+                                 llvm::StringRef docs, bool checkMarkdown = false) {
     std::error_code ec;
     const auto root = fs::canonical(source.str(), ec);
     if (ec)
@@ -445,10 +567,11 @@ llvm::Expected<Inputs> loadInputs(llvm::StringRef source, llvm::StringRef build,
     auto snapshot = analyze(source, build);
     if (!snapshot)
         return snapshot.takeError();
-    auto sections = readDocs(docsRoot, root, *snapshot);
+    MarkdownLinks markdown(root);
+    auto sections = readDocs(docsRoot, root, *snapshot, checkMarkdown ? &markdown : nullptr);
     if (!sections)
         return sections.takeError();
-    return Inputs{docsRoot, std::move(*snapshot), std::move(*sections)};
+    return Inputs{docsRoot, std::move(*snapshot), std::move(*sections), std::move(markdown.issues)};
 }
 
 Issues reviewIssues(const Section &section, const Review &before, const Snapshot &snapshot) {
@@ -583,7 +706,7 @@ Decision askForDecision() {
 } // namespace
 
 llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs) {
-    auto inputs = loadInputs(source, build, docs);
+    auto inputs = loadInputs(source, build, docs, true);
     if (!inputs)
         return inputs.takeError();
     auto reviews = loadReviews(inputs->docs / approvalName);
@@ -594,7 +717,11 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
         for (const auto &[line, message] : item.issues)
             report(item.key, line, message);
     }
-    if (!pending.empty())
+    for (const auto &[key, issues] : inputs->markdownIssues) {
+        for (const auto &[line, message] : issues)
+            report(key, line, message);
+    }
+    if (!pending.empty() || !inputs->markdownIssues.empty())
         return error("documentation needs review");
     std::vector<std::tuple<llvm::StringRef, unsigned, llvm::StringRef>> approved;
     approved.reserve(inputs->sections.size());

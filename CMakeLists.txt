@@ -5,6 +5,8 @@ project(dagdocdiff VERSION ${DAGDOCDIFF_VERSION} LANGUAGES C CXX)
 
 find_path(CMARK_INCLUDE_DIR NAMES cmark.h REQUIRED)
 find_library(CMARK_LIBRARY NAMES cmark REQUIRED)
+find_path(UTF8PROC_INCLUDE_DIR NAMES utf8proc.h REQUIRED)
+find_library(UTF8PROC_LIBRARY NAMES utf8proc REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION MATCHES "^${LLVM_VERSION_MAJOR}[.]")
@@ -24,9 +26,9 @@ target_compile_features(dagdocdiff PRIVATE cxx_std_20)
 # Keep these paths in compile_commands.json when the Nix wrapper adds them implicitly.
 list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS})
 target_include_directories(dagdocdiff SYSTEM PRIVATE ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS})
-target_include_directories(dagdocdiff SYSTEM PRIVATE "${CMARK_INCLUDE_DIR}")
-list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "${CMARK_INCLUDE_DIR}")
-target_link_libraries(dagdocdiff PRIVATE "${CMARK_LIBRARY}")
+target_include_directories(dagdocdiff SYSTEM PRIVATE "${CMARK_INCLUDE_DIR}" "${UTF8PROC_INCLUDE_DIR}")
+list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "${CMARK_INCLUDE_DIR}" "${UTF8PROC_INCLUDE_DIR}")
+target_link_libraries(dagdocdiff PRIVATE "${CMARK_LIBRARY}" "${UTF8PROC_LIBRARY}")
 target_compile_definitions(dagdocdiff PRIVATE
     DAGDOCDIFF_RESOURCE_DIR="${DAGDOCDIFF_RESOURCE_DIR}"
     DAGDOCDIFF_VERSION="${PROJECT_VERSION}"

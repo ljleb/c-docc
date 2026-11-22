@@ -16,6 +16,7 @@
           buildTools = [ pkgs.cmake pkgs.ninja llvm.clang ];
           libraries = [
             pkgs.cmark
+            pkgs.utf8proc
             (pkgs.lib.getDev llvm.llvm)
             llvm.libclang
             (pkgs.lib.getDev llvm.clang-unwrapped)

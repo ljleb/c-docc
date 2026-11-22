@@ -10,7 +10,7 @@ This reference covers the CLI built from this checkout. Scan and diff output use
 | `dagdocdiff --version` | Prints the executable's version. |
 | `dagdocdiff scan <source-root> <build-dir>` | Prints the symbols and findings for one snapshot. |
 | `dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>` | Prints changes and findings for two snapshots. |
-| `dagdocdiff check [options]` | Checks source links and recorded reviews in Markdown. |
+| `dagdocdiff check [options]` | Checks local links and recorded reviews in Markdown. |
 | `dagdocdiff approve [options]` | Prompts for each section that needs approval. |
 | `dagdocdiff approve <page> [options]` | Records a review of all linked sections in a Markdown file. |
 | `dagdocdiff approve <page> <section> [options]` | Records an explicit review of one section. |
@@ -43,6 +43,12 @@ The directory options for `check` and `approve` default to the current directory
 Scan and diff write JSON to standard output. A successful `check` writes the count and lists each approved section by page, line, and heading. Clang diagnostics and issues reported by `check` go to standard error.
 
 Link diagnostics include the link text and its line in the Markdown page. For code changes, the dependency path ends with the changed definition’s file and line when available. The source path is relative to `--source-dir`.
+
+## Local Markdown links
+
+`check` reports local links whose destination file or directory is missing. A fragment in a Markdown link must match a heading anchor. Dagdocdiff also checks fragments in the current page and in a directory's `README.md`. It uses GitHub-style heading anchors, including the numeric suffixes for repeated headings.
+
+Relative paths start at the referring page. A link that starts with `/` starts at the source directory. Fix a broken navigation link by updating its destination.
 
 ## Common JSON fields
 
