@@ -52,7 +52,7 @@ Relative paths start at the referring page. A link that starts with `/` starts a
 
 A whole-file link tracks the contents of the target file. A link to a heading in another page tracks that heading and its contents, including nested headings. Directory links without a heading and links within the current page check that the destination exists.
 
-When tracked contents change, Dagdocdiff reports the link in the referring page. Review that page and approve it again. Links to C and C++ declarations with a line anchor continue to track the symbol and its code dependencies.
+When tracked contents change, Dagdocdiff reports the link in the referring page. Review that page and approve it again.
 
 ## Common JSON fields
 
@@ -66,7 +66,7 @@ A location object has a path in `file`, relative to the source root, and one-bas
 
 ## Scan output
 
-[`analyze`](../../src/Analyzer.cpp#L424) produces the symbols and findings for the given source root and build directory. The scan response contains `symbols`, `findings`, and `declarations`. Each declaration has a `location` and an array of `ids`.
+[`analyze`](../../src/Analyzer.cpp#L459) produces the symbols and findings for the given source root and build directory. The scan response contains `symbols`, `findings`, and `declarations`. Each declaration has a `location` and an array of `ids`.
 
 | Symbol field | Meaning |
 | --- | --- |
@@ -95,10 +95,14 @@ Each entry in `changes` has an `id` and a `kind`. The entry has `before` or `aft
 | Link property | Accepted value |
 | --- | --- |
 | Path | A C or C++ source or header path inside the source root, relative to the Markdown page. |
-| Anchor | One `#L<number>` anchor on the line that spells an indexed declaration name. |
+| Anchor | `#L<number>` for one line or `#L<first>-L<last>` for an inclusive range. |
 | Context | A Markdown link in the page body. A link inside a code block is example text. |
 
-The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores fingerprints of any linked files or headings and any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
+A declaration without a body tracks its own tokens. Changing the definition elsewhere leaves that link current. Any line from a function definition's signature through its closing brace tracks the function and its dependencies. A link on a class definition's name line tracks the class definition.
+
+A range combines the declarations and definitions it touches. Each dependency is tracked once, and uncovered lines are tracked as plain text. You can use a range with the same start and end line to track multiple declarations on one line.
+
+The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores fingerprints of linked declarations, source text, files, or Markdown headings and any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
 
 Passing only the page to `approve` updates all its linked sections and clears approvals for sections or links removed from that page. If any source link in the page fails to resolve, the command leaves the page's approvals as they were.
 

@@ -18,7 +18,7 @@ function(run_interactive answers expected)
     endif()
 endfunction()
 
-file(REMOVE_RECURSE "${WORK_DIR}/navigation")
+file(REMOVE_RECURSE "${WORK_DIR}/navigation" "${WORK_DIR}/ranges")
 file(MAKE_DIRECTORY "${WORK_DIR}/docs" "${WORK_DIR}/build")
 file(REMOVE "${WORK_DIR}/docs/.dagdocdiff-approvals.json"
     "${WORK_DIR}/.dagdocdiff-approvals.json" "${WORK_DIR}/compile_commands.json")
@@ -102,7 +102,7 @@ run_interactive("" "No sections need approval")
 
 string(REPLACE "int parse(int);\nint parse(double);" "int parse(double);\nint parse(int);" swapped "${changed}")
 file(WRITE "${WORK_DIR}/api.hpp" "${swapped}")
-run_cli(1 [=["Parse integer input": .* now resolves to .* previously demo::parse]=] check ${path_options})
+run_cli(1 [=["Parse integer input": declaration changed: ../api[.]hpp#L2]=] check ${path_options})
 file(WRITE "${WORK_DIR}/api.hpp" "${changed}")
 
 file(APPEND "${WORK_DIR}/a.cpp" "int x() { return 0; } int y() { return 0; }\n")
@@ -115,10 +115,12 @@ file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" after)
 if(NOT before STREQUAL after)
     message(FATAL_ERROR "Approving a page with a broken link changed its approvals")
 endif()
-file(WRITE "${page}" "${markdown}\n[Body](../a.cpp#L5)\n")
-run_cli(1 "no indexed declaration" check ${path_options})
-file(WRITE "${page}" "${markdown}\n[Member](../api.hpp#L6)\n")
-run_cli(1 "no indexed declaration" check ${path_options})
+file(WRITE "${page}" "${markdown}\n[Both functions](../a.cpp#L7-L7)\n")
+run_cli(0 "Recorded review for guide.md" approve guide.md ${path_options})
+run_cli(0 "Approved documentation sections: 2" check ${path_options})
+file(WRITE "${page}" "${markdown}\n[Body](../a.cpp#L5)\n[Member](../api.hpp#L6)\n")
+run_cli(0 "Recorded review for guide.md" approve guide.md ${path_options})
+run_cli(0 "Approved documentation sections: 2" check ${path_options})
 
 file(WRITE "${page}" "# Guide\n\nThe linked sections were removed.\n")
 run_cli(1 "approved section or its tracked links were removed" check ${path_options})
@@ -210,3 +212,75 @@ run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
 file(WRITE "${navigation}/topics/Getting started.md" "# Setup\n")
 run_cli(1 [=[README[.]md:5: Start here: "Other page": Markdown heading not found: topics/Getting%20started[.]md#caf%C3%A9-build]=]
     check --docs-dir navigation)
+
+set(ranges "${WORK_DIR}/ranges")
+file(MAKE_DIRECTORY "${ranges}/docs")
+set(span_source [=[
+struct Value;
+int helper(int value);
+int first();
+
+int helper(int value)
+{
+    return value + 1;
+}
+
+int first()
+{
+    return helper(2);
+}
+// Range context.
+int second()
+{
+    return 4;
+}
+]=])
+set(span_page [=[
+# Source links
+
+## Declarations
+[Prototype](../spans.cpp#L2).
+[Forward declaration with no definition](../spans.cpp#L1).
+
+## Definition
+[Body](../spans.cpp#L12).
+[Closing brace](../spans.cpp#L13).
+
+## Range
+[Across functions](../spans.cpp#L12-L16).
+]=])
+file(WRITE "${ranges}/spans.cpp" "${span_source}")
+file(WRITE "${ranges}/docs/guide.md" "${span_page}")
+file(WRITE "${ranges}/compile_commands.json"
+    "[{\"directory\":\"${ranges}\",\"file\":\"${ranges}/spans.cpp\",\"arguments\":[\"${CLANG}\",\"-std=c++20\",\"-c\",\"${ranges}/spans.cpp\"]}]")
+set(span_options --source-dir "${ranges}" --build-dir "${ranges}" --docs-dir "${ranges}/docs")
+run_cli(0 "Recorded review for guide.md" approve guide.md ${span_options})
+run_cli(0 "Approved documentation sections: 3" check ${span_options})
+
+string(REPLACE "return value + 1;" "return value + 2;" implementation "${span_source}")
+file(WRITE "${ranges}/spans.cpp" "${implementation}")
+run_cli(1 [=["Body": code changed: first[(][)] -> helper[(]int[)].*"Closing brace": code changed: first[(][)] -> helper[(]int[)]]=]
+    check ${span_options})
+run_cli(0 "Recorded review" approve guide.md "Source links / Definition" ${span_options})
+run_cli(0 "Recorded review" approve guide.md "Source links / Range" ${span_options})
+run_cli(0 "Approved documentation sections: 3" check ${span_options})
+
+string(REPLACE "helper(int value);" "helper(int number);" declaration "${implementation}")
+file(WRITE "${ranges}/spans.cpp" "${declaration}")
+run_cli(1 [=["Prototype": declaration changed: ../spans[.]cpp#L2]=] check ${span_options})
+run_cli(0 "Recorded review" approve guide.md "Source links / Declarations" ${span_options})
+run_cli(0 "Approved documentation sections: 3" check ${span_options})
+
+string(REPLACE "return 4;" "return 5;" second "${declaration}")
+file(WRITE "${ranges}/spans.cpp" "${second}")
+run_cli(1 [=["Across functions": code changed: second[(][)]]=] check ${span_options})
+run_cli(0 "Recorded review" approve guide.md "Source links / Range" ${span_options})
+string(REPLACE "// Range context." "// Updated range context." context "${second}")
+file(WRITE "${ranges}/spans.cpp" "${context}")
+run_cli(1 [=["Across functions": source text changed: ../spans[.]cpp#L12-L16]=] check ${span_options})
+run_cli(0 "Recorded review" approve guide.md "Source links / Range" ${span_options})
+run_cli(0 "Approved documentation sections: 3" check ${span_options})
+
+file(APPEND "${ranges}/docs/guide.md" "\n[Reversed](../spans.cpp#L12-L10).\n[Past EOF](../spans.cpp#L12-L100).\n")
+run_cli(1 [=["Reversed": expected a source link.*"Past EOF": source link goes beyond the end of the file]=]
+    check ${span_options})

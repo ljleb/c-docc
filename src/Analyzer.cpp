@@ -251,9 +251,37 @@ public:
         return RecursiveASTVisitor<Definitions>::TraverseDecl(decl);
     }
 
-    void indexDeclaration(const NamedDecl &decl, const std::string &id) {
-        if (!decl.getLocation().isMacroID() && !decl.getLexicalDeclContext()->isRecord())
-            unit_.snapshot.declarations[unit_.location(decl.getLocation())].insert(id);
+    void indexDeclaration(const NamedDecl &decl, const std::string &id, bool definition) {
+        if (decl.getLocation().isMacroID())
+            return;
+        const bool inRecord = decl.getLexicalDeclContext()->isRecord();
+        const auto name = unit_.location(decl.getLocation());
+        if (!inRecord)
+            unit_.snapshot.declarations[name].insert(id);
+        const bool function = isa<FunctionDecl>(decl);
+        if (inRecord && !function)
+            return;
+
+        // Record definitions keep their name-line anchors. A method inside a
+        // class still gets the span of its own declaration or definition.
+        auto begin = name;
+        auto end = name;
+        if (function || !definition) {
+            auto first = unit_.location(decl.getBeginLoc());
+            auto last = unit_.location(decl.getEndLoc());
+            if (first.file == name.file && last.file == name.file && first.line <= last.line) {
+                begin = std::move(first);
+                end = std::move(last);
+            }
+        }
+        const SourceSpan span{std::move(begin), end.line, name.line, name.column};
+        if (definition) {
+            unit_.snapshot.sourceSpans[span].definitions.insert(id);
+        } else {
+            auto hash = tokenFingerprint(decl, "dagdocdiff.source-declaration.v1");
+            if (!hash.empty())
+                unit_.snapshot.sourceSpans[span].declarations[id].insert(std::move(hash));
+        }
     }
 
     bool VisitFunctionDecl(FunctionDecl *decl) {
@@ -268,7 +296,7 @@ public:
                                                   decl->getQualifiedNameAsString());
             return true;
         }
-        indexDeclaration(*decl, id);
+        indexDeclaration(*decl, id, definition);
         if (!definition)
             return true;
         Dependencies dependencies(unit_);
@@ -288,7 +316,7 @@ public:
                 unit_.note(decl->getLocation(), "unsupported record definition");
             return true;
         }
-        indexDeclaration(*decl, id);
+        indexDeclaration(*decl, id, definition);
         if (!definition)
             return true;
         Dependencies dependencies(unit_);
@@ -302,21 +330,28 @@ public:
     }
 
 private:
-    bool add(const NamedDecl &decl, std::string id, std::string kind,
-             std::set<Dependency> dependencies) {
+    std::string tokenFingerprint(const NamedDecl &decl, llvm::StringRef domain) {
         const auto tokens = unit_.tokens.expandedTokens(decl.getSourceRange());
-        if (tokens.empty()) {
-            unit_.note(decl.getLocation(), "no expanded tokens for " + id);
-            return true;
-        }
+        if (tokens.empty())
+            return {};
         const auto &sources = unit_.context.getSourceManager();
-        Fingerprint hash("dagdocdiff.source.v1");
+        Fingerprint hash(domain);
         for (const auto &token : tokens) {
             hash.add(tok::getTokenName(token.kind()));
             hash.add(token.text(sources));
         }
+        return hash.finish();
+    }
+
+    bool add(const NamedDecl &decl, std::string id, std::string kind,
+             std::set<Dependency> dependencies) {
+        auto hash = tokenFingerprint(decl, "dagdocdiff.source.v1");
+        if (hash.empty()) {
+            unit_.note(decl.getLocation(), "no expanded tokens for " + id);
+            return true;
+        }
         auto definition = unit_.location(decl.getLocation());
-        Symbol symbol{std::move(kind), std::move(definition), hash.finish(), std::move(dependencies), {}};
+        Symbol symbol{std::move(kind), std::move(definition), std::move(hash), std::move(dependencies), {}};
         auto [it, inserted] = unit_.snapshot.symbols.try_emplace(id, std::move(symbol));
         if (inserted)
             return true;

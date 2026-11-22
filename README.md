@@ -19,4 +19,4 @@ The [documentation](docs/README.md) includes tutorials, how-to guides, explanati
 
 ## Roadmap
 
-The [roadmap](ROADMAP.md) covers current scope and planned work.
+The [roadmap](ROADMAP.md) lists planned work.

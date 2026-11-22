@@ -13,6 +13,7 @@
 #include <cmark.h>
 #include <utf8proc.h>
 
+#include <algorithm>
 #include <deque>
 #include <filesystem>
 #include <iostream>
@@ -49,6 +50,8 @@ struct Section {
     Issues issues;
     std::vector<LinkOccurrence> occurrences;
     Hashes fileLinks;
+    Hashes declarationLinks;
+    Hashes sourceTextLinks;
     std::vector<LinkOccurrence> fileOccurrences;
 };
 
@@ -60,6 +63,8 @@ struct Review {
     Hashes symbols;
     Hashes inputs;
     Hashes fileLinks;
+    Hashes declarationLinks;
+    Hashes sourceTextLinks;
 
     bool operator==(const Review &) const = default;
 };
@@ -111,41 +116,136 @@ bool sourceFile(const fs::path &path) {
     return extensions.contains(path.extension());
 }
 
-llvm::Expected<std::set<std::string>> resolve(llvm::StringRef url, const fs::path &page,
-                                              const fs::path &source, const Snapshot &snapshot) {
-    const auto [target, anchor] = url.split('#');
-    if (!anchor.starts_with("L") || target.starts_with("/") ||
-        target.split('/').first.contains(':'))
-        return std::set<std::string>{};
-    const auto path = target.split('?').first;
-    auto decoded = decodePath(path);
-    if (!sourceFile(path.str()) && (!decoded || !sourceFile(*decoded)))
-        return std::set<std::string>{};
-    if (!decoded)
-        return error("invalid encoding in source link: " + url);
-    const auto number = anchor.drop_front();
-    unsigned line;
-    if (target.contains('?') || number.empty() || number.find_first_not_of("0123456789") != llvm::StringRef::npos ||
-        number.getAsInteger(10, line) || line == 0)
-        return error("expected a relative source link with one #L<number> anchor: " + url);
-
-    std::error_code ec;
-    const auto file = fs::weakly_canonical(page.parent_path() / *decoded, ec);
-    if (ec || fs::path(*decoded).is_absolute() || !inside(file, source))
-        return error("source link leaves the source root or cannot be read: " + url);
-    const auto relative = file.lexically_relative(source).generic_string();
-    auto match = snapshot.declarations.lower_bound({relative, line, 0});
-    if (match == snapshot.declarations.end() || match->first.file != relative || match->first.line != line)
-        return error("no indexed declaration on " + url);
-    const auto next = std::next(match);
-    if (next != snapshot.declarations.end() && next->first.file == relative && next->first.line == line)
-        return error("multiple declarations on " + url + "; choose a line with one declaration");
-    for (const auto &id : match->second) {
-        if (!snapshot.symbols.contains(id))
-            return error("no indexed definition for " + id + " linked by " + url);
-    }
-    return match->second;
+std::vector<size_t> lineOffsets(llvm::StringRef text) {
+    std::vector<size_t> starts{0};
+    for (size_t i = 0; i < text.size(); ++i)
+        if (text[i] == '\n')
+            starts.push_back(i + 1);
+    return starts;
 }
+
+std::optional<unsigned> sourceLine(llvm::StringRef anchor) {
+    unsigned line;
+    if (!anchor.consume_front("L") || anchor.empty() ||
+        anchor.find_first_not_of("0123456789") != llvm::StringRef::npos ||
+        anchor.getAsInteger(10, line) || line == 0)
+        return std::nullopt;
+    return line;
+}
+
+struct SourceLink {
+    std::set<std::string> definitions;
+    std::string declarations;
+    std::string text;
+};
+
+class SourceLinks {
+public:
+    SourceLinks(const fs::path &source, const Snapshot &snapshot)
+        : source(source), snapshot(snapshot) {}
+
+    llvm::Expected<std::optional<SourceLink>> resolve(llvm::StringRef url, const fs::path &page) {
+        const auto [target, anchor] = url.split('#');
+        if (!anchor.starts_with("L") || target.starts_with("/") || target.split('/').first.contains(':'))
+            return std::optional<SourceLink>{};
+        const auto path = target.split('?').first;
+        auto decoded = decodePath(path);
+        if (!sourceFile(path.str()) && (!decoded || !sourceFile(*decoded)))
+            return std::optional<SourceLink>{};
+        if (!decoded)
+            return error("invalid encoding in source link: " + url);
+
+        const auto [startAnchor, endAnchor] = anchor.split('-');
+        const bool range = anchor.contains('-');
+        const auto first = sourceLine(startAnchor);
+        const auto last = range ? sourceLine(endAnchor) : first;
+        if (target.contains('?') || !first || !last || *last < *first)
+            return error("expected a source link with a #L<number> or #L<number>-L<number> anchor: " + url);
+
+        std::error_code ec;
+        const auto file = fs::weakly_canonical(page.parent_path() / *decoded, ec);
+        if (ec || fs::path(*decoded).is_absolute() || !inside(file, source))
+            return error("source link leaves the source root or cannot be read: " + url);
+        if (!fs::is_regular_file(file, ec))
+            return error("cannot read source link target: " + url);
+
+        auto sourceFile = files.find(file);
+        if (sourceFile == files.end()) {
+            auto buffer = llvm::MemoryBuffer::getFile(file.string());
+            if (!buffer)
+                return fileError(file, buffer.getError());
+            auto starts = lineOffsets((*buffer)->getBuffer());
+            sourceFile = files.emplace(file, File{std::move(*buffer), std::move(starts)}).first;
+        }
+        const auto &contents = sourceFile->second;
+        const auto text = contents.buffer->getBuffer();
+        const auto lineCount = text.empty() ? 0 : contents.starts.size() - text.ends_with("\n");
+        if (*last > lineCount)
+            return error("source link goes beyond the end of the file: " + url);
+
+        const auto relative = file.lexically_relative(source).generic_string();
+        SourceLink link;
+        std::set<std::pair<std::string, std::string>> declarations;
+        std::vector<bool> covered(static_cast<size_t>(*last) - *first + 1);
+        std::optional<std::pair<unsigned, unsigned>> matched;
+        for (auto it = snapshot.sourceSpans.lower_bound({{relative, 0, 0}, 0, 0, 0});
+             it != snapshot.sourceSpans.end() && it->first.start.file == relative &&
+             it->first.start.line <= *last; ++it) {
+            const auto &[span, targets] = *it;
+            if (span.endLine < *first)
+                continue;
+            const auto site = std::pair(span.nameLine, span.nameColumn);
+            if (!range && matched && *matched != site)
+                return error("multiple declarations on " + url + "; use a line range to track them together");
+            matched = site;
+            for (const auto &id : targets.definitions) {
+                if (!snapshot.symbols.contains(id))
+                    return error("no indexed definition for " + id + " linked by " + url);
+                link.definitions.insert(id);
+            }
+            for (const auto &[id, hashes] : targets.declarations) {
+                for (const auto &hash : hashes)
+                    declarations.emplace(id, hash);
+            }
+            const auto begin = std::max(*first, span.start.line) - *first;
+            const auto end = std::min(*last, span.endLine) - *first + 1;
+            std::fill(covered.begin() + begin, covered.begin() + end, true);
+        }
+
+        if (!declarations.empty()) {
+            Fingerprint hash("dagdocdiff.linked-declarations.v1");
+            for (const auto &[id, fingerprint] : declarations) {
+                hash.add(id);
+                hash.add(fingerprint);
+            }
+            link.declarations = hash.finish();
+        }
+        if (llvm::is_contained(covered, false)) {
+            Fingerprint hash("dagdocdiff.linked-source-text.v1");
+            hash.add(relative);
+            for (size_t i = 0; i < covered.size(); ++i) {
+                if (covered[i])
+                    continue;
+                const auto line = static_cast<size_t>(*first) + i;
+                const auto end = line < contents.starts.size() ? contents.starts[line] : text.size();
+                hash.add(std::to_string(i));
+                hash.add(text.slice(contents.starts[line - 1], end));
+            }
+            link.text = hash.finish();
+        }
+        return std::optional<SourceLink>(std::move(link));
+    }
+
+private:
+    struct File {
+        std::unique_ptr<llvm::MemoryBuffer> buffer;
+        std::vector<size_t> starts;
+    };
+
+    const fs::path &source;
+    const Snapshot &snapshot;
+    std::map<fs::path, File> files;
+};
 
 std::string inlineText(cmark_node *node, llvm::StringRef lineBreak = "", bool omitHtml = false) {
     const auto type = cmark_node_get_type(node);
@@ -191,14 +291,6 @@ std::string headingSlug(llvm::StringRef heading) {
         }
     }
     return slug;
-}
-
-std::vector<size_t> lineOffsets(llvm::StringRef text) {
-    std::vector<size_t> starts{0};
-    for (size_t i = 0; i < text.size(); ++i)
-        if (text[i] == '\n')
-            starts.push_back(i + 1);
-    return starts;
 }
 
 std::string contentFingerprint(llvm::StringRef path, llvm::StringRef text) {
@@ -335,17 +427,23 @@ unsigned linkLine(cmark_node *node, unsigned fallback) {
 }
 
 void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
-                  const fs::path &source, const Snapshot &snapshot, Section &section,
-                  MarkdownLinks &markdown) {
+                  Section &section, SourceLinks &sourceLinks, MarkdownLinks &markdown) {
     if (cmark_node_get_type(node) == CMARK_NODE_LINK) {
         const auto url = llvm::StringRef(cmark_node_get_url(node));
-        auto ids = resolve(url, page, source, snapshot);
+        auto source = sourceLinks.resolve(url, page);
         const auto line = linkLine(node, blockLine);
-        if (!ids) {
-            section.issues.emplace_back(line, linkMessage(inlineText(node, " "), llvm::toString(ids.takeError())));
-        } else if (!ids->empty()) {
-            section.links.try_emplace(url.str(), std::move(*ids));
-            section.occurrences.push_back({line, inlineText(node, " "), url.str()});
+        if (!source) {
+            section.issues.emplace_back(line, linkMessage(inlineText(node, " "), llvm::toString(source.takeError())));
+        } else if (*source) {
+            auto &link = **source;
+            const auto key = url.str();
+            if (!link.definitions.empty())
+                section.links.try_emplace(key, std::move(link.definitions));
+            if (!link.declarations.empty())
+                section.declarationLinks.try_emplace(key, std::move(link.declarations));
+            if (!link.text.empty())
+                section.sourceTextLinks.try_emplace(key, std::move(link.text));
+            section.occurrences.push_back({line, inlineText(node, " "), key});
         } else {
             auto fingerprint = markdown.resolve(url, page);
             if (!fingerprint) {
@@ -358,11 +456,11 @@ void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
         }
     }
     for (auto *child = cmark_node_first_child(node); child; child = cmark_node_next(child))
-        collectLinks(child, blockLine, page, source, snapshot, section, markdown);
+        collectLinks(child, blockLine, page, section, sourceLinks, markdown);
 }
 
-llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path &source,
-                     const Snapshot &snapshot, Sections &sections, MarkdownLinks &markdown) {
+llvm::Error readPage(const fs::path &page, const fs::path &docs, Sections &sections,
+                     SourceLinks &sourceLinks, MarkdownLinks &markdown) {
     auto file = llvm::MemoryBuffer::getFile(page.string());
     if (!file)
         return fileError(page, file.getError());
@@ -376,7 +474,7 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path 
     std::string name = "(preamble)";
     Section section;
     auto finish = [&](size_t end) -> llvm::Error {
-        if (section.links.empty() && section.fileLinks.empty() && section.issues.empty())
+        if (section.occurrences.empty() && section.fileOccurrences.empty() && section.issues.empty())
             return llvm::Error::success();
         Fingerprint hash("dagdocdiff.doc-section.v1");
         hash.add(text.slice(starts.at(section.line - 1), end));
@@ -403,19 +501,20 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path 
             }
             section = Section{.line = line};
         }
-        collectLinks(block, line, page, source, snapshot, section, markdown);
+        collectLinks(block, line, page, section, sourceLinks, markdown);
     }
     return finish(text.size());
 }
 
 llvm::Expected<Sections> readDocs(const fs::path &docs, const fs::path &source,
                                  const Snapshot &snapshot) {
+    SourceLinks sourceLinks(source, snapshot);
     MarkdownLinks markdown(source);
     std::error_code ec;
     Sections sections;
     for (fs::recursive_directory_iterator it(docs, ec), end; it != end && !ec; it.increment(ec)) {
         if (it->is_regular_file(ec) && markdownFile(it->path())) {
-            if (auto result = readPage(it->path(), docs, source, snapshot, sections, markdown))
+            if (auto result = readPage(it->path(), docs, sections, sourceLinks, markdown))
                 return std::move(result);
         }
         if (ec)
@@ -483,12 +582,16 @@ llvm::Expected<Reviews> loadReviews(const fs::path &path) {
         const auto reason = entry->getString("reason");
         if (!page || !section || !text || !clang || !reason)
             return error("incomplete approval in " + path.string());
-        Review review{text->str(), clang->str(), reason->str(), {}, {}, {}, {}};
+        Review review{text->str(), clang->str(), reason->str(), {}, {}, {}, {}, {}, {}};
         const auto *fileLinks = entry->get("file_links");
+        const auto *declarationLinks = entry->get("declaration_links");
+        const auto *sourceTextLinks = entry->get("source_text_links");
         if (!readLinks(entry->getObject("links"), review.links) ||
             !readHashes(entry->getObject("symbols"), review.symbols) ||
             !readHashes(entry->getObject("inputs"), review.inputs) ||
             (fileLinks && !readHashes(fileLinks->getAsObject(), review.fileLinks)) ||
+            (declarationLinks && !readHashes(declarationLinks->getAsObject(), review.declarationLinks)) ||
+            (sourceTextLinks && !readHashes(sourceTextLinks->getAsObject(), review.sourceTextLinks)) ||
             !result.try_emplace({page->str(), section->str()}, std::move(review)).second)
             return error("invalid or duplicate approval for " + *page + " / " + *section);
     }
@@ -516,6 +619,10 @@ llvm::Error saveReviews(const fs::path &path, const Reviews &reviews) {
         };
         if (!review.fileLinks.empty())
             entry["file_links"] = hashesJson(review.fileLinks);
+        if (!review.declarationLinks.empty())
+            entry["declaration_links"] = hashesJson(review.declarationLinks);
+        if (!review.sourceTextLinks.empty())
+            entry["source_text_links"] = hashesJson(review.sourceTextLinks);
         sections.push_back(std::move(entry));
     }
     auto temp = llvm::sys::fs::TempFile::create(path.string() + ".%%%%%%");
@@ -536,7 +643,7 @@ llvm::Error saveReviews(const fs::path &path, const Reviews &reviews) {
 
 Review currentReview(const Section &section, const Snapshot &snapshot, llvm::StringRef reason) {
     Review result{section.textHash, clang::getClangFullVersion(), reason.str(), section.links,
-                  {}, {}, section.fileLinks};
+                  {}, {}, section.fileLinks, section.declarationLinks, section.sourceTextLinks};
     std::vector<std::string> pending;
     for (const auto &[url, ids] : section.links) {
         for (const auto &id : ids) {
@@ -628,6 +735,18 @@ llvm::Expected<Inputs> loadInputs(llvm::StringRef source, llvm::StringRef build,
     return Inputs{docsRoot, std::move(*snapshot), std::move(*sections)};
 }
 
+void reportSourceFingerprint(Issues &issues, const LinkOccurrence &link, const Hashes &before,
+                             const Hashes &after, llvm::StringRef change) {
+    const auto previous = before.find(link.url);
+    const auto current = after.find(link.url);
+    if (previous == before.end()) {
+        if (current != after.end())
+            issues.emplace_back(link.line, linkMessage(link.text, "approval lacks a fingerprint for " + link.url));
+    } else if (current == after.end() || previous->second != current->second) {
+        issues.emplace_back(link.line, linkMessage(link.text, (change + ": " + link.url).str()));
+    }
+}
+
 Issues reviewIssues(const Section &section, const Review &before, const Snapshot &snapshot) {
     const auto after = currentReview(section, snapshot, "");
     Issues issues;
@@ -648,17 +767,22 @@ Issues reviewIssues(const Section &section, const Review &before, const Snapshot
         }
     }
     for (const auto &link : section.occurrences) {
-        const auto &ids = after.links.at(link.url);
-        const auto oldIds = before.links.find(link.url);
-        if (oldIds != before.links.end() && oldIds->second != ids) {
-            issues.emplace_back(link.line, linkMessage(link.text, link.url + " now resolves to " +
-                                llvm::join(ids, ", ") + "; previously " + llvm::join(oldIds->second, ", ")));
+        const auto currentIds = after.links.find(link.url);
+        if (currentIds != after.links.end()) {
+            const auto &ids = currentIds->second;
+            const auto oldIds = before.links.find(link.url);
+            if (oldIds != before.links.end() && oldIds->second != ids) {
+                issues.emplace_back(link.line, linkMessage(link.text, link.url + " now resolves to " +
+                                    llvm::join(ids, ", ") + "; previously " + llvm::join(oldIds->second, ", ")));
+            }
+            for (const auto &id : ids) {
+                const auto issue = symbolIssues.find(id);
+                if (issue != symbolIssues.end())
+                    issues.emplace_back(link.line, linkMessage(link.text, issue->second));
+            }
         }
-        for (const auto &id : ids) {
-            const auto issue = symbolIssues.find(id);
-            if (issue != symbolIssues.end())
-                issues.emplace_back(link.line, linkMessage(link.text, issue->second));
-        }
+        reportSourceFingerprint(issues, link, before.declarationLinks, after.declarationLinks, "declaration changed");
+        reportSourceFingerprint(issues, link, before.sourceTextLinks, after.sourceTextLinks, "source text changed");
     }
     for (const auto &link : section.fileOccurrences) {
         const auto previous = before.fileLinks.find(link.url);

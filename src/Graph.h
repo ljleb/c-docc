@@ -54,10 +54,24 @@ struct Finding {
     auto operator<=>(const Finding &) const = default;
 };
 
+struct SourceSpan {
+    Location start;
+    unsigned endLine;
+    unsigned nameLine;
+    unsigned nameColumn;
+    auto operator<=>(const SourceSpan &) const = default;
+};
+
+struct SourceTargets {
+    std::set<std::string> definitions;
+    std::map<std::string, std::set<std::string>> declarations;
+};
+
 struct Snapshot {
     std::map<std::string, Symbol> symbols;
     std::set<Finding> findings;
     std::map<Location, std::set<std::string>> declarations;
+    std::map<SourceSpan, SourceTargets> sourceSpans;
 };
 
 struct Change {

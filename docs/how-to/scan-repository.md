@@ -10,6 +10,6 @@ build/dagdocdiff scan . build > build/symbols.json
 
 ## Symbol IDs and locations
 
-The `symbols.json` entry for [the snapshot analyzer](../../src/Analyzer.cpp#L424) has an `id` that starts with `dagdocdiff::analyze` and includes its parameter types. Its `definition` gives the file and line. The `declarations` array lists other indexed locations for that symbol.
+The `symbols.json` entry for [the snapshot analyzer](../../src/Analyzer.cpp#L459) has an `id` that starts with `dagdocdiff::analyze` and includes its parameter types. Its `definition` gives the file and line. The `declarations` array lists other indexed locations for that symbol.
 
 The [scan output reference](../reference/cli.md#scan-output) lists the remaining fields.
