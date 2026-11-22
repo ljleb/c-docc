@@ -1,6 +1,6 @@
 # Change a retry limit and update its docs
 
-A small project limits retries to three. In this walkthrough, you change the code and its guide to allow five retries. After each edit, you run Dagdocdiff to see what it reports.
+A photo backup app tries again when Wi-Fi drops during an upload. Its troubleshooting guide says the app retries up to three times before giving up. You will raise that limit to five and run Dagdocdiff as you update the code and the guide.
 
 ## Run Dagdocdiff
 
@@ -27,7 +27,7 @@ Create a `docs` folder next to `retries.c`. In it, create `retries.md` with thes
 ```markdown
 # Retries
 
-[`retry_limit`](../retries.c#L1) returns 3.
+If Wi-Fi drops during an upload, the app [retries the upload](../retries.c#L1) up to 3 times before giving up.
 ```
 
 The link goes up from `docs` and points to the function on line 1 of `retries.c`.
@@ -54,10 +54,10 @@ nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . docs
 
 You should see `retries.md:1: Retries: approval required`. Dagdocdiff found the section and its source link, and it needs a record that someone compared the text with the code.
 
-The function returns 3, as the guide says. Record that reason for approving the `Retries` section in `retries.md`. The page path is relative to `docs`, and the section name comes from the heading.
+The guide says the app retries up to 3 times, and `retry_limit` returns 3. Record that reason for approving the `Retries` section in `retries.md`. The page path is relative to `docs`, and the section name comes from the heading.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs retries.md Retries 'The function returns 3, as documented.'
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs retries.md Retries 'The guide matches the upload retry limit of 3.'
 ```
 
 You should see `Recorded review for retries.md / Retries`. Run `docs check` again.
@@ -82,11 +82,11 @@ The command should exit with status `1`. You should see the Markdown section and
 retries.md:1: Retries: code changed: retry_limit
 ```
 
-Open `docs/retries.md`. The sentence still says 3.
+Open `docs/retries.md`. It still tells people to expect up to 3 retries.
 
 ## Five retries in the guide
 
-Change “returns 3” to “returns 5” in `docs/retries.md`. Save the file and run Dagdocdiff again.
+Change “up to 3 times” to “up to 5 times” in `docs/retries.md`. Save the file and run Dagdocdiff again.
 
 ```sh
 nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . docs
@@ -99,7 +99,7 @@ The command should still exit with status `1`. You should see a new message, `Re
 Record why the revised sentence matches the function.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs retries.md Retries 'The function now returns 5 and the guide states that value.'
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs retries.md Retries 'The guide matches the new upload retry limit of 5.'
 ```
 
 You should see `Recorded review for retries.md / Retries` again. The updated record is in `docs/.dagdocdiff-approvals.json`. Run Dagdocdiff once more to see what it reports for the updated guide.

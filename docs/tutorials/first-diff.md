@@ -1,6 +1,8 @@
 # Trace a docs warning to a helper
 
-A request guide says the retry limit is three. It links to `request_limit`, which gets that number from a helper in another file. You will change the helper and follow Dagdocdiff's report from the linked function to the edit.
+A parcel tracking app asks a carrier for delivery updates. If the carrier takes too long to respond, the app tries again. The guide says it retries up to three times.
+
+The guide links to `request_limit`, which gets the limit from a helper in another file. You will raise the limit to five in the helper and follow Dagdocdiff's report from the linked function to the edit.
 
 ## Run Dagdocdiff
 
@@ -34,7 +36,7 @@ Create a `docs` folder in the example folder. In it, create `requests.md` with t
 ```markdown
 # Requests
 
-[`request_limit`](../request_limit.c#L2) returns 3.
+If the carrier takes too long to respond, the app [retries the tracking request](../request_limit.c#L2) up to 3 times.
 ```
 
 The link opens `request_limit.c` at line 2. Read that line and follow its call to `retry_limit` to see where the guide's value comes from.
@@ -58,10 +60,10 @@ Create `compile_commands.json` next to the C files. It lists both files and thei
 
 ## An approved starting point
 
-The guide says 3, and the helper returns 3. Record that reason for approving the `Requests` section in `requests.md`. Both `.` arguments point to the current folder because it contains the source and the compilation database. The `docs` argument names the Markdown folder, and `requests.md` is relative to it.
+The guide says the app retries the request up to 3 times, and the helper returns 3. Record that reason for approving the `Requests` section in `requests.md`. Both `.` arguments point to the current folder because it contains the source and the compilation database. The `docs` argument names the Markdown folder, and `requests.md` is relative to it.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs requests.md Requests 'The request limit comes from retry_limit, which returns 3.'
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs requests.md Requests 'The guide says 3 retries, and request_limit gets 3 from retry_limit.'
 ```
 
 You should see `Recorded review for requests.md / Requests`. Run Dagdocdiff against the guide to see the starting result.
@@ -90,10 +92,10 @@ The arrow shows that `request_limit` calls `retry_limit`. Open `request_limit.c`
 
 ## Five retries in the guide
 
-In `docs/requests.md`, change “returns 3” to “returns 5” and keep the link to `request_limit`. Save the guide and record why the new value applies.
+In `docs/requests.md`, change “up to 3 times” to “up to 5 times” and keep the link to `request_limit`. Save the guide and record why the new value applies.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs requests.md Requests 'request_limit calls retry_limit, which now returns 5.'
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs requests.md Requests 'The guide says 5 retries, and request_limit gets 5 from retry_limit.'
 ```
 
 You should see `Recorded review for requests.md / Requests` again. Run Dagdocdiff once more against the updated guide.
