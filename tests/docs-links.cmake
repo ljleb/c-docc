@@ -60,6 +60,9 @@ set(markdown [=[
 
 [Read the value](../a.cpp#L4).
 
+[Read **again**
+please](../a.cpp#L4).
+
 ~~~markdown
 [Example text](../api.hpp#L404)
 ~~~
@@ -86,23 +89,24 @@ endif()
 file(READ "${WORK_DIR}/api.hpp" header)
 string(REPLACE "return 1" "return 2" changed "${header}")
 file(WRITE "${WORK_DIR}/api.hpp" "${changed}")
-run_cli(1 "read_value.* -> demo::parse.* -> a.cpp::demo::helper" check ${path_options})
+run_cli(1 [=[guide[.]md:9: Guide / Result: "Read the value": code changed: read_value.* -> demo::parse.* -> a[.]cpp::demo::helper[(][)] [(]api[.]hpp:4[)].*guide[.]md:11: Guide / Result: "Read again please": code changed:]=]
+    check ${path_options})
 run_interactive("?\nr\ny\n" "Enter y, r, or q.*Left for revision.*Recorded review for guide.md / Guide / Result")
-run_cli(1 "Guide / Header: code changed" check ${path_options})
+run_cli(1 [=[Guide / Header: "header helper": code changed:]=] check ${path_options})
 run_interactive("q\n" "Guide / Header")
-run_cli(1 "Guide / Header: code changed" check ${path_options})
+run_cli(1 [=[Guide / Header: "header helper": code changed:]=] check ${path_options})
 run_interactive("y\n" "Recorded review for guide.md / Guide / Header")
 run_cli(0 "Approved documentation sections: 2" check ${path_options})
 run_interactive("" "No sections need approval")
 
 string(REPLACE "int parse(int);\nint parse(double);" "int parse(double);\nint parse(int);" swapped "${changed}")
 file(WRITE "${WORK_DIR}/api.hpp" "${swapped}")
-run_cli(1 "previously demo::parse" check ${path_options})
+run_cli(1 [=["Parse integer input": .* now resolves to .* previously demo::parse]=] check ${path_options})
 file(WRITE "${WORK_DIR}/api.hpp" "${changed}")
 
 file(APPEND "${WORK_DIR}/a.cpp" "int x() { return 0; } int y() { return 0; }\n")
 file(WRITE "${page}" "${markdown}\n[Ambiguous](../a.cpp#L7)\n")
-run_cli(1 "multiple declarations" check ${path_options})
+run_cli(1 [=["Ambiguous": multiple declarations]=] check ${path_options})
 run_interactive("y\n" "Fix the source links before approving this section")
 file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" before)
 run_cli(1 "resolve source links before approving this page" approve guide.md ${path_options} --reason "Blocked")

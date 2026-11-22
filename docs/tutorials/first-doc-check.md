@@ -88,10 +88,10 @@ In `retries.c`, change `return 3;` to `return 5;`. Keep the function on line 1 s
 dagdocdiff check
 ```
 
-The command should exit with status `1`. You should see the Markdown section and the changed function in the report.
+The command should exit with status `1`. You should see the text of the affected Markdown link and the location of the changed function.
 
 ```text
-retries.md:1: Retries: code changed: retry_limit
+retries.md:3: Retries: "retries the upload": code changed: retry_limit (retries.c:1)
 ```
 
 Open `retries.md`. It still tells people to expect up to 3 retries.

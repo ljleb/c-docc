@@ -35,11 +35,18 @@ using Issues = std::vector<std::pair<unsigned, std::string>>;
 
 constexpr auto approvalName = ".dagdocdiff-approvals.json";
 
+struct LinkOccurrence {
+    unsigned line;
+    std::string text;
+    std::string url;
+};
+
 struct Section {
     unsigned line;
     std::string textHash;
     Links links;
     Issues issues;
+    std::vector<LinkOccurrence> occurrences;
 };
 
 struct Review {
@@ -136,13 +143,31 @@ llvm::Expected<std::set<std::string>> resolve(llvm::StringRef url, const fs::pat
     return match->second;
 }
 
-std::string headingText(cmark_node *node) {
+std::string inlineText(cmark_node *node, llvm::StringRef lineBreak = "") {
+    const auto type = cmark_node_get_type(node);
+    if (type == CMARK_NODE_SOFTBREAK || type == CMARK_NODE_LINEBREAK)
+        return lineBreak.str();
     std::string result;
     if (auto *text = cmark_node_get_literal(node))
         result = text;
     for (auto *child = cmark_node_first_child(node); child; child = cmark_node_next(child))
-        result += headingText(child);
+        result += inlineText(child, lineBreak);
     return result;
+}
+
+std::string linkMessage(llvm::StringRef text, llvm::StringRef message) {
+    return llvm::formatv("{0}: {1}", json::Value(text), message).str();
+}
+
+unsigned linkLine(cmark_node *node, unsigned fallback) {
+    auto line = cmark_node_get_start_line(node);
+    // cmark can place a multiline link on the line with its closing bracket.
+    for (auto *child = cmark_node_first_child(node); child; child = cmark_node_next(child)) {
+        const auto childLine = cmark_node_get_start_line(child);
+        if (childLine > 0 && (line <= 0 || childLine < line))
+            line = childLine;
+    }
+    return line > 0 ? static_cast<unsigned>(line) : fallback;
 }
 
 void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
@@ -150,12 +175,12 @@ void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
     if (cmark_node_get_type(node) == CMARK_NODE_LINK) {
         const auto url = llvm::StringRef(cmark_node_get_url(node));
         auto ids = resolve(url, page, source, snapshot);
+        const auto line = linkLine(node, blockLine);
         if (!ids) {
-            const auto line = cmark_node_get_start_line(node);
-            section.issues.emplace_back(line > 0 ? static_cast<unsigned>(line) : blockLine,
-                                        llvm::toString(ids.takeError()));
+            section.issues.emplace_back(line, linkMessage(inlineText(node, " "), llvm::toString(ids.takeError())));
         } else if (!ids->empty()) {
             section.links.try_emplace(url.str(), std::move(*ids));
+            section.occurrences.push_back({line, inlineText(node, " "), url.str()});
         }
     }
     for (auto *child = cmark_node_first_child(node); child; child = cmark_node_next(child))
@@ -179,7 +204,7 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path 
 
     std::vector<std::pair<int, std::string>> headings;
     std::string name = "(preamble)";
-    Section section{1, {}, {}, {}};
+    Section section{1, {}, {}, {}, {}};
     auto finish = [&](size_t end) -> llvm::Error {
         if (section.links.empty() && section.issues.empty())
             return llvm::Error::success();
@@ -199,14 +224,14 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, const fs::path 
             const int level = cmark_node_get_heading_level(block);
             while (!headings.empty() && headings.back().first >= level)
                 headings.pop_back();
-            headings.emplace_back(level, headingText(block));
+            headings.emplace_back(level, inlineText(block));
             name.clear();
             for (const auto &[rank, heading] : headings) {
                 if (!name.empty())
                     name += " / ";
                 name += heading;
             }
-            section = Section{line, {}, {}, {}};
+            section = Section{line, {}, {}, {}, {}};
         }
         collectLinks(block, line, page, source, snapshot, section);
     }
@@ -363,6 +388,14 @@ Review currentReview(const Section &section, const Snapshot &snapshot, llvm::Str
     return result;
 }
 
+std::string definitionSuffix(const std::string &id, const Snapshot &snapshot) {
+    const auto symbol = snapshot.symbols.find(id);
+    if (symbol == snapshot.symbols.end())
+        return {};
+    const auto &location = symbol->second.definition;
+    return " (" + location.file + ":" + std::to_string(location.line) + ")";
+}
+
 std::string causePath(const std::string &root, const Review &before, const Review &after,
                       const Snapshot &snapshot) {
     std::map<std::string, std::string> parents{{root, ""}};
@@ -372,7 +405,7 @@ std::string causePath(const std::string &root, const Review &before, const Revie
         pending.pop_front();
         const auto previous = before.inputs.find(id);
         if (previous == before.inputs.end() || previous->second != after.inputs.at(id)) {
-            std::string path = id;
+            std::string path = id + definitionSuffix(id, snapshot);
             for (auto parent = parents.at(id); !parent.empty(); parent = parents.at(parent))
                 path = parent + " -> " + path;
             return path;
@@ -385,7 +418,7 @@ std::string causePath(const std::string &root, const Review &before, const Revie
             }
         }
     }
-    return root;
+    return root + definitionSuffix(root, snapshot);
 }
 
 void report(const Key &key, unsigned line, llvm::StringRef message) {
@@ -425,22 +458,29 @@ Issues reviewIssues(const Section &section, const Review &before, const Snapshot
         issues.emplace_back(section.line, "section text changed");
     if (before.clangVersion != after.clangVersion)
         issues.emplace_back(section.line, "Clang version changed");
-    if (before.links != after.links) {
+    if (before.links != after.links)
         issues.emplace_back(section.line, "source link targets changed");
-        for (const auto &[url, ids] : after.links) {
-            const auto oldIds = before.links.find(url);
-            if (oldIds != before.links.end() && oldIds->second != ids) {
-                issues.emplace_back(section.line, url + " now resolves to " + llvm::join(ids, ", ") +
-                                    "; previously " + llvm::join(oldIds->second, ", "));
-            }
-        }
-    }
+
+    std::map<std::string, std::string> symbolIssues;
     for (const auto &[id, hash] : after.symbols) {
         const auto oldHash = before.symbols.find(id);
         if (oldHash == before.symbols.end()) {
-            issues.emplace_back(section.line, "approval lacks a code fingerprint for " + id);
+            symbolIssues.emplace(id, "approval lacks a code fingerprint for " + id);
         } else if (oldHash->second != hash) {
-            issues.emplace_back(section.line, "code changed: " + causePath(id, before, after, snapshot));
+            symbolIssues.emplace(id, "code changed: " + causePath(id, before, after, snapshot));
+        }
+    }
+    for (const auto &link : section.occurrences) {
+        const auto &ids = after.links.at(link.url);
+        const auto oldIds = before.links.find(link.url);
+        if (oldIds != before.links.end() && oldIds->second != ids) {
+            issues.emplace_back(link.line, linkMessage(link.text, link.url + " now resolves to " +
+                                llvm::join(ids, ", ") + "; previously " + llvm::join(oldIds->second, ", ")));
+        }
+        for (const auto &id : ids) {
+            const auto issue = symbolIssues.find(id);
+            if (issue != symbolIssues.end())
+                issues.emplace_back(link.line, linkMessage(link.text, issue->second));
         }
     }
     return issues;

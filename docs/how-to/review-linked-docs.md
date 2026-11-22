@@ -6,7 +6,7 @@ Dagdocdiff reports Markdown sections affected by a change to linked code. This e
 build/dagdocdiff check --build-dir build --docs-dir docs
 ```
 
-The report identifies the page and heading. A broken or retargeted link identifies a declaration location to check. A dependency path leads to the code change. A change in behavior can require an edit to the affected claim.
+The report identifies the page and heading. It shows the text and line of an affected link. A dependency path leads to the changed code, and the last location points to its definition when Dagdocdiff can find it. A change in behavior can require an edit to the affected claim.
 
 Run `approve` to go through the sections that need review. Dagdocdiff shows the file, heading, and what changed. Open the file at the reported line to read the section.
 

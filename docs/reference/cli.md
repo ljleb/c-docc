@@ -42,6 +42,8 @@ The directory options for `check` and `approve` default to the current directory
 
 Scan and diff write JSON to standard output. A successful `check` writes the count and lists each approved section by page, line, and heading. Clang diagnostics and issues reported by `check` go to standard error.
 
+Link diagnostics include the link text and its line in the Markdown page. For code changes, the dependency path ends with the changed definition’s file and line when available. The source path is relative to `--source-dir`.
+
 ## Common JSON fields
 
 | Field | Meaning |
