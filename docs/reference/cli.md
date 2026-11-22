@@ -1,6 +1,6 @@
 # Dagdocdiff v1 command and output reference
 
-Release `1.2.0`. Scan and diff output use JSON schema version `1`.
+This reference covers the CLI built from this checkout. Scan and diff output use JSON schema version `1`.
 
 ## Commands
 
@@ -11,6 +11,8 @@ Release `1.2.0`. Scan and diff output use JSON schema version `1`.
 | `dagdocdiff scan <source-root> <build-dir>` | Prints the symbols and findings for one snapshot. |
 | `dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>` | Prints changes and findings for two snapshots. |
 | `dagdocdiff check [options]` | Checks source links and recorded reviews in Markdown. |
+| `dagdocdiff approve [options]` | Prompts for each section that needs approval. |
+| `dagdocdiff approve <page> [options]` | Records a review of all linked sections in a Markdown file. |
 | `dagdocdiff approve <page> <section> [options]` | Records an explicit review of one section. |
 
 | Argument | Meaning |
@@ -25,10 +27,10 @@ The directory options for `check` and `approve` default to the current directory
 
 | Option | Meaning |
 | --- | --- |
-| `--source-root <path>` | Source directory. |
+| `--source-dir <path>` | Source directory. |
 | `--build-dir <path>` | Directory containing `compile_commands.json`. |
-| `--docs-root <path>` | Directory containing the Markdown pages and approvals. It must be inside the source root. |
-| `--reason <text>` | Optional note for `approve`. |
+| `--docs-dir <path>` | Directory containing the Markdown pages and approvals. It must be inside the source root. |
+| `--reason <text>` | Optional note for each approval recorded by the command. |
 
 ## Exit statuses
 
@@ -85,5 +87,7 @@ Each entry in `changes` has an `id` and a `kind`. The entry has `before` or `aft
 | Context | A Markdown link in the page body. A link inside a code block is example text. |
 
 The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
+
+Passing only the page to `approve` updates all its linked sections and clears approvals for sections or links removed from that page. If any source link in the page fails to resolve, the command leaves the page's approvals as they were.
 
 The `check` command exits with status `1` for an unresolved link, an absent approval, or a change that requires review. The page and heading path also identify an approval for removal of the section or all its source links. Building the code and viewing the Markdown work independently of this command.

@@ -87,11 +87,12 @@ void usage(llvm::raw_ostream &out) {
         << "  dagdocdiff scan <source-root> <build-dir>\n"
         << "  dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>\n"
         << "  dagdocdiff check [options]\n"
-        << "  dagdocdiff approve <page> <section> [options] [--reason <text>]\n"
+        << "  dagdocdiff approve [options] [--reason <text>]\n"
+        << "  dagdocdiff approve <page> [<section>] [options] [--reason <text>]\n"
         << "\nOptions for check and approve (each path defaults to the current directory):\n"
-        << "  --source-root <path>  Source directory\n"
+        << "  --source-dir <path>  Source directory\n"
         << "  --build-dir <path>    Directory containing compile_commands.json\n"
-        << "  --docs-root <path>    Markdown directory\n";
+        << "  --docs-dir <path>    Markdown directory\n";
 }
 
 int usageError(const llvm::Twine &message) {
@@ -123,9 +124,9 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
 
         auto [name, value] = arg.split('=');
         auto *destination = llvm::StringSwitch<llvm::StringRef *>(name)
-            .Case("--source-root", &source)
+            .Case("--source-dir", &source)
             .Case("--build-dir", &build)
-            .Case("--docs-root", &docs)
+            .Case("--docs-dir", &docs)
             .Case("--reason", approve ? &reason : nullptr)
             .Default(nullptr);
         if (!destination)
@@ -139,11 +140,21 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
             return usageError("missing value for " + name);
         *destination = value;
     }
-    if (approve && positional.size() != 2)
-        return usageError("approve expects a page and a section");
+    if (approve && positional.size() > 2)
+        return usageError("approve accepts a page and an optional section");
     if (!approve && !positional.empty())
         return usageError("check takes no positional arguments");
 
+    if (approve && positional.empty()) {
+        if (auto result = reviewDocs(source, build, docs, reason))
+            return fail(std::move(result));
+        return 0;
+    }
+    if (approve && positional.size() == 1) {
+        if (auto result = approvePage(source, build, docs, positional[0], reason))
+            return fail(std::move(result));
+        return 0;
+    }
     auto result = approve ? approveDocs(source, build, docs, positional[0], positional[1], reason)
                           : checkDocs(source, build, docs);
     return result ? fail(std::move(result)) : 0;

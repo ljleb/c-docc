@@ -6,6 +6,10 @@
 namespace dagdocdiff {
 
 llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs);
+llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
+                       llvm::StringRef reason);
+llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
+                        llvm::StringRef page, llvm::StringRef reason);
 llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
                         llvm::StringRef page, llvm::StringRef section, llvm::StringRef reason);
 

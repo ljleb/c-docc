@@ -2,6 +2,7 @@
 
 #include "Analyzer.h"
 #include "clang/Basic/Version.h"
+#include "llvm/ADT/STLFunctionalExtras.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/FormatVariadic.h"
@@ -13,10 +14,12 @@
 
 #include <deque>
 #include <filesystem>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
 #include <set>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -28,6 +31,7 @@ namespace json = llvm::json;
 using Hashes = std::map<std::string, std::string>;
 using Links = std::map<std::string, std::set<std::string>>;
 using Key = std::pair<std::string, std::string>;
+using Issues = std::vector<std::pair<unsigned, std::string>>;
 
 constexpr auto approvalName = ".dagdocdiff-approvals.json";
 
@@ -35,7 +39,7 @@ struct Section {
     unsigned line;
     std::string textHash;
     Links links;
-    std::vector<std::pair<unsigned, std::string>> issues;
+    Issues issues;
 };
 
 struct Review {
@@ -45,6 +49,8 @@ struct Review {
     Links links;
     Hashes symbols;
     Hashes inputs;
+
+    bool operator==(const Review &) const = default;
 };
 
 using Sections = std::map<Key, Section>;
@@ -412,80 +418,68 @@ llvm::Expected<Inputs> loadInputs(llvm::StringRef source, llvm::StringRef build,
     return Inputs{docsRoot, std::move(*snapshot), std::move(*sections)};
 }
 
-} // namespace
-
-llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs) {
-    auto inputs = loadInputs(source, build, docs);
-    if (!inputs)
-        return inputs.takeError();
-    auto reviews = loadReviews(inputs->docs / approvalName);
-    if (!reviews)
-        return reviews.takeError();
-    bool failed = false;
-    for (const auto &[key, section] : inputs->sections) {
-        if (!section.issues.empty()) {
-            for (const auto &[line, message] : section.issues)
-                report(key, line, message);
-            failed = true;
-            continue;
-        }
-        const auto previous = reviews->find(key);
-        if (previous == reviews->end()) {
-            report(key, section.line, "approval required");
-            failed = true;
-            continue;
-        }
-        const auto &before = previous->second;
-        const auto after = currentReview(section, inputs->snapshot, "");
-        if (before.textHash != after.textHash) {
-            report(key, section.line, "section text changed");
-            failed = true;
-        }
-        if (before.clangVersion != after.clangVersion) {
-            report(key, section.line, "Clang version changed");
-            failed = true;
-        }
-        if (before.links != after.links) {
-            report(key, section.line, "source link targets changed");
-            for (const auto &[url, ids] : after.links) {
-                const auto oldIds = before.links.find(url);
-                if (oldIds != before.links.end() && oldIds->second != ids) {
-                    report(key, section.line,
-                           url + " now resolves to " + llvm::join(ids, ", ") +
-                           "; previously " + llvm::join(oldIds->second, ", "));
-                }
-            }
-            failed = true;
-        }
-        for (const auto &[id, hash] : after.symbols) {
-            const auto oldHash = before.symbols.find(id);
-            if (oldHash == before.symbols.end()) {
-                report(key, section.line, "approval lacks a code fingerprint for " + id);
-                failed = true;
-            } else if (oldHash->second != hash) {
-                report(key, section.line, "code changed: " + causePath(id, before, after, inputs->snapshot));
-                failed = true;
+Issues reviewIssues(const Section &section, const Review &before, const Snapshot &snapshot) {
+    const auto after = currentReview(section, snapshot, "");
+    Issues issues;
+    if (before.textHash != after.textHash)
+        issues.emplace_back(section.line, "section text changed");
+    if (before.clangVersion != after.clangVersion)
+        issues.emplace_back(section.line, "Clang version changed");
+    if (before.links != after.links) {
+        issues.emplace_back(section.line, "source link targets changed");
+        for (const auto &[url, ids] : after.links) {
+            const auto oldIds = before.links.find(url);
+            if (oldIds != before.links.end() && oldIds->second != ids) {
+                issues.emplace_back(section.line, url + " now resolves to " + llvm::join(ids, ", ") +
+                                    "; previously " + llvm::join(oldIds->second, ", "));
             }
         }
     }
-    for (const auto &[key, review] : *reviews) {
-        if (!inputs->sections.contains(key)) {
-            report(key, 0, "approved section or its source links were removed; approve the removal");
-            failed = true;
+    for (const auto &[id, hash] : after.symbols) {
+        const auto oldHash = before.symbols.find(id);
+        if (oldHash == before.symbols.end()) {
+            issues.emplace_back(section.line, "approval lacks a code fingerprint for " + id);
+        } else if (oldHash->second != hash) {
+            issues.emplace_back(section.line, "code changed: " + causePath(id, before, after, snapshot));
         }
     }
-    if (failed)
-        return error("documentation needs review");
-    llvm::outs() << "Approved documentation sections: " << inputs->sections.size() << '\n';
-    return llvm::Error::success();
+    return issues;
 }
 
-llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
-                        llvm::StringRef page, llvm::StringRef section, llvm::StringRef reason) {
-    auto inputs = loadInputs(source, build, docs);
-    if (!inputs)
-        return inputs.takeError();
-    const auto path = inputs->docs / approvalName;
+struct PendingReview {
+    Key key;
+    unsigned line;
+    const Section *section;
+    Issues issues;
+};
+
+std::vector<PendingReview> pendingReviews(const Inputs &inputs, const Reviews &reviews) {
+    std::vector<PendingReview> result;
+    for (const auto &[key, section] : inputs.sections) {
+        if (!section.issues.empty()) {
+            result.push_back({key, section.line, &section, section.issues});
+            continue;
+        }
+        const auto previous = reviews.find(key);
+        if (previous == reviews.end()) {
+            result.push_back({key, section.line, &section, {{section.line, "approval required"}}});
+        } else if (auto issues = reviewIssues(section, previous->second, inputs.snapshot); !issues.empty()) {
+            result.push_back({key, section.line, &section, std::move(issues)});
+        }
+    }
+    for (const auto &[key, review] : reviews) {
+        if (!inputs.sections.contains(key)) {
+            result.push_back({key, 0, nullptr,
+                              {{0, "approved section or its source links were removed; approve the removal"}}});
+        }
+    }
+    llvm::sort(result, [](const PendingReview &a, const PendingReview &b) {
+        return std::tie(a.key.first, a.line, a.key.second) < std::tie(b.key.first, b.line, b.key.second);
+    });
+    return result;
+}
+
+llvm::Error updateReviews(const fs::path &path, llvm::function_ref<llvm::Error(Reviews &)> update) {
     llvm::LockFileManager lock(path.string());
     auto acquired = lock.tryLock();
     if (!acquired)
@@ -495,23 +489,177 @@ llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::Str
     auto reviews = loadReviews(path);
     if (!reviews)
         return reviews.takeError();
-    const Key key{page.str(), section.str()};
+    if (auto result = update(*reviews))
+        return result;
+    return saveReviews(path, *reviews);
+}
+
+llvm::Error recordReview(const fs::path &path, const Key &key, std::optional<Review> review,
+                         const Reviews *baseline = nullptr) {
+    auto result = updateReviews(path, [&](Reviews &reviews) -> llvm::Error {
+        if (baseline) {
+            const auto before = baseline->find(key);
+            const auto current = reviews.find(key);
+            const bool hadApproval = before != baseline->end();
+            const bool hasApproval = current != reviews.end();
+            if (hadApproval != hasApproval || (hasApproval && before->second != current->second))
+                return error("approval changed during review for " + key.first + " / " + key.second + "; run approve again");
+        }
+        if (review) {
+            reviews.insert_or_assign(key, std::move(*review));
+        } else if (reviews.erase(key) == 0) {
+            return error("no linked section or existing approval for " + key.first + " / " + key.second);
+        }
+        return llvm::Error::success();
+    });
+    if (result)
+        return result;
+    llvm::outs() << "Recorded review for " << key.first << " / " << key.second << '\n';
+    return llvm::Error::success();
+}
+
+enum class Decision { Approve, Revise, Quit };
+
+Decision askForDecision() {
+    while (true) {
+        llvm::outs() << "Approve [y], leave for revision [r], or quit [q] (default r): ";
+        llvm::outs().flush();
+        std::string answer;
+        if (!std::getline(std::cin, answer)) {
+            llvm::outs() << '\n';
+            return Decision::Quit;
+        }
+        const auto choice = llvm::StringRef(answer).trim().lower();
+        if (choice == "y")
+            return Decision::Approve;
+        if (choice.empty() || choice == "r" || choice == "n")
+            return Decision::Revise;
+        if (choice == "q")
+            return Decision::Quit;
+        llvm::outs() << "Enter y, r, or q.\n";
+    }
+}
+
+} // namespace
+
+llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs) {
+    auto inputs = loadInputs(source, build, docs);
+    if (!inputs)
+        return inputs.takeError();
+    auto reviews = loadReviews(inputs->docs / approvalName);
+    if (!reviews)
+        return reviews.takeError();
+    const auto pending = pendingReviews(*inputs, *reviews);
+    for (const auto &item : pending) {
+        for (const auto &[line, message] : item.issues)
+            report(item.key, line, message);
+    }
+    if (!pending.empty())
+        return error("documentation needs review");
+    llvm::outs() << "Approved documentation sections: " << inputs->sections.size() << '\n';
+    return llvm::Error::success();
+}
+
+llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
+                       llvm::StringRef reason) {
+    auto inputs = loadInputs(source, build, docs);
+    if (!inputs)
+        return inputs.takeError();
+    const auto path = inputs->docs / approvalName;
+    auto reviews = loadReviews(path);
+    if (!reviews)
+        return reviews.takeError();
+    const auto pending = pendingReviews(*inputs, *reviews);
+    if (pending.empty())
+        llvm::outs() << "No sections need approval.\n";
+    for (const auto &item : pending) {
+        llvm::outs() << '\n' << (inputs->docs / item.key.first).string();
+        if (item.line)
+            llvm::outs() << ':' << item.line;
+        llvm::outs() << "  " << item.key.second << '\n';
+        for (const auto &[line, message] : item.issues) {
+            llvm::outs() << "  ";
+            if (line && line != item.line)
+                llvm::outs() << "Line " << line << ": ";
+            llvm::outs() << message << '\n';
+        }
+        if (item.section && !item.section->issues.empty()) {
+            llvm::outs() << "Fix the source links before approving this section.\n";
+            continue;
+        }
+
+        switch (askForDecision()) {
+        case Decision::Quit:
+            return llvm::Error::success();
+        case Decision::Revise:
+            llvm::outs() << "Left for revision.\n";
+            continue;
+        case Decision::Approve:
+            std::optional<Review> review;
+            if (item.section)
+                review = currentReview(*item.section, inputs->snapshot, reason.trim());
+            if (auto result = recordReview(path, item.key, std::move(review), &*reviews))
+                return result;
+            break;
+        }
+    }
+    return llvm::Error::success();
+}
+
+llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
+                        llvm::StringRef page, llvm::StringRef reason) {
+    auto inputs = loadInputs(source, build, docs);
+    if (!inputs)
+        return inputs.takeError();
+    const auto pagePath = fs::path(page.str()).lexically_normal().generic_string();
+    Reviews replacements;
+    bool blocked = false;
+    for (const auto &[key, section] : inputs->sections) {
+        if (key.first != pagePath)
+            continue;
+        if (!section.issues.empty()) {
+            for (const auto &[line, message] : section.issues)
+                report(key, line, message);
+            blocked = true;
+            continue;
+        }
+        replacements.emplace(key, currentReview(section, inputs->snapshot, reason.trim()));
+    }
+    if (blocked)
+        return error("resolve source links before approving this page");
+
+    auto result = updateReviews(inputs->docs / approvalName, [&](Reviews &reviews) -> llvm::Error {
+        const auto count = std::erase_if(reviews, [&](const auto &entry) {
+            return entry.first.first == pagePath;
+        });
+        if (replacements.empty() && count == 0)
+            return error("no linked sections or existing approvals for " + pagePath);
+        reviews.merge(replacements);
+        return llvm::Error::success();
+    });
+    if (result)
+        return result;
+    llvm::outs() << "Recorded review for " << pagePath << '\n';
+    return llvm::Error::success();
+}
+
+llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
+                        llvm::StringRef page, llvm::StringRef section, llvm::StringRef reason) {
+    auto inputs = loadInputs(source, build, docs);
+    if (!inputs)
+        return inputs.takeError();
+    const Key key{fs::path(page.str()).lexically_normal().generic_string(), section.str()};
     const auto current = inputs->sections.find(key);
-    if (current == inputs->sections.end()) {
-        if (reviews->erase(key) == 0)
-            return error("no linked section or existing approval for " + page + " / " + section);
-    } else {
+    std::optional<Review> review;
+    if (current != inputs->sections.end()) {
         if (!current->second.issues.empty()) {
             for (const auto &[line, message] : current->second.issues)
                 report(key, line, message);
             return error("resolve source links before approving this section");
         }
-        reviews->insert_or_assign(key, currentReview(current->second, inputs->snapshot, reason.trim()));
+        review = currentReview(current->second, inputs->snapshot, reason.trim());
     }
-    if (auto result = saveReviews(path, *reviews))
-        return result;
-    llvm::outs() << "Recorded review for " << page << " / " << section << '\n';
-    return llvm::Error::success();
+    return recordReview(inputs->docs / approvalName, key, std::move(review));
 }
 
 } // namespace dagdocdiff

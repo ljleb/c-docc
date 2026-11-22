@@ -2,6 +2,16 @@
 
 A photo backup app tries again when Wi-Fi drops during an upload. Its troubleshooting guide says the app retries up to three times before giving up. You will raise that limit to five and run Dagdocdiff as you update the code and the guide.
 
+## Dagdocdiff from this checkout
+
+This walkthrough uses a build from the Dagdocdiff repository. On Linux with Nix flakes enabled, run this from the repository root.
+
+```sh
+nix shell path:.
+```
+
+Nix builds Dagdocdiff and makes the command available in a new shell. Use that shell for the rest of the walkthrough.
+
 ## A function and its guide
 
 The example has a C file, a Markdown guide, and a compilation database in one folder. The [photo backup starter](../../examples/photo-backup/) has all three files. Copy that folder or create the files below.
@@ -34,38 +44,28 @@ Create `compile_commands.json` in the same folder. It gives Dagdocdiff the sourc
 ]
 ```
 
-Open a terminal in your example folder. The command `pwd` prints the folder's full path. Save that path in the `directory` field in place of `REPLACE_WITH_ABSOLUTE_PATH`. Run the remaining commands from this folder.
-
-## Run Dagdocdiff
-
-This walkthrough uses the published Dagdocdiff 1.2.0 package on Linux with Nix flakes enabled.
-
-```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- --version
-```
-
-You should see `dagdocdiff 1.2.0`. Nix runs the package named before `--` and passes everything after it to Dagdocdiff.
+Switch to your example folder in the shell that Nix opened. The command `pwd` prints the folder's full path. Save that path in the `directory` field in place of `REPLACE_WITH_ABSOLUTE_PATH`. Run the remaining commands from this folder.
 
 ## The first approval
 
 Run Dagdocdiff against the guide. By default, it looks for the source, compilation database, and Markdown in your current folder.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- check
+dagdocdiff check
 ```
 
 You should see `retries.md:1: Retries: approval required`. The link resolves, and Dagdocdiff has no approval that records which version of the code the guide describes.
 
-The guide says the app retries up to 3 times, and `retry_limit` returns 3. Approve the `Retries` section in `retries.md`. The page path is relative to the Markdown folder, and the section name comes from the heading.
+The guide says the app retries up to 3 times, and `retry_limit` returns 3. Approve `retries.md` to record a review of the whole guide.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- approve retries.md Retries
+dagdocdiff approve retries.md
 ```
 
-You should see `Recorded review for retries.md / Retries`. Run `check` again.
+You should see `Recorded review for retries.md`. Run `check` again.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- check
+dagdocdiff check
 ```
 
 You should see `Approved documentation sections: 1`.
@@ -75,7 +75,7 @@ You should see `Approved documentation sections: 1`.
 In `retries.c`, change `return 3;` to `return 5;`. Keep the function on line 1 so the Markdown link still points to it. Save the file and run Dagdocdiff again.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- check
+dagdocdiff check
 ```
 
 The command should exit with status `1`. You should see the Markdown section and the changed function in the report.
@@ -91,23 +91,23 @@ Open `retries.md`. It still tells people to expect up to 3 retries.
 Change “up to 3 times” to “up to 5 times” in `retries.md`. Save the file and run Dagdocdiff again.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- check
+dagdocdiff check
 ```
 
 The command should still exit with status `1`. You should see a new message, `Retries: section text changed`, alongside the code change. The sentence now matches the function, and the approval still records the earlier version of both.
 
 ## A recorded review of the change
 
-The guide now describes the new limit of 5. Approve the revised section.
+The guide now describes the new limit of 5. Approve the revised file.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- approve retries.md Retries
+dagdocdiff approve retries.md
 ```
 
-You should see `Recorded review for retries.md / Retries` again. The updated record is in `.dagdocdiff-approvals.json`. Run Dagdocdiff once more to see what it reports for the updated guide.
+You should see `Recorded review for retries.md` again. The updated record is in `.dagdocdiff-approvals.json`. Run Dagdocdiff once more to see what it reports for the updated guide.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.2.0 -- check
+dagdocdiff check
 ```
 
 You should see `Approved documentation sections: 1` again.
