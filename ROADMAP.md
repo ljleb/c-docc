@@ -7,7 +7,7 @@
 - `docs check` reads Markdown directly. It flags declaration links that fail to resolve or point to different code. It also flags sections whose text or linked code changed since approval.
 - `docs approve` records a review of one section, including the reason, the symbol IDs resolved from each link, and the recursive hashes.
 
-The source build stays independent of the docs check. Projects can run the check in CI. Readers can open and publish the docs as ordinary Markdown. [Update linked docs with a code change](docs/how-to/review-linked-docs.md)
+Projects can run `docs check` in CI independently of the source build. Readers can open and publish the docs as ordinary Markdown. [Update linked docs with a code change](docs/how-to/review-linked-docs.md)
 
 ### What the analyzer tracks
 
@@ -19,7 +19,7 @@ Local hashes summarize token kinds and text after macro expansion. LLVM groups d
 
 ### Which documentation links work
 
-A relative Markdown link with a `#L<number>` anchor points to the line that spells a declaration name. A declaration in a header and its definition in a source file can resolve to the same symbol. A link to a header declaration with separate translation-unit instances tracks all those instances. If a line contains multiple declarations, use a line with one supported declaration. [Documentation check reference](docs/reference/cli.md#documentation-check)
+A relative Markdown link with a `#L<number>` anchor points to the line that spells a declaration name. A declaration in a header and its definition in a source file can resolve to the same symbol. A link to a header declaration with separate translation-unit instances tracks all those instances. If a line contains multiple declarations, use a line with one supported declaration. [Source links and approvals](docs/reference/cli.md#source-links-and-approvals)
 
 The tests cover change propagation across files, comment-only edits, source links that retarget to a different overload, and approvals that become stale after a dependency changes.
 

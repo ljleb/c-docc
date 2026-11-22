@@ -1,6 +1,6 @@
 # Change a retry limit and update its docs
 
-A small project limits retries to three. In this walkthrough, the code and its guide change to five retries. A docs check shows how each edit affects the section's approval.
+A small project limits retries to three. In this walkthrough, the code and its guide change to five retries. You will run Dagdocdiff after each edit to see how it affects the section's approval.
 
 ## The example project
 
@@ -55,7 +55,7 @@ printf '%s\n' 'int retry_limit(void) { return 5; }' > retries.c
 dagdocdiff docs check . . docs
 ```
 
-The check should exit with status 1 and identify the Markdown section and changed function.
+The command should exit with status `1` and report the Markdown section and changed function.
 
 ```text
 retries.md:1: Retries: code changed: retry_limit
@@ -75,7 +75,7 @@ EOF
 dagdocdiff docs check . . docs
 ```
 
-The check should still exit with status 1. You should see a new message, `Retries: section text changed`, alongside the code change. The text now says 5, and the approval still records the earlier version.
+The command should still exit with status `1`. You should see a new message, `Retries: section text changed`, alongside the code change. The text now says 5, and the approval still records the earlier version.
 
 ## A recorded review of the change
 

@@ -22,4 +22,4 @@ Each graph describes the selected build configuration and the dependency edges D
 
 ## Why documentation tracks identity as well as hashes
 
-A Markdown link opens a file at a line number. If two overload declarations trade places, the same link can open a different overload while both symbol hashes stay the same. The approval stores the symbol IDs that each source link resolved to, along with their recursive hashes. The check can then distinguish a link that points to different code from a change in the code it originally referenced.
+A Markdown link opens a file at a line number. If two overload declarations trade places, the same link can open a different overload while both symbol hashes stay the same. The approval stores the symbol IDs that each source link resolved to, along with their recursive hashes. Dagdocdiff can then distinguish a link that points to different code from a change in the code it originally referenced.

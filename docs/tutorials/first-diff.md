@@ -48,7 +48,7 @@ EOF
 dagdocdiff docs approve . . docs requests.md Requests 'The request limit comes from retry_limit, which returns 3.'
 ```
 
-You should see `Recorded review for requests.md / Requests`. The check shows that the guide is approved before the edit.
+You should see `Recorded review for requests.md / Requests`.
 
 ```sh
 dagdocdiff docs check . . docs
@@ -65,7 +65,7 @@ printf '%s\n' 'int retry_limit(void) { return 5; }' > retry_limit.c
 dagdocdiff docs check . . docs
 ```
 
-The check should exit with status 1 and show the path from the linked function to the changed helper.
+The command should exit with status `1` and show the path from the linked function to the changed helper.
 
 ```text
 requests.md:1: Requests: code changed: request_limit -> retry_limit

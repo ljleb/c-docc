@@ -1,6 +1,6 @@
 # Code changes and linked docs
 
-The docs check reports Markdown sections affected by a change to linked code. This example runs from the repository root with an executable and a compilation database in `build`. The [Dagdocdiff symbol index guide](scan-repository.md) shows that build setup.
+Dagdocdiff reports Markdown sections affected by a change to linked code. This example runs from the repository root with an executable and a compilation database in `build`. The [Dagdocdiff symbol index guide](scan-repository.md) shows that build setup.
 
 ```sh
 build/dagdocdiff docs check . build docs
@@ -17,4 +17,4 @@ build/dagdocdiff docs approve . build docs explanation/symbol-graphs.md \
 build/dagdocdiff docs check . build docs
 ```
 
-The same command records removal of an approved section or all its tracked links. One commit can contain the code change, any documentation edits, and the updated approval file. The [documentation check reference](../reference/cli.md#documentation-check) describes the file format and link rules.
+The same command records removal of an approved section or all its tracked links. One commit can contain the code change, any documentation edits, and the updated approval file. The reference describes the file format and link rules. [Source links and approvals](../reference/cli.md#source-links-and-approvals)

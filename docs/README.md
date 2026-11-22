@@ -6,7 +6,7 @@ Dagdocdiff is a command-line documentation checker for C and C++ projects. It ch
 
 A guide says that a parser accepts empty input and links to its declaration. An edit to a helper can change how empty input is handled while the declaration stays in place. The guide can become inaccurate even though the linked code looks the same.
 
-Dagdocdiff follows the parser's tracked dependencies to the helper and identifies the affected section. The person changing the code can check that section, edit it, and record why the current text applies. The check can run locally or in CI. The docs are ordinary Markdown.
+Dagdocdiff follows the parser's tracked dependencies to the helper and identifies the affected section. The person changing the code can check that section, edit it, and record why the current text applies. Dagdocdiff can run locally or in CI. The docs are ordinary Markdown.
 
 ## Published package
 

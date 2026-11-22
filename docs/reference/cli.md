@@ -27,10 +27,10 @@ Release `1.1.0`. Scan and diff output use JSON schema version `1`.
 | Status | Meaning |
 | --- | --- |
 | `0` | The command completed. A diff that finds changes also returns `0`. |
-| `1` | Analysis failed, the docs check found issues, or the approval could not be recorded. |
+| `1` | Analysis failed, Dagdocdiff reported a documentation issue, or it could not record the approval. |
 | `2` | The invocation was invalid. |
 
-Scan and diff write JSON to standard output. Clang diagnostics and documentation check failures go to standard error.
+Scan and diff write JSON to standard output. Clang diagnostics and issues reported by `docs check` go to standard error.
 
 ## Common JSON fields
 
@@ -68,7 +68,7 @@ Each entry in `changes` has an `id` and a `kind`. The entry has `before` or `aft
 | `cycle` | The recursive hash changed and the reported cause shares the affected symbol's component. |
 | `dependency` | The recursive hash changed through the dependency graph. |
 
-## Documentation check
+## Source links and approvals
 
 | Link property | Accepted value |
 | --- | --- |
@@ -78,4 +78,4 @@ Each entry in `changes` has an `id` and a `kind`. The entry has `before` or `aft
 
 The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, review reason, section text hash, resolved symbol IDs, and tracked code fingerprints. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
 
-The check exits with status `1` for an unresolved link, an absent approval, or a change that requires review. The page and heading path also identify an approval for removal of the section or all its source links. The code build and Markdown viewing work independently of the check.
+The `docs check` command exits with status `1` for an unresolved link, an absent approval, or a change that requires review. The page and heading path also identify an approval for removal of the section or all its source links. Building the code and viewing the Markdown work independently of this command.
