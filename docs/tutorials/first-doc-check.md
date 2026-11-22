@@ -19,7 +19,10 @@ The example has a C file, a Markdown guide, and a compilation database in one fo
 Create `retries.c` with this one line.
 
 ```c
-int retry_limit(void) { return 3; }
+int retry_limit(void)
+{
+    return 3;
+}
 ```
 
 Create `retries.md` next to `retries.c`.
