@@ -1,6 +1,27 @@
 # Dependency diff walkthrough
 
-This example shows how a change in a header can affect a caller in another file. It uses three copies of the same small C and C++ project.
+This example shows how a change in a header can affect a caller in another file. The code change is one line in `shared.hpp`.
+
+```diff
+-#define INITIAL 1
++#define INITIAL 2
+```
+
+The diff reports these three functions. Their definitions stay the same across the example projects.
+
+```cpp
+// a.cpp
+int app::a(int n) { return n ? b(n - 1) : INITIAL; }
+
+// b.cpp
+int app::b(int n) { return n ? a(n - 1) : helper(); }
+
+// caller.cpp
+using Count = int;
+int inspect(Count n) { return app::a(n) + c_value(); }
+```
+
+The complete projects include the headers and other definitions needed to run the example.
 
 - [`base`](../../examples/dependency-diff/base/) is the original project.
 - [`head`](../../examples/dependency-diff/head/) changes the value of `INITIAL` in a header.
@@ -40,15 +61,6 @@ ctest --test-dir build -R '^snapshot-diff$' --output-on-failure
 
 You should see `snapshot-diff` marked `Passed` in the CTest output. If the test fails, `--output-on-failure` prints its diagnostics.
 
-After the test passes, these commands show the first line of the original and edited headers.
-
-```sh
-head -n 1 build/test-snapshots/base/shared.hpp
-head -n 1 build/test-snapshots/head/shared.hpp
-```
-
-The first command should print `#define INITIAL 1`. The second should print `#define INITIAL 2`.
-
 ## Header macro change
 
 The diff compares the original project with the copy that changed the macro. Each directory appears twice because it contains both the source files and `compile_commands.json`.
@@ -71,7 +83,7 @@ In the output for `inspect(int)`, expect `dependency_path` to start at that call
 
 ## Comment-only edit
 
-This comparison uses the copy with a comment added near the header definitions. `INITIAL` is still `1`.
+The `comment-only` copy adds `// This change only shifts source locations.` to `shared.hpp`. `INITIAL` stays at `1`.
 
 ```sh
 build/dagdocdiff diff \
