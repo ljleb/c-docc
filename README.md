@@ -4,7 +4,7 @@ Dagdocdiff is a command-line documentation checker for C and C++ projects. It fo
 
 The published Nix package runs from a release tag on Linux.
 
-## Build v1
+## Build
 
 Quick build from the repository root. The flake pins Clang and LLVM.
 
