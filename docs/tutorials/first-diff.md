@@ -1,96 +1,98 @@
-# Dependency diff walkthrough
+# Trace a docs warning to a helper
 
-This example shows how a change in a header can affect a caller in another file. The code change is one line in `shared.hpp`.
+A request guide says the retry limit is three. It links to the function that returns the request limit, which gets that value from a helper in another file. This example changes the helper to allow five retries and follows the reported path to the changed code.
 
-```diff
--#define INITIAL 1
-+#define INITIAL 2
-```
+## Two C files and a request guide
 
-The diff reports these three functions. Their definitions stay the same across the example projects.
-
-```cpp
-// a.cpp
-int app::a(int n) { return n ? b(n - 1) : INITIAL; }
-
-// b.cpp
-int app::b(int n) { return n ? a(n - 1) : helper(); }
-
-// caller.cpp
-using Count = int;
-int inspect(Count n) { return app::a(n) + c_value(); }
-```
-
-The complete projects include the headers and other definitions needed to run the example.
-
-- [`base`](../../examples/dependency-diff/base/) is the original project.
-- [`head`](../../examples/dependency-diff/head/) changes the value of `INITIAL` in a header.
-- [`comment-only`](../../examples/dependency-diff/comment-only/) adds a comment and keeps the original value.
-
-## Local tool and example files
-
-The [published Nix package](../README.md#published-package) can run from any directory. This walkthrough uses a Dagdocdiff checkout to build a local executable and run the test that creates the example files.
-
-The checkout commands below use the `1.1.0` tag. Its test generates the same example sources as the linked directories.
+These commands use Nix with flakes enabled on Linux. They create a temporary project and record its starting approval. The guide links to line 2 of `request_limit.c`, where `request_limit` is defined.
 
 ```sh
-git clone --branch 1.1.0 https://github.com/ljleb/dagdocdiff.git
-cd dagdocdiff
+dagdocdiff() {
+  nix run github:ljleb/dagdocdiff/1.1.0 -- "$@"
+}
+
+example=$(mktemp -d)
+cd "$example"
+mkdir docs
+
+cat > request_limit.c <<'EOF'
+int retry_limit(void);
+int request_limit(void) { return retry_limit(); }
+EOF
+
+cat > retry_limit.c <<'EOF'
+int retry_limit(void) { return 3; }
+EOF
+
+cat > docs/requests.md <<'EOF'
+# Requests
+
+[`request_limit`](../request_limit.c#L2) returns 3.
+EOF
+
+cat > compile_commands.json <<EOF
+[
+  {
+    "directory": "$PWD",
+    "file": "$PWD/request_limit.c",
+    "arguments": ["clang", "-std=c17", "-c", "request_limit.c"]
+  },
+  {
+    "directory": "$PWD",
+    "file": "$PWD/retry_limit.c",
+    "arguments": ["clang", "-std=c17", "-c", "retry_limit.c"]
+  }
+]
+EOF
+
+dagdocdiff docs approve . . docs requests.md Requests 'The request limit comes from retry_limit, which returns 3.'
 ```
 
-From the checkout, Nix opens a shell with the compiler, CMake, and Ninja used to build Dagdocdiff.
+You should see `Recorded review for requests.md / Requests`. The check shows that the guide is approved before the edit.
 
 ```sh
-nix develop path:.
+dagdocdiff docs check . . docs
 ```
 
-In that shell, the first CMake command configures the build in `build`. The second compiles Dagdocdiff.
+You should see `Approved documentation sections: 1`.
+
+## Five retries in the helper
+
+The edit goes into `retry_limit.c`. The file that the guide links to stays the same.
 
 ```sh
-cmake -S . -B build -G Ninja
-cmake --build build
+printf '%s\n' 'int retry_limit(void) { return 5; }' > retry_limit.c
+dagdocdiff docs check . . docs
 ```
 
-After the build succeeds, you should have a `build/dagdocdiff` executable.
+The check should exit with status 1 and show the path from the linked function to the changed helper.
 
-When you run the `snapshot-diff` test, it prepares the three examples under `build/test-snapshots`. Each directory contains source files and a `compile_commands.json` file. That file lists the compiler options Dagdocdiff needs to read the example code. The test also runs the two comparisons and checks their results.
+```text
+requests.md:1: Requests: code changed: request_limit -> retry_limit
+```
+
+These commands show the two ends of that path.
 
 ```sh
-ctest --test-dir build -R '^snapshot-diff$' --output-on-failure
+cat request_limit.c
+cat retry_limit.c
 ```
 
-You should see `snapshot-diff` marked `Passed` in the CTest output. If the test fails, `--output-on-failure` prints its diagnostics.
+In the first file, `request_limit` should still return the result of calling `retry_limit`. In the second file, `retry_limit` should now return 5. The guide describes the result of the call, so the helper's edit affects its claim.
 
-## Header macro change
+## Five retries in the guide
 
-The diff compares the original project with the copy that changed the macro. Each directory appears twice because it contains both the source files and `compile_commands.json`.
+The link still points to `request_limit`. This edit changes the value the guide describes and records why it matches the code.
 
 ```sh
-build/dagdocdiff diff \
-  build/test-snapshots/base build/test-snapshots/base \
-  build/test-snapshots/head build/test-snapshots/head
+cat > docs/requests.md <<'EOF'
+# Requests
+
+[`request_limit`](../request_limit.c#L2) returns 5.
+EOF
+
+dagdocdiff docs approve . . docs requests.md Requests 'request_limit calls retry_limit, which now returns 5.'
+dagdocdiff docs check . . docs
 ```
 
-You should see three entries in the JSON `changes` array.
-
-| Symbol | Result | What happened |
-| --- | --- | --- |
-| `app::a(int)` | `direct` | Its definition uses the macro. |
-| `app::b(int)` | `cycle` | It calls `app::a(int)`, which calls it back. |
-| `inspect(int)` | `dependency` | It calls `app::a(int)` from a third file. |
-
-In the output for `inspect(int)`, expect `dependency_path` to start at that caller and end at `app::a(int)`. Their `after.file` fields should show `caller.cpp` and `a.cpp`.
-
-## Comment-only edit
-
-The `comment-only` copy adds `// This change only shifts source locations.` to `shared.hpp`. `INITIAL` stays at `1`.
-
-```sh
-build/dagdocdiff diff \
-  build/test-snapshots/base build/test-snapshots/base \
-  build/test-snapshots/comment-only build/test-snapshots/comment-only
-```
-
-You should see `"changes": []`. The comment leaves the tracked code graph unchanged in this example.
-
-[Git revision comparison](../how-to/compare-revisions.md) shows the same command with separate source and build directories.
+You should see `Approved documentation sections: 1` again.

@@ -18,15 +18,18 @@ nix run github:ljleb/dagdocdiff/1.1.0 -- --help
 
 Nix fetches the tagged source and builds the package or reuses a cached build. A Dagdocdiff checkout is optional. An analysis uses the `compile_commands.json` for the C or C++ project being checked.
 
-## Checkout build and worked example
+## Tutorials
 
-The [repository README](../README.md#build-v1) has the build commands for a checkout. The [dependency diff walkthrough](tutorials/first-diff.md) builds a local executable and compares three copies of a small example project.
+- [Change a retry limit and update its docs](tutorials/first-doc-check.md) follows one linked section from an approved starting point through a code change and a new approval.
+- [Trace a docs warning to a helper](tutorials/first-diff.md) follows a change in one file to a section that links to a function in another file.
+
+The [repository README](../README.md#build-v1) has the build commands for a checkout.
 
 ## Documentation
 
 | Form | Contents |
 | --- | --- |
-| [Tutorial](tutorials/first-diff.md) | A sample C and C++ project, two comparisons, and the expected output. |
+| [Tutorials](#tutorials) | Two small projects for checking linked docs after direct and indirect code changes. |
 | [How-to guides](#task-guides) | Commands and examples for comparing revisions, scanning a checkout, updating linked docs, and building a release. |
 | [Explanation](explanation/symbol-graphs.md) | Symbol identity, dependency cycles, and the reasons a linked section can become stale. |
 | [Reference](reference/cli.md) | Command syntax, exit statuses, JSON fields, and source link rules. |
