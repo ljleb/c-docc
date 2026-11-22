@@ -2,15 +2,15 @@
 
 This example shows how a change in a header can affect a caller in another file. It uses three copies of the same small C and C++ project.
 
-- `base` is the original project.
-- `head` changes the value of `INITIAL` in a header.
-- `comment-only` adds a comment and keeps the original value.
+- [`base`](../../examples/dependency-diff/base/) is the original project.
+- [`head`](../../examples/dependency-diff/head/) changes the value of `INITIAL` in a header.
+- [`comment-only`](../../examples/dependency-diff/comment-only/) adds a comment and keeps the original value.
 
 ## Local tool and example files
 
 The [published Nix package](../README.md#published-package) can run from any directory. This walkthrough uses a Dagdocdiff checkout to build a local executable and run the test that creates the example files.
 
-The release tag provides the source files and the test.
+The checkout commands below use the `1.1.0` tag. Its test generates the same example sources as the linked directories.
 
 ```sh
 git clone --branch 1.1.0 https://github.com/ljleb/dagdocdiff.git
@@ -32,7 +32,7 @@ cmake --build build
 
 After the build succeeds, you should have a `build/dagdocdiff` executable.
 
-When you run the `snapshot-diff` test, it writes the three copies under `build/test-snapshots`. Each directory contains source files and a `compile_commands.json` file. That file lists the compiler options Dagdocdiff needs to read the example code. The test also runs the two comparisons and checks their results.
+When you run the `snapshot-diff` test, it prepares the three examples under `build/test-snapshots`. Each directory contains source files and a `compile_commands.json` file. That file lists the compiler options Dagdocdiff needs to read the example code. The test also runs the two comparisons and checks their results.
 
 ```sh
 ctest --test-dir build -R '^snapshot-diff$' --output-on-failure

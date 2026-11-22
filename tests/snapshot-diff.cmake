@@ -9,41 +9,15 @@ function(run_tool output)
     set(${output} "${stdout}" PARENT_SCOPE)
 endfunction()
 
-function(make_snapshot name macro comment)
+function(prepare_example name)
     set(root "${WORK_DIR}/${name}")
+    set(example "${CMAKE_CURRENT_LIST_DIR}/../examples/dependency-diff/${name}")
     file(MAKE_DIRECTORY "${root}")
-    file(WRITE "${root}/shared.hpp"
-        "#define INITIAL ${macro}\n${comment}\n"
-        "extern \"C\" int c_value(void);\n"
-        "namespace app {\n"
-        "int a(int n);\nint b(int n);\n"
-        "static int helper() { return 4; }\n"
-        "struct Base { int n; };\nstruct Derived : Base {};\n"
-        "struct Reader { int read() const & { return 7; } };\n}\n"
-    )
-    file(WRITE "${root}/a.cpp"
-        "#include \"shared.hpp\"\n"
-        "int app::a(int n) { return n ? b(n - 1) : INITIAL; }\n"
-    )
-    file(WRITE "${root}/b.cpp"
-        "#include \"shared.hpp\"\n"
-        "int app::b(int n) { return n ? a(n - 1) : helper(); }\n"
-    )
-    file(WRITE "${root}/caller.cpp"
-        "#include \"shared.hpp\"\n#include <vector>\n"
-        "using Count = int;\n"
-        "int inspect(Count n) { return app::a(n) + c_value(); }\n"
-        "int inspect(double) { return sizeof(std::vector<int>); }\n"
-        "int use(const app::Derived &value) { return value.n; }\n"
-    )
-    file(WRITE "${root}/legacy.c"
-        "#include <stdint.h>\nstruct State { int32_t count; };\n"
-        "static int helper(void) { return 3; }\n"
-        "int c_value(void) { struct State s = {helper()}; return s.count; }\n"
-    )
+    configure_file("${example}/shared.hpp" "${root}/shared.hpp" COPYONLY)
     set(database "[]")
     set(index 0)
     foreach(file IN ITEMS a.cpp b.cpp caller.cpp legacy.c)
+        configure_file("${example}/${file}" "${root}/${file}" COPYONLY)
         if(file STREQUAL "legacy.c")
             set(standard "-std=c17")
         else()
@@ -73,9 +47,9 @@ function(find_entry out json list id)
     message(FATAL_ERROR "Missing ${id} in ${list}\n${json}")
 endfunction()
 
-make_snapshot(base 1 "")
-make_snapshot(head 2 "// A comment near the header definitions.")
-make_snapshot(comment-only 1 "// This change only shifts source locations.")
+prepare_example(base)
+prepare_example(head)
+prepare_example(comment-only)
 set(base "${WORK_DIR}/base")
 set(head "${WORK_DIR}/head")
 set(comment "${WORK_DIR}/comment-only")
