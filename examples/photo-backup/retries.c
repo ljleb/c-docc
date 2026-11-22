@@ -1,1 +1,4 @@
-int retry_limit(void) { return 3; }
+int retry_limit(void)
+{
+    return 3;
+}

@@ -1,2 +1,6 @@
-int depot_sorting_days(void);
-int delivery_estimate_days(void) { return depot_sorting_days() + 1; }
+int depot_sorting_days();
+
+int delivery_estimate_days()
+{
+    return depot_sorting_days() + 1;
+}

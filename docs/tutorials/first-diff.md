@@ -18,7 +18,7 @@ Nix builds Dagdocdiff and makes the command available in a new shell. Use that s
 
 The example has two C files, a Markdown guide, and a compilation database in one folder. Copy the [parcel tracking starter](../../examples/parcel-tracking/) or create the files below.
 
-Create `depot_sorting.c` with the depot's current sorting time.
+Create [`depot_sorting.c`](../../examples/parcel-tracking/depot_sorting.c#L1) with the depot's current sorting time.
 
 ```c
 int depot_sorting_days()
@@ -27,7 +27,7 @@ int depot_sorting_days()
 }
 ```
 
-Next to it, create `delivery_estimate.c`. The estimate adds one day for delivery to the sorting time from the helper.
+Next to it, create [`delivery_estimate.c`](../../examples/parcel-tracking/delivery_estimate.c#L3). The estimate adds one day for delivery to the sorting time from the helper.
 
 ```c
 int depot_sorting_days();
@@ -38,17 +38,17 @@ int delivery_estimate_days()
 }
 ```
 
-Create `delivery.md` next to the two C files.
+Create [`delivery.md`](../../examples/parcel-tracking/delivery.md) next to the two C files.
 
 ```markdown
 # Delivery estimates
 
-Once a parcel reaches the local depot, the app [estimates delivery](delivery_estimate.c#L2) in 3 business days.
+Once a parcel reaches the local depot, the app [estimates delivery](delivery_estimate.c#L3) in 3 business days.
 ```
 
-The link points to `delivery_estimate_days` on line 2 of `delivery_estimate.c`. Follow its call to `depot_sorting_days` to see where the estimate gets its sorting time.
+The link points to `delivery_estimate_days` on line 3 of `delivery_estimate.c`. Follow its call to `depot_sorting_days` to see where the estimate gets its sorting time.
 
-Create `compile_commands.json` next to the C files. It lists both files and their compiler options so Dagdocdiff can follow the call between them. Each `directory` field tells Clang where the compiler would run and needs the full path to your example folder.
+Create [`compile_commands.json`](../../examples/parcel-tracking/compile_commands.json) next to the C files. It lists both files and their compiler options so Dagdocdiff can follow the call between them. Each `directory` field tells Clang where the compiler would run and needs the full path to your example folder.
 
 ```json
 [
@@ -69,13 +69,13 @@ Switch to your example folder in the shell that Nix opened. Use `pwd` to find th
 
 ## An approved starting point
 
-Two days for sorting plus one for delivery matches the guide's estimate of three business days. Approve the `Delivery estimates` section in `delivery.md`.
+Two days for sorting plus one for delivery matches the guide's estimate of three business days. Approve the guide in `delivery.md`.
 
 ```sh
-dagdocdiff approve delivery.md 'Delivery estimates'
+dagdocdiff approve delivery.md
 ```
 
-You should see `Recorded review for delivery.md / Delivery estimates`. Run Dagdocdiff against the guide to see the starting result.
+You should see `Recorded review for delivery.md`. Run Dagdocdiff against the guide to see the starting result.
 
 ```sh
 dagdocdiff check
@@ -106,13 +106,13 @@ The report starts at the guide's link on line 3. The arrow shows the call from `
 
 ## Two days in the guide
 
-In `delivery.md`, change “3 business days” to “2 business days” and keep the link to `delivery_estimate_days`. Save the guide and approve the updated section.
+In `delivery.md`, change “3 business days” to “2 business days” and keep the link to `delivery_estimate_days`. Save the guide and approve the updated file.
 
 ```sh
-dagdocdiff approve delivery.md 'Delivery estimates'
+dagdocdiff approve delivery.md
 ```
 
-You should see `Recorded review for delivery.md / Delivery estimates` again. Run Dagdocdiff once more against the updated guide.
+You should see `Recorded review for delivery.md` again. Run Dagdocdiff once more against the updated guide.
 
 ```sh
 dagdocdiff check

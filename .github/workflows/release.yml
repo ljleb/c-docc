@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+
+jobs:
+  build:
+    if: ${{ !github.event.deleted }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            system: x86_64-linux
+          - runner: ubuntu-24.04-arm
+            system: aarch64-linux
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Check tag version
+        shell: bash
+        run: |
+          version=$(cat VERSION)
+          if [[ "$version" != "$GITHUB_REF_NAME" ]]; then
+            printf '::error::VERSION is %s but the tag is %s\n' "$version" "$GITHUB_REF_NAME"
+            exit 1
+          fi
+
+      - uses: cachix/install-nix-action@v31
+
+      - name: Build, test, and package
+        shell: bash
+        env:
+          TARGET_SYSTEM: ${{ matrix.system }}
+        run: |
+          package=$(nix build --print-build-logs --no-link --print-out-paths "path:.#packages.$TARGET_SYSTEM.default")
+          test "$("$package/bin/dagdocdiff" --version)" = "dagdocdiff $GITHUB_REF_NAME"
+
+          bundle="dagdocdiff-$GITHUB_REF_NAME-$TARGET_SYSTEM"
+          staging="$RUNNER_TEMP/$bundle"
+          mkdir -p "$staging" dist
+          printf '%s\n' "$package" > "$staging/store-path"
+          nix-store --query --requisites "$package" > "$RUNNER_TEMP/requisites"
+          mapfile -t requisites < "$RUNNER_TEMP/requisites"
+          nix-store --export "${requisites[@]}" > "$staging/closure.nix-export"
+
+          cat > "$staging/README.txt" <<'EOF'
+          This archive contains Dagdocdiff and its Nix runtime dependencies.
+          Extract it and run these commands inside the extracted directory.
+
+          nix-store --import < closure.nix-export
+          "$(cat store-path)/bin/dagdocdiff" --version
+
+          Use a trusted Nix account to import the archive on a multi-user installation.
+          EOF
+          tar -C "$RUNNER_TEMP" -czf "dist/$bundle.tar.gz" "$bundle"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dagdocdiff-${{ matrix.system }}
+          path: dist/*.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: dagdocdiff-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish release
+        shell: bash
+        working-directory: dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          assets=("dagdocdiff-$tag-x86_64-linux.tar.gz" "dagdocdiff-$tag-aarch64-linux.tar.gz")
+          sha256sum "${assets[@]}" > SHA256SUMS
+          printf -v notes 'Run with Nix using %s. Each Linux archive includes the runtime dependencies and import instructions.' "\`nix run github:$GH_REPO/$tag\`"
+
+          if draft=$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null); then
+            gh release upload "$tag" "${assets[@]}" SHA256SUMS --clobber
+            if [[ "$draft" == true ]]; then
+              gh release edit "$tag" --draft=false --verify-tag
+            fi
+          else
+            gh release create "$tag" "${assets[@]}" SHA256SUMS --verify-tag --generate-notes --notes "$notes"
+          fi

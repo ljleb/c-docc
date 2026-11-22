@@ -109,6 +109,47 @@
         "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "1bd51d6f5bbf1d97d4de803e1038ab3af6332fa118acf439b9e31b07b54dfa67"
       },
       "text_hash": "150de718040dc6042fce0b88a1d25e700a3f98577209908c9132cdf2ccf917fe"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "delivery_estimate_days": "93ab29da30e004da0ac82af3f6bf6470d591f7082a05afba1b07b82b04d0e156",
+        "depot_sorting_days": "620a9a8b808216bacd015b871eec9dac7277cb9d8811c436078276c199ee4fcb"
+      },
+      "links": {
+        "../../examples/parcel-tracking/delivery_estimate.c#L3": [
+          "delivery_estimate_days"
+        ],
+        "../../examples/parcel-tracking/depot_sorting.c#L1": [
+          "depot_sorting_days"
+        ]
+      },
+      "page": "tutorials/first-diff.md",
+      "reason": "Verified the tutorial snippets and walkthrough against the starter files.",
+      "section": "Trace a change in a delivery estimate / The estimate and its guide",
+      "symbols": {
+        "delivery_estimate_days": "73d90910955af1f1754ac3738eb62287a335ce6968bb098205dd7e8593dc58e1",
+        "depot_sorting_days": "ca0126268e6bb3dccd8f41f4455adecc37122dedac751de21fd7126087b849e4"
+      },
+      "text_hash": "814031f570299c933fca52943aa2db32db4808480ba2cd2c779d0e8dca4155b1"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "retry_limit": "386dd76f451343e9400ab751f6ada681f4b48261746707abb7d74037ed68822e"
+      },
+      "links": {
+        "../../examples/photo-backup/retries.c#L1": [
+          "retry_limit"
+        ]
+      },
+      "page": "tutorials/first-doc-check.md",
+      "reason": "Verified the tutorial snippets and walkthrough against the starter files.",
+      "section": "Change a retry limit and update its docs / A function and its guide",
+      "symbols": {
+        "retry_limit": "9a86cd81d9ccd79a31b43d9c0fde5f0bff69d41503fdd0b230740495ae9d8378"
+      },
+      "text_hash": "6da2dd0c76f16f113763aa0a561d951c1ac074c6ebd99078d857fa77b68dc30c"
     }
   ]
 }

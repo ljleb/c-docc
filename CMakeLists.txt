@@ -38,6 +38,18 @@ else()
 endif()
 install(TARGETS dagdocdiff RUNTIME DESTINATION bin)
 
+# Include tutorial declarations in the compilation database for documentation checks.
+add_library(dagdocdiff-tutorial-examples OBJECT EXCLUDE_FROM_ALL
+    examples/photo-backup/retries.c
+    examples/parcel-tracking/delivery_estimate.c
+    examples/parcel-tracking/depot_sorting.c
+)
+set_target_properties(dagdocdiff-tutorial-examples PROPERTIES
+    C_STANDARD 17
+    C_STANDARD_REQUIRED YES
+    C_EXTENSIONS NO
+)
+
 include(CTest)
 if(BUILD_TESTING)
     add_test(NAME snapshot-diff

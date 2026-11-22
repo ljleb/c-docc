@@ -16,7 +16,7 @@ Nix builds Dagdocdiff and makes the command available in a new shell. Use that s
 
 The example has a C file, a Markdown guide, and a compilation database in one folder. The [photo backup starter](../../examples/photo-backup/) has all three files. Copy that folder or create the files below.
 
-Create `retries.c` with this one line.
+Create [`retries.c`](../../examples/photo-backup/retries.c#L1) with the contents below.
 
 ```c
 int retry_limit(void)
@@ -25,7 +25,7 @@ int retry_limit(void)
 }
 ```
 
-Create `retries.md` next to `retries.c`.
+Create [`retries.md`](../../examples/photo-backup/retries.md) next to `retries.c`.
 
 ```markdown
 # Retries
@@ -35,7 +35,7 @@ If Wi-Fi drops during an upload, the app [retries the upload](retries.c#L1) up t
 
 The relative link points to the function on line 1 of `retries.c` in the same folder.
 
-Create `compile_commands.json` in the same folder. It gives Dagdocdiff the source file and the compiler options for reading it as C17. The `directory` field tells Clang where the compiler would run. It needs the full path to your example folder.
+Create [`compile_commands.json`](../../examples/photo-backup/compile_commands.json) in the same folder. It gives Dagdocdiff the source file and the compiler options for reading it as C17. The `directory` field tells Clang where the compiler would run. It needs the full path to your example folder.
 
 ```json
 [
