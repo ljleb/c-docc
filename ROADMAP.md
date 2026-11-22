@@ -1,13 +1,13 @@
 # Dagdocdiff implementation roadmap
 
-## Working in the 1.1.0 checkout
+## Working in the 1.2.0 checkout
 
 - `scan` indexes C and C++ symbols, declaration lines, and tracked dependencies for one compilation database.
 - `diff` compares two snapshots and reports direct changes, changes within a recursion cycle, and changes that reach callers or other dependents.
-- `docs check` reads Markdown directly. It flags declaration links that fail to resolve or point to different code. It also flags sections whose text or linked code changed since approval.
-- `docs approve` records a review of one section, including the reason, the symbol IDs resolved from each link, and the recursive hashes.
+- `check` reads Markdown directly. It flags declaration links that fail to resolve or point to different code. It also flags sections whose text or linked code changed since approval.
+- `approve` records a review of one section, including the symbol IDs resolved from each link and the recursive hashes. A reason is optional.
 
-Projects can run `docs check` in CI independently of the source build. Readers can open and publish the docs as ordinary Markdown. [Update linked docs with a code change](docs/how-to/review-linked-docs.md)
+Projects can run `check` in CI independently of the source build. Readers can open and publish the docs as ordinary Markdown. [Update linked docs with a code change](docs/how-to/review-linked-docs.md)
 
 ### What the analyzer tracks
 

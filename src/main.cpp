@@ -2,6 +2,9 @@
 #include "Docs.h"
 
 #include "clang/Basic/Version.h"
+#include "llvm/ADT/ArrayRef.h"
+#include "llvm/ADT/SmallVector.h"
+#include "llvm/ADT/StringSwitch.h"
 #include "llvm/Support/FormatVariadic.h"
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/JSON.h"
@@ -83,8 +86,67 @@ void usage(llvm::raw_ostream &out) {
         << "  dagdocdiff --version\n"
         << "  dagdocdiff scan <source-root> <build-dir>\n"
         << "  dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>\n"
-        << "  dagdocdiff docs check <source-root> <build-dir> <docs-root>\n"
-        << "  dagdocdiff docs approve <source-root> <build-dir> <docs-root> <page> <section> <reason>\n";
+        << "  dagdocdiff check [options]\n"
+        << "  dagdocdiff approve <page> <section> [options] [--reason <text>]\n"
+        << "\nOptions for check and approve (each path defaults to the current directory):\n"
+        << "  --source-root <path>  Source directory\n"
+        << "  --build-dir <path>    Directory containing compile_commands.json\n"
+        << "  --docs-root <path>    Markdown directory\n";
+}
+
+int usageError(const llvm::Twine &message) {
+    llvm::errs() << "dagdocdiff: " << message << '\n';
+    usage(llvm::errs());
+    return 2;
+}
+
+int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
+    if (args.size() == 1 && (llvm::StringRef(args[0]) == "--help" || llvm::StringRef(args[0]) == "-h")) {
+        usage(llvm::outs());
+        return 0;
+    }
+
+    const bool approve = command == "approve";
+    llvm::StringRef source = ".", build = ".", docs = ".", reason;
+    llvm::SmallVector<llvm::StringRef, 2> positional;
+    bool options = true;
+    for (size_t i = 0; i < args.size(); ++i) {
+        const llvm::StringRef arg = args[i];
+        if (!options || !arg.starts_with("-")) {
+            positional.push_back(arg);
+            continue;
+        }
+        if (arg == "--") {
+            options = false;
+            continue;
+        }
+
+        auto [name, value] = arg.split('=');
+        auto *destination = llvm::StringSwitch<llvm::StringRef *>(name)
+            .Case("--source-root", &source)
+            .Case("--build-dir", &build)
+            .Case("--docs-root", &docs)
+            .Case("--reason", approve ? &reason : nullptr)
+            .Default(nullptr);
+        if (!destination)
+            return usageError("unknown option " + name);
+        if (name == arg) {
+            if (i + 1 == args.size() || llvm::StringRef(args[i + 1]).starts_with("-"))
+                return usageError("missing value for " + name);
+            value = args[++i];
+        }
+        if (value.empty() && destination != &reason)
+            return usageError("missing value for " + name);
+        *destination = value;
+    }
+    if (approve && positional.size() != 2)
+        return usageError("approve expects a page and a section");
+    if (!approve && !positional.empty())
+        return usageError("check takes no positional arguments");
+
+    auto result = approve ? approveDocs(source, build, docs, positional[0], positional[1], reason)
+                          : checkDocs(source, build, docs);
+    return result ? fail(std::move(result)) : 0;
 }
 
 } // namespace
@@ -117,16 +179,8 @@ int main(int argc, char **argv) {
         print(diffJson(*base, *head));
         return 0;
     }
-    if (command == "docs" && argc == 6 && llvm::StringRef(argv[2]) == "check") {
-        if (auto error = dagdocdiff::checkDocs(argv[3], argv[4], argv[5]))
-            return fail(std::move(error));
-        return 0;
-    }
-    if (command == "docs" && argc == 9 && llvm::StringRef(argv[2]) == "approve") {
-        if (auto error = dagdocdiff::approveDocs(argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]))
-            return fail(std::move(error));
-        return 0;
-    }
+    if (command == "check" || command == "approve")
+        return docsCommand(command, llvm::ArrayRef(argv + 2, argc - 2));
     usage(llvm::errs());
     return 2;
 }

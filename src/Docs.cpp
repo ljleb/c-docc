@@ -482,8 +482,6 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
 
 llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
                         llvm::StringRef page, llvm::StringRef section, llvm::StringRef reason) {
-    if (reason.trim().empty())
-        return error("approval requires a review reason");
     auto inputs = loadInputs(source, build, docs);
     if (!inputs)
         return inputs.takeError();

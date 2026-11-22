@@ -38,34 +38,34 @@ Open a terminal in your example folder. The command `pwd` prints the folder's fu
 
 ## Run Dagdocdiff
 
-This walkthrough uses the published Dagdocdiff 1.1.0 package on Linux with Nix flakes enabled.
+This walkthrough uses the published Dagdocdiff 1.2.0 package on Linux with Nix flakes enabled.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- --version
+nix run github:ljleb/dagdocdiff/1.2.0 -- --version
 ```
 
-You should see `dagdocdiff 1.1.0`. Nix runs the package named before `--` and passes everything after it to Dagdocdiff.
+You should see `dagdocdiff 1.2.0`. Nix runs the package named before `--` and passes everything after it to Dagdocdiff.
 
 ## The first approval
 
-Run Dagdocdiff against the guide. The three `.` arguments point to the source, compilation database, and Markdown folders. In this example, all three are the current folder.
+Run Dagdocdiff against the guide. By default, it looks for the source, compilation database, and Markdown in your current folder.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 You should see `retries.md:1: Retries: approval required`. The link resolves, and Dagdocdiff has no approval that records which version of the code the guide describes.
 
-The guide says the app retries up to 3 times, and `retry_limit` returns 3. Record that reason for approving the `Retries` section in `retries.md`. The page path is relative to the Markdown folder, and the section name comes from the heading.
+The guide says the app retries up to 3 times, and `retry_limit` returns 3. Approve the `Retries` section in `retries.md`. The page path is relative to the Markdown folder, and the section name comes from the heading.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . . retries.md Retries 'The guide matches the upload retry limit of 3.'
+nix run github:ljleb/dagdocdiff/1.2.0 -- approve retries.md Retries
 ```
 
-You should see `Recorded review for retries.md / Retries`. Run `docs check` again.
+You should see `Recorded review for retries.md / Retries`. Run `check` again.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 You should see `Approved documentation sections: 1`.
@@ -75,7 +75,7 @@ You should see `Approved documentation sections: 1`.
 In `retries.c`, change `return 3;` to `return 5;`. Keep the function on line 1 so the Markdown link still points to it. Save the file and run Dagdocdiff again.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 The command should exit with status `1`. You should see the Markdown section and the changed function in the report.
@@ -91,23 +91,23 @@ Open `retries.md`. It still tells people to expect up to 3 retries.
 Change “up to 3 times” to “up to 5 times” in `retries.md`. Save the file and run Dagdocdiff again.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 The command should still exit with status `1`. You should see a new message, `Retries: section text changed`, alongside the code change. The sentence now matches the function, and the approval still records the earlier version of both.
 
 ## A recorded review of the change
 
-Record why the revised sentence matches the function.
+The guide now describes the new limit of 5. Approve the revised section.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . . retries.md Retries 'The guide matches the new upload retry limit of 5.'
+nix run github:ljleb/dagdocdiff/1.2.0 -- approve retries.md Retries
 ```
 
 You should see `Recorded review for retries.md / Retries` again. The updated record is in `.dagdocdiff-approvals.json`. Run Dagdocdiff once more to see what it reports for the updated guide.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 You should see `Approved documentation sections: 1` again.

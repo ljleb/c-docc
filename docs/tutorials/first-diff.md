@@ -52,26 +52,26 @@ Open a terminal in your example folder. The command `pwd` prints the folder's fu
 
 ## Run Dagdocdiff
 
-This walkthrough uses the published Dagdocdiff 1.1.0 package on Linux with Nix flakes enabled.
+This walkthrough uses the published Dagdocdiff 1.2.0 package on Linux with Nix flakes enabled.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- --version
+nix run github:ljleb/dagdocdiff/1.2.0 -- --version
 ```
 
-You should see `dagdocdiff 1.1.0`. Nix runs the package named before `--` and passes everything after it to Dagdocdiff.
+You should see `dagdocdiff 1.2.0`. Nix runs the package named before `--` and passes everything after it to Dagdocdiff.
 
 ## An approved starting point
 
-The guide says the app retries the request up to 3 times, and the helper returns 3. Record that reason for approving the `Requests` section in `requests.md`. The three `.` arguments point to the source, compilation database, and Markdown folders. In this example, all three are the current folder, and `requests.md` is relative to it.
+The guide says the app retries the request up to 3 times, and the helper returns 3. Approve the `Requests` section in `requests.md`. Dagdocdiff looks for the source, compilation database, and Markdown in your current folder by default.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . . requests.md Requests 'The guide says 3 retries, and request_limit gets 3 from retry_limit.'
+nix run github:ljleb/dagdocdiff/1.2.0 -- approve requests.md Requests
 ```
 
 You should see `Recorded review for requests.md / Requests`. Run Dagdocdiff against the guide to see the starting result.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 You should see `Approved documentation sections: 1`.
@@ -81,7 +81,7 @@ You should see `Approved documentation sections: 1`.
 In `retry_limit.c`, change `return 3;` to `return 5;`. Save that file and run Dagdocdiff again.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 The command should exit with status `1`. Look for this line in the report.
@@ -94,16 +94,16 @@ The arrow shows that `request_limit` calls `retry_limit`. Open `request_limit.c`
 
 ## Five retries in the guide
 
-In `requests.md`, change “up to 3 times” to “up to 5 times” and keep the link to `request_limit`. Save the guide and record why the new value applies.
+In `requests.md`, change “up to 3 times” to “up to 5 times” and keep the link to `request_limit`. Save the guide and approve the updated section.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . . requests.md Requests 'The guide says 5 retries, and request_limit gets 5 from retry_limit.'
+nix run github:ljleb/dagdocdiff/1.2.0 -- approve requests.md Requests
 ```
 
 You should see `Recorded review for requests.md / Requests` again. Run Dagdocdiff once more against the updated guide.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . .
+nix run github:ljleb/dagdocdiff/1.2.0 -- check
 ```
 
 You should see `Approved documentation sections: 1` again.

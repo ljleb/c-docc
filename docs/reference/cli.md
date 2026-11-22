@@ -1,17 +1,17 @@
 # Dagdocdiff v1 command and output reference
 
-Release `1.1.0`. Scan and diff output use JSON schema version `1`.
+Release `1.2.0`. Scan and diff output use JSON schema version `1`.
 
 ## Commands
 
 | Command | Result |
 | --- | --- |
 | `dagdocdiff --help` | Prints usage. |
-| `dagdocdiff --version` | Prints `dagdocdiff 1.1.0`. |
+| `dagdocdiff --version` | Prints `dagdocdiff 1.2.0`. |
 | `dagdocdiff scan <source-root> <build-dir>` | Prints the symbols and findings for one snapshot. |
 | `dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>` | Prints changes and findings for two snapshots. |
-| `dagdocdiff docs check <source-root> <build-dir> <docs-root>` | Checks source links and recorded reviews in Markdown. |
-| `dagdocdiff docs approve <source-root> <build-dir> <docs-root> <page> <section> <reason>` | Records an explicit review of one section. |
+| `dagdocdiff check [options]` | Checks source links and recorded reviews in Markdown. |
+| `dagdocdiff approve <page> <section> [options]` | Records an explicit review of one section. |
 
 | Argument | Meaning |
 | --- | --- |
@@ -20,7 +20,15 @@ Release `1.1.0`. Scan and diff output use JSON schema version `1`.
 | `docs-root` | Directory inside the source root that contains the Markdown pages and approvals. |
 | `page` | Markdown path relative to `docs-root`. |
 | `section` | Heading path, with ` / ` between nested headings. |
-| `reason` | Required review reason. |
+
+The directory options for `check` and `approve` default to the current directory. Relative directory paths start there.
+
+| Option | Meaning |
+| --- | --- |
+| `--source-root <path>` | Source directory. |
+| `--build-dir <path>` | Directory containing `compile_commands.json`. |
+| `--docs-root <path>` | Directory containing the Markdown pages and approvals. It must be inside the source root. |
+| `--reason <text>` | Optional note for `approve`. |
 
 ## Exit statuses
 
@@ -30,7 +38,7 @@ Release `1.1.0`. Scan and diff output use JSON schema version `1`.
 | `1` | Analysis failed, Dagdocdiff reported a documentation issue, or it could not record the approval. |
 | `2` | The invocation was invalid. |
 
-Scan and diff write JSON to standard output. Clang diagnostics and issues reported by `docs check` go to standard error.
+Scan and diff write JSON to standard output. Clang diagnostics and issues reported by `check` go to standard error.
 
 ## Common JSON fields
 
@@ -76,6 +84,6 @@ Each entry in `changes` has an `id` and a `kind`. The entry has `before` or `aft
 | Anchor | One `#L<number>` anchor on the line that spells an indexed declaration name. |
 | Context | A Markdown link in the page body. A link inside a code block is example text. |
 
-The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, review reason, section text hash, resolved symbol IDs, and tracked code fingerprints. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
+The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
 
-The `docs check` command exits with status `1` for an unresolved link, an absent approval, or a change that requires review. The page and heading path also identify an approval for removal of the section or all its source links. Building the code and viewing the Markdown work independently of this command.
+The `check` command exits with status `1` for an unresolved link, an absent approval, or a change that requires review. The page and heading path also identify an approval for removal of the section or all its source links. Building the code and viewing the Markdown work independently of this command.

@@ -2,7 +2,7 @@
 
 Dagdocdiff is a command-line documentation checker for C and C++ projects. It follows source links in Markdown and flags the sections that need review when linked code or a tracked dependency changes.
 
-The published Nix package runs from the 1.1.0 tag on Linux.
+The published Nix package runs from a release tag on Linux.
 
 ## Build v1
 
@@ -13,7 +13,7 @@ nix build path:.
 ./result/bin/dagdocdiff --version
 ```
 
-The version command prints `dagdocdiff 1.1.0`.
+The version command prints `dagdocdiff 1.2.0`.
 
 ## Documentation
 

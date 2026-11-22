@@ -1,13 +1,15 @@
-function(run_docs expected text)
-    execute_process(COMMAND "${PROGRAM}" docs ${ARGN}
+function(run_cli expected text)
+    execute_process(COMMAND "${PROGRAM}" ${ARGN}
+        WORKING_DIRECTORY "${WORK_DIR}"
         RESULT_VARIABLE status OUTPUT_VARIABLE out ERROR_VARIABLE diagnostics)
     if(NOT status EQUAL expected OR NOT "${out}${diagnostics}" MATCHES "${text}")
         message(FATAL_ERROR "Expected status ${expected} and message ${text}, got ${status}:\n${out}${diagnostics}")
     endif()
 endfunction()
 
-file(MAKE_DIRECTORY "${WORK_DIR}/docs")
-file(REMOVE "${WORK_DIR}/docs/.dagdocdiff-approvals.json")
+file(MAKE_DIRECTORY "${WORK_DIR}/docs" "${WORK_DIR}/build")
+file(REMOVE "${WORK_DIR}/docs/.dagdocdiff-approvals.json"
+    "${WORK_DIR}/.dagdocdiff-approvals.json" "${WORK_DIR}/compile_commands.json")
 file(WRITE "${WORK_DIR}/api.hpp" [=[
 namespace demo {
 int parse(int);
@@ -30,12 +32,12 @@ file(WRITE "${WORK_DIR}/b.cpp" [=[
 #include "api.hpp"
 int demo::parse(double value) { return int(value); }
 ]=])
-file(WRITE "${WORK_DIR}/compile_commands.json"
+file(WRITE "${WORK_DIR}/build/compile_commands.json"
     "[{\"directory\":\"${WORK_DIR}\",\"file\":\"${WORK_DIR}/a.cpp\",\"arguments\":[\"${CLANG}\",\"-std=c++20\",\"-c\",\"${WORK_DIR}/a.cpp\"]},
       {\"directory\":\"${WORK_DIR}\",\"file\":\"${WORK_DIR}/b.cpp\",\"arguments\":[\"${CLANG}\",\"-std=c++20\",\"-c\",\"${WORK_DIR}/b.cpp\"]}]")
 
 set(page "${WORK_DIR}/docs/guide.md")
-set(roots "${WORK_DIR}" "${WORK_DIR}" "${WORK_DIR}/docs")
+set(path_options "--source-root=${WORK_DIR}" --build-dir build --docs-root docs)
 set(markdown [=[
 # Guide
 
@@ -53,11 +55,17 @@ set(markdown [=[
 ]=])
 file(WRITE "${page}" "${markdown}")
 
-run_docs(1 "approval required" check ${roots})
-run_docs(0 "Recorded review" approve ${roots} guide.md "Guide / Header" "Reviewed the declarations")
-run_docs(0 "Recorded review" approve ${roots} guide.md "Guide / Result" "Reviewed the caller")
-run_docs(0 "Approved documentation sections: 2" check ${roots})
+run_cli(2 "missing value for --build-dir" check --build-dir)
+run_cli(1 "approval required" check ${path_options})
+run_cli(0 "Recorded review" approve guide.md "Guide / Header" ${path_options})
+run_cli(0 "Recorded review" approve ${path_options} --reason "Reviewed the caller" guide.md "Guide / Result")
+run_cli(0 "Approved documentation sections: 2" check ${path_options})
 file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" approvals)
+string(JSON header_reason GET "${approvals}" sections 0 reason)
+string(JSON result_reason GET "${approvals}" sections 1 reason)
+if(NOT header_reason STREQUAL "" OR NOT result_reason STREQUAL "Reviewed the caller")
+    message(FATAL_ERROR "Expected the optional reason to be empty or recorded as supplied")
+endif()
 if(NOT approvals MATCHES "a.cpp::demo::helper" OR NOT approvals MATCHES "b.cpp::demo::helper")
     message(FATAL_ERROR "Header link did not track both translation units")
 endif()
@@ -65,26 +73,32 @@ endif()
 file(READ "${WORK_DIR}/api.hpp" header)
 string(REPLACE "return 1" "return 2" changed "${header}")
 file(WRITE "${WORK_DIR}/api.hpp" "${changed}")
-run_docs(1 "read_value.* -> demo::parse.* -> a.cpp::demo::helper" check ${roots})
-run_docs(0 "Recorded review" approve ${roots} guide.md "Guide / Header" "Reviewed the changed helper")
-run_docs(0 "Recorded review" approve ${roots} guide.md "Guide / Result" "Reviewed the changed result")
-run_docs(0 "Approved documentation sections: 2" check ${roots})
+run_cli(1 "read_value.* -> demo::parse.* -> a.cpp::demo::helper" check ${path_options})
+run_cli(0 "Recorded review" approve ${path_options} guide.md "Guide / Header")
+run_cli(0 "Recorded review" approve ${path_options} guide.md "Guide / Result")
+run_cli(0 "Approved documentation sections: 2" check ${path_options})
 
 string(REPLACE "int parse(int);\nint parse(double);" "int parse(double);\nint parse(int);" swapped "${changed}")
 file(WRITE "${WORK_DIR}/api.hpp" "${swapped}")
-run_docs(1 "previously demo::parse" check ${roots})
+run_cli(1 "previously demo::parse" check ${path_options})
 file(WRITE "${WORK_DIR}/api.hpp" "${changed}")
 
 file(APPEND "${WORK_DIR}/a.cpp" "int x() { return 0; } int y() { return 0; }\n")
 file(WRITE "${page}" "${markdown}\n[Ambiguous](../a.cpp#L7)\n")
-run_docs(1 "multiple declarations" check ${roots})
+run_cli(1 "multiple declarations" check ${path_options})
 file(WRITE "${page}" "${markdown}\n[Body](../a.cpp#L5)\n")
-run_docs(1 "no indexed declaration" check ${roots})
+run_cli(1 "no indexed declaration" check ${path_options})
 file(WRITE "${page}" "${markdown}\n[Member](../api.hpp#L6)\n")
-run_docs(1 "no indexed declaration" check ${roots})
+run_cli(1 "no indexed declaration" check ${path_options})
 
 file(WRITE "${page}" "# Guide\n\nThe linked sections were removed.\n")
-run_docs(1 "approved section or its source links were removed" check ${roots})
-run_docs(0 "Recorded review" approve ${roots} guide.md "Guide / Header" "Reviewed the removal")
-run_docs(0 "Recorded review" approve ${roots} guide.md "Guide / Result" "Reviewed the removal")
-run_docs(0 "Approved documentation sections: 0" check ${roots})
+run_cli(1 "approved section or its source links were removed" check ${path_options})
+run_cli(0 "Recorded review" approve ${path_options} guide.md "Guide / Header")
+run_cli(0 "Recorded review" approve ${path_options} guide.md "Guide / Result")
+run_cli(0 "Approved documentation sections: 0" check ${path_options})
+
+file(COPY "${WORK_DIR}/build/compile_commands.json" DESTINATION "${WORK_DIR}")
+file(WRITE "${WORK_DIR}/local.md" "# Local\n\n[Parse integer input](api.hpp#L2).\n")
+run_cli(1 "approval required" check)
+run_cli(0 "Recorded review for local.md / Local" approve local.md Local)
+run_cli(0 "Approved documentation sections: 1" check)

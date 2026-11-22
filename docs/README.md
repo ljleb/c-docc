@@ -10,10 +10,10 @@ Dagdocdiff follows the parser's tracked dependencies to the helper and identifie
 
 ## Published package
 
-On Linux with Nix flakes enabled, this command runs Dagdocdiff 1.1.0 directly from its GitHub tag.
+On Linux with Nix flakes enabled, this command runs Dagdocdiff 1.2.0 directly from its GitHub tag.
 
 ```sh
-nix run github:ljleb/dagdocdiff/1.1.0 -- --help
+nix run github:ljleb/dagdocdiff/1.2.0 -- --help
 ```
 
 Nix fetches the tagged source and builds the package or reuses a cached build. A Dagdocdiff checkout is optional. An analysis uses the `compile_commands.json` for the C or C++ project being checked.
