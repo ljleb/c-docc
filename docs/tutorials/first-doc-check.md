@@ -54,9 +54,11 @@ Run Dagdocdiff against the guide. By default, it looks for the source, compilati
 dagdocdiff check
 ```
 
-You should see `retries.md:1: Retries: approval required`. The link resolves, and Dagdocdiff has no approval that records which version of the code the guide describes.
+You should see `retries.md:1: Retries: approval required`. The link works. Dagdocdiff is asking you to choose a starting point for future comparisons.
 
-The guide says the app retries up to 3 times, and `retry_limit` returns 3. Approve `retries.md` to record a review of the whole guide.
+Suppose you first run Dagdocdiff after someone raises the limit to 5 while the guide still says 3. If Dagdocdiff accepts those versions automatically, later runs can pass while the guide still gives the wrong number. The first approval gives you a chance to catch that mismatch.
+
+In this example, the guide says the app retries up to 3 times, and `retry_limit` returns 3. Approve `retries.md` to record the guide and code you just compared. Future runs use that record to flag changes.
 
 ```sh
 dagdocdiff approve retries.md
@@ -68,7 +70,12 @@ You should see `Recorded review for retries.md`. Run `check` again.
 dagdocdiff check
 ```
 
-You should see `Approved documentation sections: 1`.
+You should see the number of approved sections followed by the section you just approved.
+
+```text
+Approved documentation sections: 1
+  retries.md:1: Retries
+```
 
 ## Five retries in the code
 
@@ -110,6 +117,6 @@ You should see `Recorded review for retries.md` again. The updated record is in 
 dagdocdiff check
 ```
 
-You should see `Approved documentation sections: 1` again.
+You should see `retries.md:1: Retries` under `Approved documentation sections: 1` again.
 
 [Trace a docs warning to a helper](first-diff.md) follows a change that starts in a different file from the linked function.

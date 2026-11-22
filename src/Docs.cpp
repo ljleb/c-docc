@@ -556,7 +556,15 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
     }
     if (!pending.empty())
         return error("documentation needs review");
-    llvm::outs() << "Approved documentation sections: " << inputs->sections.size() << '\n';
+    std::vector<std::tuple<llvm::StringRef, unsigned, llvm::StringRef>> approved;
+    approved.reserve(inputs->sections.size());
+    for (const auto &[key, section] : inputs->sections)
+        approved.emplace_back(key.first, section.line, key.second);
+    llvm::sort(approved);
+
+    llvm::outs() << "Approved documentation sections: " << approved.size() << '\n';
+    for (const auto &[page, line, heading] : approved)
+        llvm::outs() << "  " << page << ':' << line << ": " << heading << '\n';
     return llvm::Error::success();
 }
 

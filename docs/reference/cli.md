@@ -40,7 +40,7 @@ The directory options for `check` and `approve` default to the current directory
 | `1` | Analysis failed, Dagdocdiff reported a documentation issue, or it could not record the approval. |
 | `2` | The invocation was invalid. |
 
-Scan and diff write JSON to standard output. Clang diagnostics and issues reported by `check` go to standard error.
+Scan and diff write JSON to standard output. A successful `check` writes the count and lists each approved section by page, line, and heading. Clang diagnostics and issues reported by `check` go to standard error.
 
 ## Common JSON fields
 
