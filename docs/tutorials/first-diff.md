@@ -21,7 +21,7 @@ The example has two C files, a Markdown guide, and a compilation database in one
 Create `depot_sorting.c` with the depot's current sorting time.
 
 ```c
-int depot_sorting_days(void)
+int depot_sorting_days()
 {
     return 2;
 }
@@ -30,9 +30,9 @@ int depot_sorting_days(void)
 Next to it, create `delivery_estimate.c`. The estimate adds one day for delivery to the sorting time from the helper.
 
 ```c
-int depot_sorting_days(void);
+int depot_sorting_days();
 
-int delivery_estimate_days(void)
+int delivery_estimate_days()
 {
     return depot_sorting_days() + 1;
 }
