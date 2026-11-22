@@ -86,7 +86,7 @@ void usage(llvm::raw_ostream &out) {
         << "  dagdocdiff --version\n"
         << "  dagdocdiff scan <source-root> <build-dir>\n"
         << "  dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>\n"
-        << "  dagdocdiff check [options]\n"
+        << "  dagdocdiff check [options] [--json]\n"
         << "  dagdocdiff approve [options] [--reason <text>]\n"
         << "  dagdocdiff approve <page> [<section>] [options] [--reason <text>]\n"
         << "\nOptions for check and approve (each path defaults to the current directory):\n"
@@ -109,6 +109,7 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
 
     const bool approve = command == "approve";
     llvm::StringRef source = ".", build = ".", docs = ".", reason;
+    bool json = false;
     llvm::SmallVector<llvm::StringRef, 2> positional;
     bool options = true;
     for (size_t i = 0; i < args.size(); ++i) {
@@ -122,6 +123,10 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
             continue;
         }
 
+        if (!approve && arg == "--json") {
+            json = true;
+            continue;
+        }
         auto [name, value] = arg.split('=');
         auto *destination = llvm::StringSwitch<llvm::StringRef *>(name)
             .Case("--source-dir", &source)
@@ -156,7 +161,7 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
         return 0;
     }
     auto result = approve ? approveDocs(source, build, docs, positional[0], positional[1], reason)
-                          : checkDocs(source, build, docs);
+                          : checkDocs(source, build, docs, json);
     return result ? fail(std::move(result)) : 0;
 }
 

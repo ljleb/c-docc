@@ -43,12 +43,22 @@ struct LinkOccurrence {
     std::string url;
 };
 
+struct SourceTarget {
+    std::string file;
+    unsigned firstLine;
+    unsigned lastLine;
+};
+
+struct SourceOccurrence : LinkOccurrence {
+    SourceTarget target;
+};
+
 struct Section {
     unsigned line = 1;
     std::string textHash;
     Links links;
     Issues issues;
-    std::vector<LinkOccurrence> occurrences;
+    std::vector<SourceOccurrence> occurrences;
     Hashes fileLinks;
     Hashes declarationLinks;
     Hashes sourceTextLinks;
@@ -134,6 +144,7 @@ std::optional<unsigned> sourceLine(llvm::StringRef anchor) {
 }
 
 struct SourceLink {
+    SourceTarget target;
     std::set<std::string> definitions;
     std::string declarations;
     std::string text;
@@ -184,7 +195,7 @@ public:
             return error("source link goes beyond the end of the file: " + url);
 
         const auto relative = file.lexically_relative(source).generic_string();
-        SourceLink link;
+        SourceLink link{{relative, *first, *last}, {}, {}, {}};
         std::set<std::pair<std::string, std::string>> declarations;
         std::vector<bool> covered(static_cast<size_t>(*last) - *first + 1);
         std::optional<std::pair<unsigned, unsigned>> matched;
@@ -443,7 +454,7 @@ void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
                 section.declarationLinks.try_emplace(key, std::move(link.declarations));
             if (!link.text.empty())
                 section.sourceTextLinks.try_emplace(key, std::move(link.text));
-            section.occurrences.push_back({line, inlineText(node, " "), key});
+            section.occurrences.push_back({{line, inlineText(node, " "), key}, std::move(link.target)});
         } else {
             auto fingerprint = markdown.resolve(url, page);
             if (!fingerprint) {
@@ -710,6 +721,7 @@ void report(const Key &key, unsigned line, llvm::StringRef message) {
 }
 
 struct Inputs {
+    fs::path source;
     fs::path docs;
     Snapshot snapshot;
     Sections sections;
@@ -732,7 +744,7 @@ llvm::Expected<Inputs> loadInputs(llvm::StringRef source, llvm::StringRef build,
     auto sections = readDocs(docsRoot, root, *snapshot);
     if (!sections)
         return sections.takeError();
-    return Inputs{docsRoot, std::move(*snapshot), std::move(*sections)};
+    return Inputs{root, docsRoot, std::move(*snapshot), std::move(*sections)};
 }
 
 void reportSourceFingerprint(Issues &issues, const LinkOccurrence &link, const Hashes &before,
@@ -890,9 +902,35 @@ Decision askForDecision() {
     }
 }
 
+void printStatus(const Inputs &inputs, const std::vector<PendingReview> &pending) {
+    json::Array items;
+    for (const auto &review : pending) {
+        json::Array issues;
+        for (const auto &[line, message] : review.issues)
+            issues.push_back(json::Object{{"line", line}, {"message", message}});
+        items.push_back(json::Object{
+            {"page", review.key.first}, {"section", review.key.second}, {"line", review.line},
+            {"approvable", !review.section || review.section->issues.empty()}, {"issues", std::move(issues)}
+        });
+    }
+    json::Array references;
+    for (const auto &[key, section] : inputs.sections) {
+        for (const auto &link : section.occurrences) {
+            references.push_back(json::Object{
+                {"file", link.target.file}, {"first_line", link.target.firstLine}, {"last_line", link.target.lastLine},
+                {"page", key.first}, {"section", key.second}, {"line", link.line}, {"text", link.text}
+            });
+        }
+    }
+    llvm::outs() << llvm::formatv("{0:2}\n", json::Value(json::Object{
+        {"schema_version", 1}, {"source_dir", inputs.source.string()}, {"docs_dir", inputs.docs.string()},
+        {"pending", std::move(items)}, {"references", std::move(references)}
+    }));
+}
+
 } // namespace
 
-llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs) {
+llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs, bool json) {
     auto inputs = loadInputs(source, build, docs);
     if (!inputs)
         return inputs.takeError();
@@ -900,6 +938,10 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
     if (!reviews)
         return reviews.takeError();
     const auto pending = pendingReviews(*inputs, *reviews);
+    if (json) {
+        printStatus(*inputs, pending);
+        return pending.empty() ? llvm::Error::success() : error("documentation needs review");
+    }
     for (const auto &item : pending) {
         for (const auto &[line, message] : item.issues)
             report(item.key, line, message);

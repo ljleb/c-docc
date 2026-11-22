@@ -46,12 +46,12 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "reference/cli.md": "98c67dd21c6495209e9d63633ae2c780c140b3b5a8765781279b23f00ef39d2b"
+        "reference/cli.md": "69d602a0f77394140cbfc4c3111fe7e329f4843f19dbf7b94ae2fc746f0da8a4"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
+      "reason": "Verified the CLI reference after adding the JSON interface.",
       "section": "Dagdocdiff documentation / Reference",
       "symbols": {},
       "text_hash": "c4b2a0815f4ac1b8b5fd45062bb5c0c56a69a0dcc9a0e03ee615708bc44c3618"
@@ -210,12 +210,12 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "cli.md": "98c67dd21c6495209e9d63633ae2c780c140b3b5a8765781279b23f00ef39d2b"
+        "cli.md": "69d602a0f77394140cbfc4c3111fe7e329f4843f19dbf7b94ae2fc746f0da8a4"
       },
       "inputs": {},
       "links": {},
       "page": "reference/README.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
+      "reason": "Verified the CLI reference after adding the JSON interface.",
       "section": "Reference",
       "symbols": {},
       "text_hash": "18ed2ae2c19d6593dabf64f1e414b559a9660fb3e8fa7bf5ed3c598b692cc495"

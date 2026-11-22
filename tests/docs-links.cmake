@@ -254,6 +254,21 @@ file(WRITE "${ranges}/docs/guide.md" "${span_page}")
 file(WRITE "${ranges}/compile_commands.json"
     "[{\"directory\":\"${ranges}\",\"file\":\"${ranges}/spans.cpp\",\"arguments\":[\"${CLANG}\",\"-std=c++20\",\"-c\",\"${ranges}/spans.cpp\"]}]")
 set(span_options --source-dir "${ranges}" --build-dir "${ranges}" --docs-dir "${ranges}/docs")
+execute_process(COMMAND "${PROGRAM}" check --json ${span_options}
+    RESULT_VARIABLE status OUTPUT_VARIABLE json_report ERROR_VARIABLE diagnostics)
+if(NOT status EQUAL 1)
+    message(FATAL_ERROR "Expected pending JSON review status: ${status} ${diagnostics}")
+endif()
+string(JSON schema GET "${json_report}" schema_version)
+string(JSON pending LENGTH "${json_report}" pending)
+string(JSON reference_file GET "${json_report}" references 4 file)
+string(JSON first_line GET "${json_report}" references 4 first_line)
+string(JSON last_line GET "${json_report}" references 4 last_line)
+string(JSON page GET "${json_report}" references 4 page)
+if(NOT schema EQUAL 1 OR NOT pending EQUAL 3 OR NOT reference_file STREQUAL "spans.cpp"
+   OR NOT first_line EQUAL 12 OR NOT last_line EQUAL 16 OR NOT page STREQUAL "guide.md")
+    message(FATAL_ERROR "Unexpected range backlink in JSON report: ${json_report}")
+endif()
 run_cli(0 "Recorded review for guide.md" approve guide.md ${span_options})
 run_cli(0 "Approved documentation sections: 3" check ${span_options})
 

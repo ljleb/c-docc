@@ -5,7 +5,7 @@
 
 namespace dagdocdiff {
 
-llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs);
+llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs, bool json);
 llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
                        llvm::StringRef reason);
 llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
