@@ -23,20 +23,13 @@ Nix fetches the tagged source and builds the package or reuses a cached build. A
 - [Change a retry limit and update its docs](tutorials/first-doc-check.md) follows one linked section from an approved starting point through a code change and a new approval.
 - [Trace a change in a delivery estimate](tutorials/first-diff.md) follows a change in depot sorting time through a caller to a guide.
 
-The [repository README](../README.md#build-v1) has the build commands for a checkout.
+The [repository README](../README.md#build) has the build commands for a checkout.
 
 ## Documentation
 
 | Form | Contents |
 | --- | --- |
 | [Tutorials](#tutorials) | Two small projects for checking linked docs after direct and indirect code changes. |
-| [How-to guides](#task-guides) | Commands and examples for comparing revisions, scanning a checkout, updating linked docs, and building a release. |
+| [How-to guides](how-to/README.md) | Commands and examples for comparing revisions, scanning a checkout, updating linked docs, and building a release. |
 | [Explanation](explanation/symbol-graphs.md) | Symbol identity, dependency cycles, and the reasons a linked section can become stale. |
 | [Reference](reference/cli.md) | Command syntax, exit statuses, JSON fields, and source link rules. |
-
-## Task guides
-
-- [Git revision comparison](how-to/compare-revisions.md) covers checkout setup, compilation databases, and dependency paths in the diff.
-- [Code changes and linked docs](how-to/review-linked-docs.md) covers broken links, changed dependencies, and section approvals.
-- [Dagdocdiff symbol index](how-to/scan-repository.md) covers symbol IDs, declarations, and definition locations.
-- [Published 1.0.0 build](how-to/build-release.md) covers building the analyzer from the release tag.
