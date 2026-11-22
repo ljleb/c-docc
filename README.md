@@ -13,8 +13,6 @@ nix build path:.
 ./result/bin/dagdocdiff --version
 ```
 
-The version command prints `dagdocdiff 1.2.0`.
-
 ## Documentation
 
 The [documentation](docs/README.md) includes tutorials, how-to guides, explanation, and reference.

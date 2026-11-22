@@ -7,7 +7,7 @@ This reference covers the CLI built from this checkout. Scan and diff output use
 | Command | Result |
 | --- | --- |
 | `dagdocdiff --help` | Prints usage. |
-| `dagdocdiff --version` | Prints `dagdocdiff 1.2.0`. |
+| `dagdocdiff --version` | Prints the executable's version. |
 | `dagdocdiff scan <source-root> <build-dir>` | Prints the symbols and findings for one snapshot. |
 | `dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>` | Prints changes and findings for two snapshots. |
 | `dagdocdiff check [options]` | Checks source links and recorded reviews in Markdown. |
