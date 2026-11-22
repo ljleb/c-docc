@@ -80,7 +80,17 @@ set(base "${WORK_DIR}/base")
 set(head "${WORK_DIR}/head")
 set(comment "${WORK_DIR}/comment-only")
 
+run_tool(version --version)
+string(STRIP "${version}" version)
+if(NOT version STREQUAL "dagdocdiff ${VERSION}")
+    message(FATAL_ERROR "Unexpected version output: ${version}")
+endif()
+
 run_tool(scan scan "${base}" "${base}")
+string(JSON tool_version GET "${scan}" tool_version)
+if(NOT tool_version STREQUAL VERSION)
+    message(FATAL_ERROR "Unexpected scan version: ${tool_version}")
+endif()
 foreach(id IN ITEMS "a.cpp::app::helper()" "b.cpp::app::helper()" "legacy.c::helper"
                     "legacy.c::struct State" "app::Reader::read() const &"
                     "inspect(int)" "inspect(double)" "c_value")

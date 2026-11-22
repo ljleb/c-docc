@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "sections": [
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "dagdocdiff::Change": "02e4c7ac73fdfdcfa16823bdc2e688a5df97255b6be115b1ea73ed7619cb7e93",
+        "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
+        "dagdocdiff::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
+        "dagdocdiff::Finding": "86efec5d984645320de6495153143f018b5f477183210748f41c0d67a2e9bb35",
+        "dagdocdiff::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
+        "dagdocdiff::Fingerprint::Fingerprint(llvm::StringRef)": "59a42ac3fee155518e7686f8f5d8f9b5e7bf8544a3faa402c13f07188558b12f",
+        "dagdocdiff::Fingerprint::add(llvm::StringRef)": "0f4395cd4d265570964be26890a9e8f402b6a07b21ba1164a4b6b17efb28583a",
+        "dagdocdiff::Fingerprint::finish()": "91fc06d4ddf2088ef56a54a8baed2b6d0efd775c7c92d56237a20c04e5fd8aef",
+        "dagdocdiff::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
+        "dagdocdiff::Snapshot": "473efafd46e6df5ed8795ac177adfeb57bd6db1d1398d453be564385e152daa9",
+        "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
+        "dagdocdiff::compare(const dagdocdiff::Snapshot &, const dagdocdiff::Snapshot &)": "12deef380be47224d14c30bb29c3725123def49a626b4b72801504ff81dd9d40",
+        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::Node": "fadbe6407064e6ea34566a11198d1f2e1f7a8ea45d98604c1db076ccf73f2a4d",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::findCauses(const dagdocdiff::Snapshot &, const std::set<std::basic_string<char>> &)": "0689fe23e59f0ac3e18a0cb685d71ca60f98cda67a1e33f24e1999489196b3e7",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "96474f8d71272614c8534436c82db8e37de61ec51428516b264a46930946d131",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::sharesComponent(const dagdocdiff::Snapshot &, const std::vector<std::basic_string<char>> &)": "46e7f9cde4a14ea4782e8ddd81b67f2e3dc1b775f02ee061bd991060747b732e"
+      },
+      "links": {
+        "../../src/Graph.cpp#L146": [
+          "dagdocdiff::compare(const dagdocdiff::Snapshot &, const dagdocdiff::Snapshot &)"
+        ],
+        "../../src/Graph.cpp#L90": [
+          "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)"
+        ]
+      },
+      "page": "explanation/symbol-graphs.md",
+      "reason": "Codex verified the example and dependency explanation against the linked hashing and comparison functions.",
+      "section": "How Dagdocdiff tracks code changes / Recursion changes how hashes propagate",
+      "symbols": {
+        "dagdocdiff::compare(const dagdocdiff::Snapshot &, const dagdocdiff::Snapshot &)": "c8d14879554927b473b2de317be9f7888cae8d64fb28d0b65fff6403dc033c1c",
+        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "da2bf0e26c1b8c71959411a193586624904a682b3253a01efcd1df70a632b6b8"
+      },
+      "text_hash": "8006c524bcd8607dec63c2ee42a424dbb8ff0a10bbc5968814bcb89c8b4679bd"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
+        "dagdocdiff::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
+        "dagdocdiff::Finding": "86efec5d984645320de6495153143f018b5f477183210748f41c0d67a2e9bb35",
+        "dagdocdiff::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
+        "dagdocdiff::Fingerprint::Fingerprint(llvm::StringRef)": "59a42ac3fee155518e7686f8f5d8f9b5e7bf8544a3faa402c13f07188558b12f",
+        "dagdocdiff::Fingerprint::add(llvm::StringRef)": "0f4395cd4d265570964be26890a9e8f402b6a07b21ba1164a4b6b17efb28583a",
+        "dagdocdiff::Fingerprint::finish()": "91fc06d4ddf2088ef56a54a8baed2b6d0efd775c7c92d56237a20c04e5fd8aef",
+        "dagdocdiff::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
+        "dagdocdiff::Snapshot": "473efafd46e6df5ed8795ac177adfeb57bd6db1d1398d453be564385e152daa9",
+        "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "4b6d7c8ebb6eac96dc38fef00ee60140d8349ec6c0a207a7a845545831e1f9f7",
+        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor": "eb1434a5412c9ac061b77c1212a97a2b73dc3b65e9bf6e3e3646a980d05b67ab",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, dagdocdiff::Snapshot &)": "55286ebdf760bd24d3c8bb64221c5b570725ca6bd0e12d01524db9bde31390d3",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::failure(llvm::Twine)": "502aeafb315649c8f5a4f8ba2901c5e7ad3b3e0a2e5e7f21a2db5d853681211b",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "6a70d067b5bb88be8af4075a43d9298a778f2d5fb470c1cfa421deadea374122",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::Node": "fadbe6407064e6ea34566a11198d1f2e1f7a8ea45d98604c1db076ccf73f2a4d",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
+      },
+      "links": {
+        "../../src/Analyzer.cpp#L424": [
+          "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)"
+        ]
+      },
+      "page": "how-to/scan-repository.md",
+      "reason": "Codex verified the linked analyzer declaration and the descriptions of the symbol ID and source location fields.",
+      "section": "Dagdocdiff symbol index / Symbol IDs and locations",
+      "symbols": {
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "1bd51d6f5bbf1d97d4de803e1038ab3af6332fa118acf439b9e31b07b54dfa67"
+      },
+      "text_hash": "08646fb2f116d290588f9038cb8e61d6f0389815a4b373e34eb8105d96fe5299"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
+        "dagdocdiff::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
+        "dagdocdiff::Finding": "86efec5d984645320de6495153143f018b5f477183210748f41c0d67a2e9bb35",
+        "dagdocdiff::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
+        "dagdocdiff::Fingerprint::Fingerprint(llvm::StringRef)": "59a42ac3fee155518e7686f8f5d8f9b5e7bf8544a3faa402c13f07188558b12f",
+        "dagdocdiff::Fingerprint::add(llvm::StringRef)": "0f4395cd4d265570964be26890a9e8f402b6a07b21ba1164a4b6b17efb28583a",
+        "dagdocdiff::Fingerprint::finish()": "91fc06d4ddf2088ef56a54a8baed2b6d0efd775c7c92d56237a20c04e5fd8aef",
+        "dagdocdiff::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
+        "dagdocdiff::Snapshot": "473efafd46e6df5ed8795ac177adfeb57bd6db1d1398d453be564385e152daa9",
+        "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "4b6d7c8ebb6eac96dc38fef00ee60140d8349ec6c0a207a7a845545831e1f9f7",
+        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor": "eb1434a5412c9ac061b77c1212a97a2b73dc3b65e9bf6e3e3646a980d05b67ab",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, dagdocdiff::Snapshot &)": "55286ebdf760bd24d3c8bb64221c5b570725ca6bd0e12d01524db9bde31390d3",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::failure(llvm::Twine)": "502aeafb315649c8f5a4f8ba2901c5e7ad3b3e0a2e5e7f21a2db5d853681211b",
+        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "6a70d067b5bb88be8af4075a43d9298a778f2d5fb470c1cfa421deadea374122",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::Node": "fadbe6407064e6ea34566a11198d1f2e1f7a8ea45d98604c1db076ccf73f2a4d",
+        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
+      },
+      "links": {
+        "../../src/Analyzer.cpp#L424": [
+          "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)"
+        ]
+      },
+      "page": "reference/cli.md",
+      "reason": "Codex checked the scan response fields and analyzer declaration against the current implementation.",
+      "section": "Dagdocdiff v1 command and output reference / Scan output",
+      "symbols": {
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "1bd51d6f5bbf1d97d4de803e1038ab3af6332fa118acf439b9e31b07b54dfa67"
+      },
+      "text_hash": "150de718040dc6042fce0b88a1d25e700a3f98577209908c9132cdf2ccf917fe"
+    }
+  ]
+}

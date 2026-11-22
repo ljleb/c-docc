@@ -251,16 +251,26 @@ public:
         return RecursiveASTVisitor<Definitions>::TraverseDecl(decl);
     }
 
+    void indexDeclaration(const NamedDecl &decl, const std::string &id) {
+        if (!decl.getLocation().isMacroID() && !decl.getLexicalDeclContext()->isRecord())
+            unit_.snapshot.declarations[unit_.location(decl.getLocation())].insert(id);
+    }
+
     bool VisitFunctionDecl(FunctionDecl *decl) {
         if (decl->isImplicit() || nestedInFunction(*decl) ||
-            !decl->isThisDeclarationADefinition() || unit_.location(decl->getLocation()).file.empty())
+            unit_.location(decl->getLocation()).file.empty())
             return true;
         auto id = unit_.functionId(*decl->getCanonicalDecl());
+        const bool definition = decl->isThisDeclarationADefinition();
         if (id.empty()) {
-            unit_.note(decl->getLocation(), "unsupported function definition: " +
-                                              decl->getQualifiedNameAsString());
+            if (definition)
+                unit_.note(decl->getLocation(), "unsupported function definition: " +
+                                                  decl->getQualifiedNameAsString());
             return true;
         }
+        indexDeclaration(*decl, id);
+        if (!definition)
+            return true;
         Dependencies dependencies(unit_);
         dependencies.TraverseDecl(decl);
         return add(*decl, std::move(id), isa<CXXMethodDecl>(decl) ? "method" : "function",
@@ -269,13 +279,18 @@ public:
 
     bool VisitRecordDecl(RecordDecl *decl) {
         if (decl->isImplicit() || nestedInFunction(*decl) ||
-            !decl->isCompleteDefinition() || unit_.location(decl->getLocation()).file.empty())
+            unit_.location(decl->getLocation()).file.empty())
             return true;
         auto id = unit_.recordId(*decl);
+        const bool definition = decl->isCompleteDefinition();
         if (id.empty()) {
-            unit_.note(decl->getLocation(), "unsupported record definition");
+            if (definition)
+                unit_.note(decl->getLocation(), "unsupported record definition");
             return true;
         }
+        indexDeclaration(*decl, id);
+        if (!definition)
+            return true;
         Dependencies dependencies(unit_);
         if (const auto *cxx = dyn_cast<CXXRecordDecl>(decl)) {
             for (const auto &base : cxx->bases())

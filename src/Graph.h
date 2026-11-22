@@ -57,6 +57,7 @@ struct Finding {
 struct Snapshot {
     std::map<std::string, Symbol> symbols;
     std::set<Finding> findings;
+    std::map<Location, std::set<std::string>> declarations;
 };
 
 struct Change {

@@ -1,47 +1,31 @@
-# Dagdocdiff C and C++ Implementation Roadmap
+# Dagdocdiff implementation roadmap
 
-Dagdocdiff compares two C or C++ source snapshots. It reports changes to functions, methods, and records, including changes that reach them through dependencies. Build a standalone C++ tool first. Then use its symbol graph and hashes to verify documentation that depends on the source package.
+## Working in the 1.1.0 checkout
 
-## Extract a graph for each revision
+- `scan` indexes C and C++ symbols, declaration lines, and tracked dependencies for one compilation database.
+- `diff` compares two snapshots and reports direct changes, changes within a recursion cycle, and changes that reach callers or other dependents.
+- `docs check` reads Markdown directly. It flags declaration links that fail to resolve or point to different code. It also flags sections whose text or linked code changed since approval.
+- `docs approve` records a review of one section, including the reason, the symbol IDs resolved from each link, and the recursive hashes.
 
-Run Clang LibTooling with each snapshot’s `compile_commands.json`. Start with one build configuration per snapshot. An AST visitor collects definitions, resolved direct calls, referenced types, and base classes. Include project headers reached through compilation. Record diagnostics and unresolved dependencies so a partial graph is visible in the results. [Clang LibTooling](https://clang.llvm.org/docs/LibTooling.html) · [AST visitor tutorial](https://clang.llvm.org/docs/RAVFrontendAction.html)
+The source build stays independent of the docs check. Projects can run the check in CI. Readers can open and publish the docs as ordinary Markdown. [Update linked docs with a code change](docs/how-to/review-linked-docs.md)
 
-Define project-owned symbol IDs from qualified names and canonical signatures. Include parameter types and method qualifiers where they distinguish C++ overloads. Scope internal-linkage symbols by the repository-relative path of the main translation unit. A `static` helper in `helpers.h` gets distinct IDs under `reader.cpp` and `writer.cpp`, and both IDs point to `helpers.h` as the definition location. Externally linked symbols use path-free IDs within a build context. [C++ linkage rules](https://eel.is/c++draft/basic.link) · [C++ parameter type rules](https://eel.is/c++draft/dcl.fct)
+### What the analyzer tracks
 
-Use normalized, macro-expanded tokens as the starting point for local definition hashes. This lets a macro edit affect a function whose written body stays the same. Version the symbol and hash formats and record the Clang version and build configuration. [Clang token API](https://clang.llvm.org/doxygen/Tokens_8h_source.html)
+Clang LibTooling reads `compile_commands.json` for each snapshot. It collects project definitions, resolved direct calls, referenced record types, and base classes. The scan reports gaps it detects, such as indirect calls or missing definitions. Each snapshot uses one build configuration. [Clang LibTooling](https://clang.llvm.org/docs/LibTooling.html)
 
-## Merge graphs and hash dependencies
+Symbol IDs use qualified names and canonical signatures where needed. Internal-linkage IDs include the repository-relative path of the main translation unit. A `static` helper in a header can therefore have multiple IDs while those IDs share a definition location. [C++ linkage rules](https://eel.is/c++draft/basic.link)
 
-Merge translation-unit records by symbol ID and report conflicting payloads in the same build context. Draw each dependency edge from the symbol that uses it to the symbol it depends on. Collapse cycles into strongly connected components (SCCs). LLVM’s `scc_iterator` visits dependencies before their dependents. Give the iterator a synthetic entry node that reaches every symbol so disconnected groups are included. [LLVM SCC iterator](https://llvm.org/doxygen/SCCIterator_8h.html)
+Local hashes summarize token kinds and text after macro expansion. LLVM groups dependency cycles into strongly connected components. Each component hash includes its members and the hashes of the components it depends on. The diff uses local hashes and dependency edges to explain how changes spread. [How Dagdocdiff tracks code changes](docs/explanation/symbol-graphs.md)
 
-Hash each SCC from its sorted member IDs, local hashes, and dependency edges. Include the computed hash of each outgoing dependency SCC. Keep local hashes and edges available so the comparison can explain which definition changed and how that change propagated.
+### Which documentation links work
 
-## Compare snapshots and verify the result
+A relative Markdown link with a `#L<number>` anchor points to the line that spells a declaration name. A declaration in a header and its definition in a source file can resolve to the same symbol. A link to a header declaration with separate translation-unit instances tracks all those instances. If a line contains multiple declarations, use a line with one supported declaration. [Documentation check reference](docs/reference/cli.md#documentation-check)
 
-Compare snapshots by symbol ID. Report added and removed symbols, direct changes, and changes inherited through a dependency or a shared SCC. The initial command accepts two build directories with compilation databases.
+The tests cover change propagation across files, comment-only edits, source links that retarget to a different overload, and approvals that become stale after a dependency changes.
 
-Use an end-to-end fixture with two mutually recursive functions in different source files and a caller in a third. Change only a header macro used by one of the two functions. The report should identify that function as directly changed, its partner as affected through the shared SCC, and the caller as affected through a dependency. A comment-only edit should leave the hashes unchanged.
+## Remaining work
 
-## Derive dependencies from Markdown links
-
-The source package publishes a symbol index, which lists the symbols that documentation can reference. Documentation authors use ordinary Markdown links whose destinations identify code symbols. Put each link in the sentence or example that discusses the symbol. Keep page headers and footers free of dependency lists.
-
-For example, an author could write the following sentence. The `code:` prefix illustrates a possible destination format.
-
-```markdown
-Create a [`net::Client`](code:net::Client) before opening a connection.
-```
-
-The link directs readers to the code. The verifier derives an explicit dependency from that same link. The source graph supplies the implicit dependencies reachable from the linked symbol.
-
-An API reference, tutorial, and architecture guide can each have its own versions and approvals. Build reverse navigation from the documentation links so an editor can show which sections reference a symbol. The source package must build independently of documentation. A merge policy can require documentation verification in CI.
-
-## Record and verify documentation approvals
-
-An approval binds a reviewed document or section revision to its resolved symbol IDs and their recursive hashes for a source build configuration. The verifier compares the current document and source hashes with that record. It reports missing symbols as unresolved links. An edited section or a changed dependency requires review. The record shows which implementation state a reviewer assessed. The reviewer judges whether the documentation is accurate.
-
-After the standalone comparison works, resolve links from one documentation package. Adapt docdiff’s `check`, `report`, and `explain` commands to use the approval records. Extend the end-to-end fixture with a sentence that links to the caller. After approval, the header macro change must trigger review and show the dependency path from the linked caller to the changed function. [docdiff review workflow](https://github.com/StevenBock/docdiff#docdiff-ack)
-
-## Expand dependency coverage
-
-Add template instantiations, virtual dispatch targets, and function pointer targets as projects need them. If a project needs to collect graphs during a build, run the same extractor as a Clang plugin. [Clang tooling interfaces](https://clang.llvm.org/docs/Tooling.html)
+- Extend dependency coverage to template instantiations, virtual dispatch targets, and function pointer targets.
+- Decide how links to function bodies, declarations inside class bodies, macro-generated names, and line ranges resolve to symbols.
+- Support independently versioned documentation packages that live outside the source checkout. Derive reverse links for editors so readers can discover which sections cite a symbol.
+- Add a Clang plugin if projects need to collect graphs during compilation. [Clang tooling interfaces](https://clang.llvm.org/docs/Tooling.html)
