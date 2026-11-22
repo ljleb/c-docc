@@ -1,98 +1,105 @@
 # Trace a docs warning to a helper
 
-A request guide says the retry limit is three. It links to the function that returns the request limit, which gets that value from a helper in another file. This example changes the helper to allow five retries and follows the reported path to the changed code.
+A request guide says the retry limit is three. It links to `request_limit`, which gets that number from a helper in another file. You will change the helper and follow Dagdocdiff's report from the linked function to the edit.
+
+## Run Dagdocdiff
+
+This walkthrough uses the published Dagdocdiff 1.1.0 package on Linux with Nix flakes enabled.
+
+```sh
+nix run github:ljleb/dagdocdiff/1.1.0 -- --version
+```
+
+You should see `dagdocdiff 1.1.0`. Nix runs the package named before `--` and passes everything after it to Dagdocdiff.
 
 ## Two C files and a request guide
 
-These commands use Nix with flakes enabled on Linux. They create a temporary project and record its starting approval. The guide links to line 2 of `request_limit.c`, where `request_limit` is defined.
+Create an empty folder for this example and open a terminal there. Run the rest of the commands from this folder.
 
-```sh
-dagdocdiff() {
-  nix run github:ljleb/dagdocdiff/1.1.0 -- "$@"
-}
+Create `retry_limit.c` with this one line.
 
-example=$(mktemp -d)
-cd "$example"
-mkdir docs
+```c
+int retry_limit(void) { return 3; }
+```
 
-cat > request_limit.c <<'EOF'
+Next to it, create `request_limit.c` with these two lines. The first declares the helper and the second defines the function that calls it.
+
+```c
 int retry_limit(void);
 int request_limit(void) { return retry_limit(); }
-EOF
+```
 
-cat > retry_limit.c <<'EOF'
-int retry_limit(void) { return 3; }
-EOF
+Create a `docs` folder in the example folder. In it, create `requests.md` with these contents.
 
-cat > docs/requests.md <<'EOF'
+```markdown
 # Requests
 
 [`request_limit`](../request_limit.c#L2) returns 3.
-EOF
+```
 
-cat > compile_commands.json <<EOF
+The link opens `request_limit.c` at line 2. Read that line and follow its call to `retry_limit` to see where the guide's value comes from.
+
+Create `compile_commands.json` next to the C files. It lists both files and their compiler options so Dagdocdiff can follow the call between them. Replace both instances of `/absolute/path/to/request-example` with the full path to your example folder. If your terminal is open there, `pwd` prints that path.
+
+```json
 [
   {
-    "directory": "$PWD",
-    "file": "$PWD/request_limit.c",
+    "directory": "/absolute/path/to/request-example",
+    "file": "request_limit.c",
     "arguments": ["clang", "-std=c17", "-c", "request_limit.c"]
   },
   {
-    "directory": "$PWD",
-    "file": "$PWD/retry_limit.c",
+    "directory": "/absolute/path/to/request-example",
+    "file": "retry_limit.c",
     "arguments": ["clang", "-std=c17", "-c", "retry_limit.c"]
   }
 ]
-EOF
-
-dagdocdiff docs approve . . docs requests.md Requests 'The request limit comes from retry_limit, which returns 3.'
 ```
 
-You should see `Recorded review for requests.md / Requests`.
+## An approved starting point
+
+The guide says 3, and the helper returns 3. Record that reason for approving the `Requests` section in `requests.md`. Both `.` arguments point to the current folder because it contains the source and the compilation database. The `docs` argument names the Markdown folder, and `requests.md` is relative to it.
 
 ```sh
-dagdocdiff docs check . . docs
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs requests.md Requests 'The request limit comes from retry_limit, which returns 3.'
+```
+
+You should see `Recorded review for requests.md / Requests`. Run Dagdocdiff against the guide to see the starting result.
+
+```sh
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . docs
 ```
 
 You should see `Approved documentation sections: 1`.
 
 ## Five retries in the helper
 
-The edit goes into `retry_limit.c`. The file that the guide links to stays the same.
+In `retry_limit.c`, change `return 3;` to `return 5;`. Save that file and run Dagdocdiff again.
 
 ```sh
-printf '%s\n' 'int retry_limit(void) { return 5; }' > retry_limit.c
-dagdocdiff docs check . . docs
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . docs
 ```
 
-The command should exit with status `1` and show the path from the linked function to the changed helper.
+The command should exit with status `1`. Look for this line in the report.
 
 ```text
 requests.md:1: Requests: code changed: request_limit -> retry_limit
 ```
 
-These commands show the two ends of that path.
-
-```sh
-cat request_limit.c
-cat retry_limit.c
-```
-
-In the first file, `request_limit` should still return the result of calling `retry_limit`. In the second file, `retry_limit` should now return 5. The guide describes the result of the call, so the helper's edit affects its claim.
+The arrow shows that `request_limit` calls `retry_limit`. Open `request_limit.c` and look for that call on line 2. In `retry_limit.c`, you should see `return 5;`. The guide's link still opens the caller, and the new value comes from the helper.
 
 ## Five retries in the guide
 
-The link still points to `request_limit`. This edit changes the value the guide describes and records why it matches the code.
+In `docs/requests.md`, change “returns 3” to “returns 5” and keep the link to `request_limit`. Save the guide and record why the new value applies.
 
 ```sh
-cat > docs/requests.md <<'EOF'
-# Requests
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs approve . . docs requests.md Requests 'request_limit calls retry_limit, which now returns 5.'
+```
 
-[`request_limit`](../request_limit.c#L2) returns 5.
-EOF
+You should see `Recorded review for requests.md / Requests` again. Run Dagdocdiff once more against the updated guide.
 
-dagdocdiff docs approve . . docs requests.md Requests 'request_limit calls retry_limit, which now returns 5.'
-dagdocdiff docs check . . docs
+```sh
+nix run github:ljleb/dagdocdiff/1.1.0 -- docs check . . docs
 ```
 
 You should see `Approved documentation sections: 1` again.
