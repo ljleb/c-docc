@@ -8,16 +8,19 @@ A guide says that a parser accepts empty input and links to its declaration. An 
 
 Dagdocdiff follows the parser's tracked dependencies to the helper and identifies the affected section. The person changing the code can check that section, edit it, and record why the current text applies. The check can run locally or in CI. The docs are ordinary Markdown.
 
-## Build and worked example
+## Published package
 
-The [dependency diff walkthrough](tutorials/first-diff.md) uses a sample header edit to show direct changes, recursion cycles, and changes that reach callers.
-
-These commands build the tool and print its command synopsis from the repository root. They use Nix with flakes enabled.
+On Linux with Nix flakes enabled, this command runs Dagdocdiff 1.1.0 directly from its GitHub tag.
 
 ```sh
-nix build path:.
-./result/bin/dagdocdiff --help
+nix run github:ljleb/dagdocdiff/1.1.0 -- --help
 ```
+
+Nix fetches the tagged source and builds the package or reuses a cached build. A Dagdocdiff checkout is optional. An analysis uses the `compile_commands.json` for the C or C++ project being checked.
+
+## Checkout build and worked example
+
+The [repository README](../README.md#build-v1) has the build commands for a checkout. The [dependency diff walkthrough](tutorials/first-diff.md) builds a local executable and compares three copies of a small example project.
 
 ## Documentation
 

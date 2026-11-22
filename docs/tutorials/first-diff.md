@@ -1,35 +1,57 @@
 # Dependency diff walkthrough
 
-This example compares C and C++ snapshots with a header macro change and a comment-only edit. It shows which callers each change affects. The commands use a Dagdocdiff checkout and Nix with flakes enabled.
+This example shows how a change in a header can affect a caller in another file. It uses three copies of the same small C and C++ project.
 
-## Development shell and sample snapshots
+- `base` is the original project.
+- `head` changes the value of `INITIAL` in a header.
+- `comment-only` adds a comment and keeps the original value.
 
-The development shell supplies the compiler and build tools. The commands use the repository root as their working directory.
+## Local tool and example files
+
+The [published Nix package](../README.md#published-package) can run from any directory. This walkthrough uses a Dagdocdiff checkout to build a local executable and run the test that creates the example files.
+
+The release tag provides the source files and the test.
+
+```sh
+git clone --branch 1.1.0 https://github.com/ljleb/dagdocdiff.git
+cd dagdocdiff
+```
+
+From the checkout, Nix opens a shell with the compiler, CMake, and Ninja used to build Dagdocdiff.
 
 ```sh
 nix develop path:.
 ```
 
-Inside the shell, the build produces the executable. The test writes the example sources and compilation databases. A compilation database lists how to compile each source file.
+In that shell, the first CMake command configures the build in `build`. The second compiles Dagdocdiff.
 
 ```sh
 cmake -S . -B build -G Ninja
 cmake --build build
+```
+
+After the build succeeds, you should have a `build/dagdocdiff` executable.
+
+When you run the `snapshot-diff` test, it writes the three copies under `build/test-snapshots`. Each directory contains source files and a `compile_commands.json` file. That file lists the compiler options Dagdocdiff needs to read the example code. The test also runs the two comparisons and checks their results.
+
+```sh
 ctest --test-dir build -R '^snapshot-diff$' --output-on-failure
 ```
 
-One test passes. The first line of each `shared.hpp` shows the difference between the two snapshots.
+You should see `snapshot-diff` marked `Passed` in the CTest output. If the test fails, `--output-on-failure` prints its diagnostics.
+
+After the test passes, these commands show the first line of the original and edited headers.
 
 ```sh
 head -n 1 build/test-snapshots/base/shared.hpp
 head -n 1 build/test-snapshots/head/shared.hpp
 ```
 
-The first command prints `#define INITIAL 1`. The second prints `#define INITIAL 2`. The change starts in the header.
+The first command should print `#define INITIAL 1`. The second should print `#define INITIAL 2`.
 
 ## Header macro change
 
-The diff command takes a source directory and build directory for each snapshot. Each example directory contains both.
+The diff compares the original project with the copy that changed the macro. Each directory appears twice because it contains both the source files and `compile_commands.json`.
 
 ```sh
 build/dagdocdiff diff \
@@ -37,7 +59,7 @@ build/dagdocdiff diff \
   build/test-snapshots/head build/test-snapshots/head
 ```
 
-The JSON output contains three entries in `changes`.
+You should see three entries in the JSON `changes` array.
 
 | Symbol | Result | What happened |
 | --- | --- | --- |
@@ -45,11 +67,11 @@ The JSON output contains three entries in `changes`.
 | `app::b(int)` | `cycle` | It calls `app::a(int)`, which calls it back. |
 | `inspect(int)` | `dependency` | It calls `app::a(int)` from a third file. |
 
-The `dependency_path` for `inspect(int)` starts at that caller and ends at `app::a(int)`. Their `after.file` fields show `caller.cpp` and `a.cpp`.
+In the output for `inspect(int)`, expect `dependency_path` to start at that caller and end at `app::a(int)`. Their `after.file` fields should show `caller.cpp` and `a.cpp`.
 
 ## Comment-only edit
 
-The third snapshot adds a comment near the header definitions and leaves `INITIAL` at `1`.
+This comparison uses the copy with a comment added near the header definitions. `INITIAL` is still `1`.
 
 ```sh
 build/dagdocdiff diff \
@@ -57,6 +79,6 @@ build/dagdocdiff diff \
   build/test-snapshots/comment-only build/test-snapshots/comment-only
 ```
 
-The result contains `"changes": []`. In this fixture, the comment leaves the tracked code graph unchanged.
+You should see `"changes": []`. The comment leaves the tracked code graph unchanged in this example.
 
 [Git revision comparison](../how-to/compare-revisions.md) shows the same command with separate source and build directories.
