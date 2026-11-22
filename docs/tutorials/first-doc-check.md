@@ -122,4 +122,4 @@ dagdocdiff check
 
 You should see `retries.md:1: Retries` under `Approved documentation sections: 1` again.
 
-[Trace a docs warning to a helper](first-diff.md) follows a change that starts in a different file from the linked function.
+[Trace a change in a delivery estimate](first-diff.md) follows a change in depot sorting time through a caller in another file.

@@ -21,7 +21,7 @@ Nix fetches the tagged source and builds the package or reuses a cached build. A
 ## Tutorials
 
 - [Change a retry limit and update its docs](tutorials/first-doc-check.md) follows one linked section from an approved starting point through a code change and a new approval.
-- [Trace a docs warning to a helper](tutorials/first-diff.md) follows a change in one file to a section that links to a function in another file.
+- [Trace a change in a delivery estimate](tutorials/first-diff.md) follows a change in depot sorting time through a caller to a guide.
 
 The [repository README](../README.md#build-v1) has the build commands for a checkout.
 
