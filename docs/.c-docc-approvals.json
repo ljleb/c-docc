@@ -46,7 +46,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "reference/cli.md": "205602f2dcb1d3f1d010d597aea98f9c7007f346918cc89a04a370114bccb7bd"
+        "reference/cli.md": "1ec7b9485a37022dadb2f9631e3da01aaa4013f6664febf762f621425b7e6f58"
       },
       "inputs": {},
       "links": {},
@@ -210,7 +210,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "cli.md": "205602f2dcb1d3f1d010d597aea98f9c7007f346918cc89a04a370114bccb7bd"
+        "cli.md": "1ec7b9485a37022dadb2f9631e3da01aaa4013f6664febf762f621425b7e6f58"
       },
       "inputs": {},
       "links": {},
@@ -219,6 +219,429 @@
       "section": "Reference",
       "symbols": {},
       "text_hash": "2f87b1ae3f97332493e0b761f8e9eec9714a59031f4e870985995b02fa391148"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "c_docc::Change": "a61ec03e55a12f46d390c91cad6b3ec0b7775afa7eb49b0c25702b2a1e42fc55",
+        "c_docc::Component": "69a544c712c4eae2bcd23db53d2e94bbfb06168948a3ac65782b6bcf93eccbe6",
+        "c_docc::Dependency": "5b7957b9bff43fbea5409197d9751deed73a44a95e23cbdaf2b67189f5da7de0",
+        "c_docc::Finding": "a9fdf2263f203635a95cb7111a3c4a5515594dd2cb49fcdaad876def6bf337fa",
+        "c_docc::Fingerprint": "5d0813e7016966c2c9e246351f6563f82200cba77b8f558d6d63d330d8b6cf60",
+        "c_docc::Fingerprint::Fingerprint(llvm::StringRef)": "0acb6e624f1336cf070698d8f9e0b11f717612bcb25be278a68a12b060ec25f1",
+        "c_docc::Fingerprint::add(llvm::StringRef)": "95c17f0dbe031247d524f7486d68b5b432e0d2528760f1a0f1669b635ce3839e",
+        "c_docc::Fingerprint::finish()": "ab9e7407c0919b9cb68958a92cea6059a8b6e8d4e518cd420e967351de96f446",
+        "c_docc::Location": "93664e799ed3669bcb013d83edb6569cf0feb6f333c278924995876cc027e42a",
+        "c_docc::Snapshot": "4a380537e6de124e2d2f4d9b04edf67d65242669e572ba714f5513afe36817c7",
+        "c_docc::SourceSpan": "a8c02a5ce94f84a18bdde15c7137363faf070a947d7e2be400981d097480df35",
+        "c_docc::SourceTargets": "3e3ee22bb037bbbb1ffedf992d9156128d14e23758b4dbc08d3ac61c3ff875bf",
+        "c_docc::Symbol": "16dd9b5e3303244a9b01687d0b19dd7430075234f83848b3d4dd9b098be5ee1d",
+        "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "b583b84ef2967c3c6f7b041bf2bb9b602d364e7fc2dcb30ba8e375140513829b",
+        "c_docc::approveDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "103cfd684b99ca5a517855d92197efadb007b5213faaa55224a4c8329195a42e",
+        "c_docc::approvePage(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "477202b6c22fc533f36cf01fa1f212139005ff90278389cde86b6f640aca7355",
+        "c_docc::checkDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, bool)": "29b8d9ae98a4cd333c0829cee63c5a9aa28e0dfc1834555dfb4d8c4297e673e4",
+        "c_docc::compare(const c_docc::Snapshot &, const c_docc::Snapshot &)": "56bbe7cacbf5f6943071816a68fc903ef0f636b056dd0d31922280dc2d682c51",
+        "c_docc::hashComponents(c_docc::Snapshot &)": "4a02f3ffc77ce82801d3a780898dab810ec39f17bbbfda470d3b6586fbf0de3c",
+        "c_docc::invalidateDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "4bb13d4b8cfc2195cdde94f0e5ac1e0872af3e4a5d5ff25922c0d3700b01a846",
+        "c_docc::reviewDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "2cf98b37a7dbbe5cf4ce16b0b91987bd1cc685c07defc0c9becd0511ec4b8291",
+        "main(int, char **)": "154d88a46dfcdd92df75f0961820df1a3f1cec24bb73dcc11806e6d481175449",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "50bd17bdb373b456d96642964c65108739c992df91cf43c9aaee999fcd4ee2b1",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "3585a081be8f49d61f4a6d8c090c6c9e57aa57d30d6deb4e1da87898973614e0",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "56403247e961f509c2bc4a5ed7fce400416c239cd38c94ce61d60411da0634b8",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "5387ec94da4fec97d9a39e687445ead8ef791bdc5eecf5c3c4e512cead9c3e0b",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::ChangeCause": "b7d2ce00f20a65dd455ef3c8b9ca3bf69c9a25535986142a71caf45f4710dd56",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::FileLink": "b15713de7af1c73e4a0ebfc8b9712a3b445067d9e875751e0f787e7669f73190",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::HeadingFingerprint": "98e8d7ba48054820cd0ccef7f8ad730e2351d4ed7637cf09a027e6773621b924",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Inputs": "4b8814f440d8880d476c3bbf1f324b09b5e4016fd8651a0268907f5304aed649",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Issue": "05851c0734ef34a33a5caecd8757716239012939c92a2005cc1e6ab9b65256ed",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::LinkOccurrence": "ded662b060ea4cb3fedb868569bdc61dc490a1f1fe35b6911693645094cbdaca",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::LinkTarget": "de312ecc48ba290b27fc2c0fa9026685709ba5ad10a26c6b953e8c374171b145",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks": "b439a001df63b504cb8b3f230d647775559ea27acdd1a6e20dfa04fb657ae0fa",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::FileFingerprints": "0bc2122ef909c04a4cfa571cf29cbf1085b2ee2015684feaaaeecfa576bed856",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::MarkdownLinks(const std::filesystem::path &)": "c49ed1d0b0ed0f1a5f9946b8d5532ca7cbf93402be2410eac1570158136a172a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::resolve(llvm::StringRef, const std::filesystem::path &)": "54b4a032e63471ba401e1fecba575ccea3c0a23010d76489b2cff9a8fef7bee0",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::PendingReview": "f0e7bc79a1120b5eca8b25835e640073257129f5c8b4c9ca635e3f66382fd6f6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Review": "c43e0ba23d424a0a6656100b53cae03b80ee7a248bfad5764ae9ca19d71f08f6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Section": "604635e569771a29b46755712306bac8902a3cb649881f9cfea7a86790ffdb8e",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLink": "0c7fbb859af2b028546116fb8bc66f7cd8129d410510705fde2f9abf71988973",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks": "6788ae3c4ced98fcaf9c33d49c5350aaee14d9d0e9d35e880798bb2e9f81fa7d",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::File": "f5b70a4a7ac8ab4e6dacdc13790b693d21b57a81d18c496e9e054a39cce44510",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::SourceLinks(const std::filesystem::path &, const c_docc::Snapshot &)": "d64a69bab9d716275f3d9232a1247183324b0466dce5603225fd3a10d66347cf",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::resolve(llvm::StringRef, const std::filesystem::path &)": "5f001175013fddc4606efbd65d95493874afc3e416a9801e338fea9c06595247",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::approvalKey(const std::pair<std::basic_string<char>, std::basic_string<char>> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "6451f53f163aebc7288088d9ee44f9eeb9515dbd94b353d89171068d7977951a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::askForDecision()": "5cf8ef88c1efafa14ab1022f8a03c96f8c1b6bb6cdcf8763453a359ca3bba95b",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::causePath(const std::basic_string<char> &, const c_docc::(anonymous namespace)::Review &, const c_docc::(anonymous namespace)::Review &, const c_docc::Snapshot &)": "c16c379c894407b3af479d50eb9139c892a8e63304cd7a55bda7fac0f020b294",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::collectLinks(cmark_node *, unsigned int, const std::filesystem::path &, c_docc::(anonymous namespace)::Section &, c_docc::(anonymous namespace)::SourceLinks &, c_docc::(anonymous namespace)::MarkdownLinks &)": "7910dfdb39b713bb4b6cce37916c1d019fdb91fac6e51854ce112ca2fc3b8eea",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::contentFingerprint(llvm::StringRef, llvm::StringRef)": "e681019cdaa53021fc8037a4d1d55a832b6cd39dbe518646756592c98cbb1c83",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::currentReview(const c_docc::(anonymous namespace)::Section &, const c_docc::Snapshot &, llvm::StringRef)": "a56552e4e8aa880bb0bd704fdd726bcb251b0130ac509cb7ac15b9c80d231f37",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::decodePath(llvm::StringRef)": "b710911d7aa0a190e554286cd89c8171a21d112c2cf70f297be953f7bdc87356",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::describeCause(const std::basic_string<char> &, const c_docc::Snapshot &)": "69ed044995f4685dac4f78e6df8cfd6c2e9278ca17262448ca73afccdc698720",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::error(const llvm::Twine &)": "17714468803f79f95d9efd2b6b430569e9362e4a22a20b34a17d6c94f4561433",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::fileError(const std::filesystem::path &, std::error_code)": "3ccb0930d7c39f1535d0baf7ac9004e79154c1ef927ee809b6a774c1eff9611f",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::hashesJson(const std::map<std::basic_string<char>, std::basic_string<char>> &)": "104acbe1bac622c85ff3083464ab9fd78700df55a5ed0ae824fab888145fd763",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::headingFingerprints(llvm::StringRef, llvm::StringRef, cmark_node *)": "850786aff917d5ef493e4d11a5f955b030c94db45aa6719cb806d4e5afdc8657",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::headingSlug(llvm::StringRef)": "6b62fba98dbc2e4620c5977a85976ede720a65babee11996ca33957bdf66dbf3",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::inlineText(cmark_node *, llvm::StringRef, bool)": "4a02f766128ec8dd9dbfc2b5f7f8caa4a70c2aeadab9636e57b936fc7c406dd5",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::inside(const std::filesystem::path &, const std::filesystem::path &)": "3a216728950e61e2d75e7e68dc3e648fa5d81154008312c1eeb1d399ba0f9b99",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::lineOffsets(llvm::StringRef)": "ae6ae19547632445b8468eb435618ca69757d06fbbc603ec00406fad7758f9d2",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::linkLine(cmark_node *, unsigned int)": "41fd19e8ea18cce60483cc048d6082abb519a6a232a6019153224b6c88d16a51",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::linkMessage(llvm::StringRef, llvm::StringRef)": "a4028322fbdc2075ca4da0ee56dbbf7f04b12b2c6472c53f05b4bac3b8fc05d6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::loadInputs(llvm::StringRef, llvm::StringRef, llvm::StringRef)": "c4ecb875684845c96c914a3c2cc83ad4e8c9f47752c1e02be79d578ed73a711c",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::loadReviews(const std::filesystem::path &)": "e5f3fe4c3e218cd74851df241da41bf6b44299dad2b700ace44ed8ead033d3b5",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::markdownFile(const std::filesystem::path &)": "41fa64edf34a6c91a6aaa8058519376f96a98f6e83b90ab14d487f8c7dda56de",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::pendingReviews(const c_docc::(anonymous namespace)::Inputs &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "b875baa70968c98f5dcf9481ce7fe8abcbdf204c1b7ffc4e84deb8c9eeddf1bc",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::printStatus(const c_docc::(anonymous namespace)::Inputs &, const std::vector<c_docc::(anonymous namespace)::PendingReview> &)": "5b419d6bac4fd0a5943acfcf9428e3c62f5b11b2e1f21727dd0eb21a8e06f881",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readDocs(const std::filesystem::path &, const std::filesystem::path &, const c_docc::Snapshot &)": "d1c87dbd69aaf8290349dbd016c1ffaec0d13ff95448c1bff4ead78dc244ba24",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readHashes(const llvm::json::Object *, std::map<std::basic_string<char>, std::basic_string<char>> &)": "bcead74472ceba8a73254d4b20c48c5af7e73996beaab56c2c13fff3293fdf73",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readLinks(const llvm::json::Object *, std::map<std::basic_string<char>, std::set<std::basic_string<char>>> &)": "f066f9f48fa0558942c0a10a90db6735a2551ca5b7426f17c99bf18e26b01d72",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readPage(const std::filesystem::path &, const std::filesystem::path &, std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, c_docc::(anonymous namespace)::SourceLinks &, c_docc::(anonymous namespace)::MarkdownLinks &)": "a8d75a704064f1754b82e632e416b67da0d69cbb9d9e9542bc434543690c4fa8",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reconcileReviews(const c_docc::(anonymous namespace)::Inputs &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "4e6d08be868b7122620e8ee9efd59418b93b7e4508dc9b60bfc8bd2444253a7a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::recordReview(const c_docc::(anonymous namespace)::Inputs &, const std::pair<std::basic_string<char>, std::basic_string<char>> &, std::optional<c_docc::(anonymous namespace)::Review>, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> *)": "c53d2468bdfb2610615e0cafd29f34b183927266de270e1989e2965e01718eb3",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::renamedSections(const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "047ad134506aec24071da3886fef877ca007058fd144ab86615184df463479c4",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::report(const std::pair<std::basic_string<char>, std::basic_string<char>> &, unsigned int, llvm::StringRef)": "6329564ba008342e93afbb71d127fb8a00d545d3d15b549a7bb79b2dd67489bc",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reportSourceFingerprint(std::vector<c_docc::(anonymous namespace)::Issue> &, const c_docc::(anonymous namespace)::LinkOccurrence &, const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::map<std::basic_string<char>, std::basic_string<char>> &, llvm::StringRef)": "bafd7b48cfa6fcf910d0131510b94e3efa275c785791d77d54066220832bea43",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reviewIssues(const c_docc::(anonymous namespace)::Section &, const c_docc::(anonymous namespace)::Review &, const c_docc::Snapshot &)": "aa11d6b44e9a1824f5cb7d54c811f4e3b66d3b259edfde2ab6e2bcf16ea03326",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::saveReviews(const std::filesystem::path &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "a3074dd60a56f94f98a4dfc7f8087dfe326c83233a5f29902ff6c8186cd8cefd",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::sourceFile(const std::filesystem::path &)": "4cc8faa6961cff91915106417ab80963260ef7f74c624d74967122d849650251",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::sourceLine(llvm::StringRef)": "296d42e6dba6f91271a9c67bd6572bdd83b8d1d79d9c10b1eede1f06b49c3e8d",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::syncReviews(const c_docc::(anonymous namespace)::Inputs &)": "f5e88f101ce850f525c2de0e4ef5ded439610b9465d25e551a46b4ff1d792728",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::updateReviews(const c_docc::(anonymous namespace)::Inputs &, llvm::function_ref<llvm::Error (std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)>)": "1953d730862f8708c5a54cf064b25521cfacb0f22d4f0e67878becbe58741404",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::Node": "ba10a2dfe05590a2aacdb68ef5f78b6a045a7b1171ed94c9948763116be20544",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::NodeTraits": "e72fd00528253e57b8f861863b7890ce795a1253be94f548139ddad507cb18e3",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::findCauses(const c_docc::Snapshot &, const std::set<std::basic_string<char>> &)": "d9a55959d6d34c5b509027ffd389af2299b79cd524765911fa688d5ee58e2e32",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "ff177e1c1ed3db4315322a933bfc005b4a598e9c05de75ef7e16e8489c8f7436",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::sharesComponent(const c_docc::Snapshot &, const std::vector<std::basic_string<char>> &)": "99d6984f97696d88c9c53de20e1071352ebf89b57bda583510ad53d9b3d8f8fa",
+        "src/main.cpp::(anonymous namespace)::diffJson(const c_docc::Snapshot &, const c_docc::Snapshot &)": "cef0e404a320e4f544c0e1419ae9d91d15d857f0b1ebdd84b5e12eb3b19ab5b1",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "d44e1d8650218fdec7e4e06233428c9097ecf32ac29d769cd69ab218b19dd836",
+        "src/main.cpp::(anonymous namespace)::fail(llvm::Error)": "2194bc22d0a5dae32e58ce2f22eae9ee16133a4af222adb48ca9b40c80e74352",
+        "src/main.cpp::(anonymous namespace)::findings(const c_docc::Snapshot &)": "335f73ddaff65acbf3ad025fb9f498f564148932e8fc6a338597f2626dc2a001",
+        "src/main.cpp::(anonymous namespace)::location(const c_docc::Location &)": "2dedfffc852f653f762a2924da52273013493c535b674223a9ad24e89d0a7aba",
+        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "bd34463d18a7467c8f99046397883dc47aa5547e6391d8cba003e7ca0488a83e",
+        "src/main.cpp::(anonymous namespace)::scanJson(const c_docc::Snapshot &)": "1a47739c697400bf9d9564da7c672552e2be3a57cbda020d98f4c3161e199ea7",
+        "src/main.cpp::(anonymous namespace)::usage(llvm::raw_ostream &)": "b5fd1fb5e8097c9eb7a279b75fc3d935cc75c813b851253f9877c7a0382146e1",
+        "src/main.cpp::(anonymous namespace)::usageError(const llvm::Twine &)": "ffb2ea13c4d30626d0f99d1dd046843d626eb4d626207c712be6da606c23ce78"
+      },
+      "links": {
+        "../../src/main.cpp#L155": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L167": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L171": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L190": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L197": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L200": [
+          "main(int, char **)"
+        ]
+      },
+      "page": "reference/cli.md",
+      "reason": "",
+      "section": "c-docc command and output reference / Arguments",
+      "symbols": {
+        "main(int, char **)": "97c966ac7f260de19d150160cda634b1ad41309778fb6f1f98f7abb4205f436c",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "4d291def89bf67f9a62c66764f43df2507db9ea7271d89152ccd2a78573928bb"
+      },
+      "text_hash": "1b6db85b14a9b6187a105cd5a48483c957ef5139e4e8365d68f2eedf2cdb60b5"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "c_docc::Change": "a61ec03e55a12f46d390c91cad6b3ec0b7775afa7eb49b0c25702b2a1e42fc55",
+        "c_docc::Component": "69a544c712c4eae2bcd23db53d2e94bbfb06168948a3ac65782b6bcf93eccbe6",
+        "c_docc::Dependency": "5b7957b9bff43fbea5409197d9751deed73a44a95e23cbdaf2b67189f5da7de0",
+        "c_docc::Finding": "a9fdf2263f203635a95cb7111a3c4a5515594dd2cb49fcdaad876def6bf337fa",
+        "c_docc::Fingerprint": "5d0813e7016966c2c9e246351f6563f82200cba77b8f558d6d63d330d8b6cf60",
+        "c_docc::Fingerprint::Fingerprint(llvm::StringRef)": "0acb6e624f1336cf070698d8f9e0b11f717612bcb25be278a68a12b060ec25f1",
+        "c_docc::Fingerprint::add(llvm::StringRef)": "95c17f0dbe031247d524f7486d68b5b432e0d2528760f1a0f1669b635ce3839e",
+        "c_docc::Fingerprint::finish()": "ab9e7407c0919b9cb68958a92cea6059a8b6e8d4e518cd420e967351de96f446",
+        "c_docc::Location": "93664e799ed3669bcb013d83edb6569cf0feb6f333c278924995876cc027e42a",
+        "c_docc::Snapshot": "4a380537e6de124e2d2f4d9b04edf67d65242669e572ba714f5513afe36817c7",
+        "c_docc::SourceSpan": "a8c02a5ce94f84a18bdde15c7137363faf070a947d7e2be400981d097480df35",
+        "c_docc::SourceTargets": "3e3ee22bb037bbbb1ffedf992d9156128d14e23758b4dbc08d3ac61c3ff875bf",
+        "c_docc::Symbol": "16dd9b5e3303244a9b01687d0b19dd7430075234f83848b3d4dd9b098be5ee1d",
+        "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "b583b84ef2967c3c6f7b041bf2bb9b602d364e7fc2dcb30ba8e375140513829b",
+        "c_docc::approveDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "103cfd684b99ca5a517855d92197efadb007b5213faaa55224a4c8329195a42e",
+        "c_docc::approvePage(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "477202b6c22fc533f36cf01fa1f212139005ff90278389cde86b6f640aca7355",
+        "c_docc::checkDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, bool)": "29b8d9ae98a4cd333c0829cee63c5a9aa28e0dfc1834555dfb4d8c4297e673e4",
+        "c_docc::compare(const c_docc::Snapshot &, const c_docc::Snapshot &)": "56bbe7cacbf5f6943071816a68fc903ef0f636b056dd0d31922280dc2d682c51",
+        "c_docc::hashComponents(c_docc::Snapshot &)": "4a02f3ffc77ce82801d3a780898dab810ec39f17bbbfda470d3b6586fbf0de3c",
+        "c_docc::invalidateDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "4bb13d4b8cfc2195cdde94f0e5ac1e0872af3e4a5d5ff25922c0d3700b01a846",
+        "c_docc::reviewDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "2cf98b37a7dbbe5cf4ce16b0b91987bd1cc685c07defc0c9becd0511ec4b8291",
+        "main(int, char **)": "154d88a46dfcdd92df75f0961820df1a3f1cec24bb73dcc11806e6d481175449",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "50bd17bdb373b456d96642964c65108739c992df91cf43c9aaee999fcd4ee2b1",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "3585a081be8f49d61f4a6d8c090c6c9e57aa57d30d6deb4e1da87898973614e0",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "56403247e961f509c2bc4a5ed7fce400416c239cd38c94ce61d60411da0634b8",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "5387ec94da4fec97d9a39e687445ead8ef791bdc5eecf5c3c4e512cead9c3e0b",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::ChangeCause": "b7d2ce00f20a65dd455ef3c8b9ca3bf69c9a25535986142a71caf45f4710dd56",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::FileLink": "b15713de7af1c73e4a0ebfc8b9712a3b445067d9e875751e0f787e7669f73190",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::HeadingFingerprint": "98e8d7ba48054820cd0ccef7f8ad730e2351d4ed7637cf09a027e6773621b924",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Inputs": "4b8814f440d8880d476c3bbf1f324b09b5e4016fd8651a0268907f5304aed649",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Issue": "05851c0734ef34a33a5caecd8757716239012939c92a2005cc1e6ab9b65256ed",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::LinkOccurrence": "ded662b060ea4cb3fedb868569bdc61dc490a1f1fe35b6911693645094cbdaca",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::LinkTarget": "de312ecc48ba290b27fc2c0fa9026685709ba5ad10a26c6b953e8c374171b145",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks": "b439a001df63b504cb8b3f230d647775559ea27acdd1a6e20dfa04fb657ae0fa",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::FileFingerprints": "0bc2122ef909c04a4cfa571cf29cbf1085b2ee2015684feaaaeecfa576bed856",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::MarkdownLinks(const std::filesystem::path &)": "c49ed1d0b0ed0f1a5f9946b8d5532ca7cbf93402be2410eac1570158136a172a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::resolve(llvm::StringRef, const std::filesystem::path &)": "54b4a032e63471ba401e1fecba575ccea3c0a23010d76489b2cff9a8fef7bee0",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::PendingReview": "f0e7bc79a1120b5eca8b25835e640073257129f5c8b4c9ca635e3f66382fd6f6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Review": "c43e0ba23d424a0a6656100b53cae03b80ee7a248bfad5764ae9ca19d71f08f6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Section": "604635e569771a29b46755712306bac8902a3cb649881f9cfea7a86790ffdb8e",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLink": "0c7fbb859af2b028546116fb8bc66f7cd8129d410510705fde2f9abf71988973",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks": "6788ae3c4ced98fcaf9c33d49c5350aaee14d9d0e9d35e880798bb2e9f81fa7d",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::File": "f5b70a4a7ac8ab4e6dacdc13790b693d21b57a81d18c496e9e054a39cce44510",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::SourceLinks(const std::filesystem::path &, const c_docc::Snapshot &)": "d64a69bab9d716275f3d9232a1247183324b0466dce5603225fd3a10d66347cf",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::resolve(llvm::StringRef, const std::filesystem::path &)": "5f001175013fddc4606efbd65d95493874afc3e416a9801e338fea9c06595247",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::approvalKey(const std::pair<std::basic_string<char>, std::basic_string<char>> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "6451f53f163aebc7288088d9ee44f9eeb9515dbd94b353d89171068d7977951a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::askForDecision()": "5cf8ef88c1efafa14ab1022f8a03c96f8c1b6bb6cdcf8763453a359ca3bba95b",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::causePath(const std::basic_string<char> &, const c_docc::(anonymous namespace)::Review &, const c_docc::(anonymous namespace)::Review &, const c_docc::Snapshot &)": "c16c379c894407b3af479d50eb9139c892a8e63304cd7a55bda7fac0f020b294",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::collectLinks(cmark_node *, unsigned int, const std::filesystem::path &, c_docc::(anonymous namespace)::Section &, c_docc::(anonymous namespace)::SourceLinks &, c_docc::(anonymous namespace)::MarkdownLinks &)": "7910dfdb39b713bb4b6cce37916c1d019fdb91fac6e51854ce112ca2fc3b8eea",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::contentFingerprint(llvm::StringRef, llvm::StringRef)": "e681019cdaa53021fc8037a4d1d55a832b6cd39dbe518646756592c98cbb1c83",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::currentReview(const c_docc::(anonymous namespace)::Section &, const c_docc::Snapshot &, llvm::StringRef)": "a56552e4e8aa880bb0bd704fdd726bcb251b0130ac509cb7ac15b9c80d231f37",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::decodePath(llvm::StringRef)": "b710911d7aa0a190e554286cd89c8171a21d112c2cf70f297be953f7bdc87356",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::describeCause(const std::basic_string<char> &, const c_docc::Snapshot &)": "69ed044995f4685dac4f78e6df8cfd6c2e9278ca17262448ca73afccdc698720",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::error(const llvm::Twine &)": "17714468803f79f95d9efd2b6b430569e9362e4a22a20b34a17d6c94f4561433",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::fileError(const std::filesystem::path &, std::error_code)": "3ccb0930d7c39f1535d0baf7ac9004e79154c1ef927ee809b6a774c1eff9611f",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::hashesJson(const std::map<std::basic_string<char>, std::basic_string<char>> &)": "104acbe1bac622c85ff3083464ab9fd78700df55a5ed0ae824fab888145fd763",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::headingFingerprints(llvm::StringRef, llvm::StringRef, cmark_node *)": "850786aff917d5ef493e4d11a5f955b030c94db45aa6719cb806d4e5afdc8657",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::headingSlug(llvm::StringRef)": "6b62fba98dbc2e4620c5977a85976ede720a65babee11996ca33957bdf66dbf3",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::inlineText(cmark_node *, llvm::StringRef, bool)": "4a02f766128ec8dd9dbfc2b5f7f8caa4a70c2aeadab9636e57b936fc7c406dd5",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::inside(const std::filesystem::path &, const std::filesystem::path &)": "3a216728950e61e2d75e7e68dc3e648fa5d81154008312c1eeb1d399ba0f9b99",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::lineOffsets(llvm::StringRef)": "ae6ae19547632445b8468eb435618ca69757d06fbbc603ec00406fad7758f9d2",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::linkLine(cmark_node *, unsigned int)": "41fd19e8ea18cce60483cc048d6082abb519a6a232a6019153224b6c88d16a51",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::linkMessage(llvm::StringRef, llvm::StringRef)": "a4028322fbdc2075ca4da0ee56dbbf7f04b12b2c6472c53f05b4bac3b8fc05d6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::loadInputs(llvm::StringRef, llvm::StringRef, llvm::StringRef)": "c4ecb875684845c96c914a3c2cc83ad4e8c9f47752c1e02be79d578ed73a711c",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::loadReviews(const std::filesystem::path &)": "e5f3fe4c3e218cd74851df241da41bf6b44299dad2b700ace44ed8ead033d3b5",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::markdownFile(const std::filesystem::path &)": "41fa64edf34a6c91a6aaa8058519376f96a98f6e83b90ab14d487f8c7dda56de",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::pendingReviews(const c_docc::(anonymous namespace)::Inputs &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "b875baa70968c98f5dcf9481ce7fe8abcbdf204c1b7ffc4e84deb8c9eeddf1bc",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::printStatus(const c_docc::(anonymous namespace)::Inputs &, const std::vector<c_docc::(anonymous namespace)::PendingReview> &)": "5b419d6bac4fd0a5943acfcf9428e3c62f5b11b2e1f21727dd0eb21a8e06f881",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readDocs(const std::filesystem::path &, const std::filesystem::path &, const c_docc::Snapshot &)": "d1c87dbd69aaf8290349dbd016c1ffaec0d13ff95448c1bff4ead78dc244ba24",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readHashes(const llvm::json::Object *, std::map<std::basic_string<char>, std::basic_string<char>> &)": "bcead74472ceba8a73254d4b20c48c5af7e73996beaab56c2c13fff3293fdf73",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readLinks(const llvm::json::Object *, std::map<std::basic_string<char>, std::set<std::basic_string<char>>> &)": "f066f9f48fa0558942c0a10a90db6735a2551ca5b7426f17c99bf18e26b01d72",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readPage(const std::filesystem::path &, const std::filesystem::path &, std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, c_docc::(anonymous namespace)::SourceLinks &, c_docc::(anonymous namespace)::MarkdownLinks &)": "a8d75a704064f1754b82e632e416b67da0d69cbb9d9e9542bc434543690c4fa8",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reconcileReviews(const c_docc::(anonymous namespace)::Inputs &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "4e6d08be868b7122620e8ee9efd59418b93b7e4508dc9b60bfc8bd2444253a7a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::recordReview(const c_docc::(anonymous namespace)::Inputs &, const std::pair<std::basic_string<char>, std::basic_string<char>> &, std::optional<c_docc::(anonymous namespace)::Review>, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> *)": "c53d2468bdfb2610615e0cafd29f34b183927266de270e1989e2965e01718eb3",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::renamedSections(const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "047ad134506aec24071da3886fef877ca007058fd144ab86615184df463479c4",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::report(const std::pair<std::basic_string<char>, std::basic_string<char>> &, unsigned int, llvm::StringRef)": "6329564ba008342e93afbb71d127fb8a00d545d3d15b549a7bb79b2dd67489bc",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reportSourceFingerprint(std::vector<c_docc::(anonymous namespace)::Issue> &, const c_docc::(anonymous namespace)::LinkOccurrence &, const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::map<std::basic_string<char>, std::basic_string<char>> &, llvm::StringRef)": "bafd7b48cfa6fcf910d0131510b94e3efa275c785791d77d54066220832bea43",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reviewIssues(const c_docc::(anonymous namespace)::Section &, const c_docc::(anonymous namespace)::Review &, const c_docc::Snapshot &)": "aa11d6b44e9a1824f5cb7d54c811f4e3b66d3b259edfde2ab6e2bcf16ea03326",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::saveReviews(const std::filesystem::path &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "a3074dd60a56f94f98a4dfc7f8087dfe326c83233a5f29902ff6c8186cd8cefd",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::sourceFile(const std::filesystem::path &)": "4cc8faa6961cff91915106417ab80963260ef7f74c624d74967122d849650251",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::sourceLine(llvm::StringRef)": "296d42e6dba6f91271a9c67bd6572bdd83b8d1d79d9c10b1eede1f06b49c3e8d",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::syncReviews(const c_docc::(anonymous namespace)::Inputs &)": "f5e88f101ce850f525c2de0e4ef5ded439610b9465d25e551a46b4ff1d792728",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::updateReviews(const c_docc::(anonymous namespace)::Inputs &, llvm::function_ref<llvm::Error (std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)>)": "1953d730862f8708c5a54cf064b25521cfacb0f22d4f0e67878becbe58741404",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::Node": "ba10a2dfe05590a2aacdb68ef5f78b6a045a7b1171ed94c9948763116be20544",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::NodeTraits": "e72fd00528253e57b8f861863b7890ce795a1253be94f548139ddad507cb18e3",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::findCauses(const c_docc::Snapshot &, const std::set<std::basic_string<char>> &)": "d9a55959d6d34c5b509027ffd389af2299b79cd524765911fa688d5ee58e2e32",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "ff177e1c1ed3db4315322a933bfc005b4a598e9c05de75ef7e16e8489c8f7436",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::sharesComponent(const c_docc::Snapshot &, const std::vector<std::basic_string<char>> &)": "99d6984f97696d88c9c53de20e1071352ebf89b57bda583510ad53d9b3d8f8fa",
+        "src/main.cpp::(anonymous namespace)::diffJson(const c_docc::Snapshot &, const c_docc::Snapshot &)": "cef0e404a320e4f544c0e1419ae9d91d15d857f0b1ebdd84b5e12eb3b19ab5b1",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "d44e1d8650218fdec7e4e06233428c9097ecf32ac29d769cd69ab218b19dd836",
+        "src/main.cpp::(anonymous namespace)::fail(llvm::Error)": "2194bc22d0a5dae32e58ce2f22eae9ee16133a4af222adb48ca9b40c80e74352",
+        "src/main.cpp::(anonymous namespace)::findings(const c_docc::Snapshot &)": "335f73ddaff65acbf3ad025fb9f498f564148932e8fc6a338597f2626dc2a001",
+        "src/main.cpp::(anonymous namespace)::location(const c_docc::Location &)": "2dedfffc852f653f762a2924da52273013493c535b674223a9ad24e89d0a7aba",
+        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "bd34463d18a7467c8f99046397883dc47aa5547e6391d8cba003e7ca0488a83e",
+        "src/main.cpp::(anonymous namespace)::scanJson(const c_docc::Snapshot &)": "1a47739c697400bf9d9564da7c672552e2be3a57cbda020d98f4c3161e199ea7",
+        "src/main.cpp::(anonymous namespace)::usage(llvm::raw_ostream &)": "b5fd1fb5e8097c9eb7a279b75fc3d935cc75c813b851253f9877c7a0382146e1",
+        "src/main.cpp::(anonymous namespace)::usageError(const llvm::Twine &)": "ffb2ea13c4d30626d0f99d1dd046843d626eb4d626207c712be6da606c23ce78"
+      },
+      "links": {
+        "../../src/main.cpp#L152": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L161": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L166": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L171": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L172": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L178": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L181": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L185": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L189": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L196": [
+          "main(int, char **)"
+        ]
+      },
+      "page": "reference/cli.md",
+      "reason": "",
+      "section": "c-docc command and output reference / Commands",
+      "symbols": {
+        "main(int, char **)": "97c966ac7f260de19d150160cda634b1ad41309778fb6f1f98f7abb4205f436c",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "4d291def89bf67f9a62c66764f43df2507db9ea7271d89152ccd2a78573928bb"
+      },
+      "text_hash": "e7653a823dc7ab105601ef9680927fd75b6f7cfc0c7774f2786836f1600a8610"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "c_docc::Change": "a61ec03e55a12f46d390c91cad6b3ec0b7775afa7eb49b0c25702b2a1e42fc55",
+        "c_docc::Component": "69a544c712c4eae2bcd23db53d2e94bbfb06168948a3ac65782b6bcf93eccbe6",
+        "c_docc::Dependency": "5b7957b9bff43fbea5409197d9751deed73a44a95e23cbdaf2b67189f5da7de0",
+        "c_docc::Finding": "a9fdf2263f203635a95cb7111a3c4a5515594dd2cb49fcdaad876def6bf337fa",
+        "c_docc::Fingerprint": "5d0813e7016966c2c9e246351f6563f82200cba77b8f558d6d63d330d8b6cf60",
+        "c_docc::Fingerprint::Fingerprint(llvm::StringRef)": "0acb6e624f1336cf070698d8f9e0b11f717612bcb25be278a68a12b060ec25f1",
+        "c_docc::Fingerprint::add(llvm::StringRef)": "95c17f0dbe031247d524f7486d68b5b432e0d2528760f1a0f1669b635ce3839e",
+        "c_docc::Fingerprint::finish()": "ab9e7407c0919b9cb68958a92cea6059a8b6e8d4e518cd420e967351de96f446",
+        "c_docc::Location": "93664e799ed3669bcb013d83edb6569cf0feb6f333c278924995876cc027e42a",
+        "c_docc::Snapshot": "4a380537e6de124e2d2f4d9b04edf67d65242669e572ba714f5513afe36817c7",
+        "c_docc::SourceSpan": "a8c02a5ce94f84a18bdde15c7137363faf070a947d7e2be400981d097480df35",
+        "c_docc::SourceTargets": "3e3ee22bb037bbbb1ffedf992d9156128d14e23758b4dbc08d3ac61c3ff875bf",
+        "c_docc::Symbol": "16dd9b5e3303244a9b01687d0b19dd7430075234f83848b3d4dd9b098be5ee1d",
+        "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "b583b84ef2967c3c6f7b041bf2bb9b602d364e7fc2dcb30ba8e375140513829b",
+        "c_docc::approveDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "103cfd684b99ca5a517855d92197efadb007b5213faaa55224a4c8329195a42e",
+        "c_docc::approvePage(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "477202b6c22fc533f36cf01fa1f212139005ff90278389cde86b6f640aca7355",
+        "c_docc::checkDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, bool)": "29b8d9ae98a4cd333c0829cee63c5a9aa28e0dfc1834555dfb4d8c4297e673e4",
+        "c_docc::compare(const c_docc::Snapshot &, const c_docc::Snapshot &)": "56bbe7cacbf5f6943071816a68fc903ef0f636b056dd0d31922280dc2d682c51",
+        "c_docc::hashComponents(c_docc::Snapshot &)": "4a02f3ffc77ce82801d3a780898dab810ec39f17bbbfda470d3b6586fbf0de3c",
+        "c_docc::invalidateDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "4bb13d4b8cfc2195cdde94f0e5ac1e0872af3e4a5d5ff25922c0d3700b01a846",
+        "c_docc::reviewDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "2cf98b37a7dbbe5cf4ce16b0b91987bd1cc685c07defc0c9becd0511ec4b8291",
+        "main(int, char **)": "154d88a46dfcdd92df75f0961820df1a3f1cec24bb73dcc11806e6d481175449",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "50bd17bdb373b456d96642964c65108739c992df91cf43c9aaee999fcd4ee2b1",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "3585a081be8f49d61f4a6d8c090c6c9e57aa57d30d6deb4e1da87898973614e0",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "56403247e961f509c2bc4a5ed7fce400416c239cd38c94ce61d60411da0634b8",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "5387ec94da4fec97d9a39e687445ead8ef791bdc5eecf5c3c4e512cead9c3e0b",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::ChangeCause": "b7d2ce00f20a65dd455ef3c8b9ca3bf69c9a25535986142a71caf45f4710dd56",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::FileLink": "b15713de7af1c73e4a0ebfc8b9712a3b445067d9e875751e0f787e7669f73190",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::HeadingFingerprint": "98e8d7ba48054820cd0ccef7f8ad730e2351d4ed7637cf09a027e6773621b924",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Inputs": "4b8814f440d8880d476c3bbf1f324b09b5e4016fd8651a0268907f5304aed649",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Issue": "05851c0734ef34a33a5caecd8757716239012939c92a2005cc1e6ab9b65256ed",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::LinkOccurrence": "ded662b060ea4cb3fedb868569bdc61dc490a1f1fe35b6911693645094cbdaca",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::LinkTarget": "de312ecc48ba290b27fc2c0fa9026685709ba5ad10a26c6b953e8c374171b145",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks": "b439a001df63b504cb8b3f230d647775559ea27acdd1a6e20dfa04fb657ae0fa",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::FileFingerprints": "0bc2122ef909c04a4cfa571cf29cbf1085b2ee2015684feaaaeecfa576bed856",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::MarkdownLinks(const std::filesystem::path &)": "c49ed1d0b0ed0f1a5f9946b8d5532ca7cbf93402be2410eac1570158136a172a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::MarkdownLinks::resolve(llvm::StringRef, const std::filesystem::path &)": "54b4a032e63471ba401e1fecba575ccea3c0a23010d76489b2cff9a8fef7bee0",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::PendingReview": "f0e7bc79a1120b5eca8b25835e640073257129f5c8b4c9ca635e3f66382fd6f6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Review": "c43e0ba23d424a0a6656100b53cae03b80ee7a248bfad5764ae9ca19d71f08f6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::Section": "604635e569771a29b46755712306bac8902a3cb649881f9cfea7a86790ffdb8e",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLink": "0c7fbb859af2b028546116fb8bc66f7cd8129d410510705fde2f9abf71988973",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks": "6788ae3c4ced98fcaf9c33d49c5350aaee14d9d0e9d35e880798bb2e9f81fa7d",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::File": "f5b70a4a7ac8ab4e6dacdc13790b693d21b57a81d18c496e9e054a39cce44510",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::SourceLinks(const std::filesystem::path &, const c_docc::Snapshot &)": "d64a69bab9d716275f3d9232a1247183324b0466dce5603225fd3a10d66347cf",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::SourceLinks::resolve(llvm::StringRef, const std::filesystem::path &)": "5f001175013fddc4606efbd65d95493874afc3e416a9801e338fea9c06595247",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::approvalKey(const std::pair<std::basic_string<char>, std::basic_string<char>> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "6451f53f163aebc7288088d9ee44f9eeb9515dbd94b353d89171068d7977951a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::askForDecision()": "5cf8ef88c1efafa14ab1022f8a03c96f8c1b6bb6cdcf8763453a359ca3bba95b",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::causePath(const std::basic_string<char> &, const c_docc::(anonymous namespace)::Review &, const c_docc::(anonymous namespace)::Review &, const c_docc::Snapshot &)": "c16c379c894407b3af479d50eb9139c892a8e63304cd7a55bda7fac0f020b294",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::collectLinks(cmark_node *, unsigned int, const std::filesystem::path &, c_docc::(anonymous namespace)::Section &, c_docc::(anonymous namespace)::SourceLinks &, c_docc::(anonymous namespace)::MarkdownLinks &)": "7910dfdb39b713bb4b6cce37916c1d019fdb91fac6e51854ce112ca2fc3b8eea",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::contentFingerprint(llvm::StringRef, llvm::StringRef)": "e681019cdaa53021fc8037a4d1d55a832b6cd39dbe518646756592c98cbb1c83",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::currentReview(const c_docc::(anonymous namespace)::Section &, const c_docc::Snapshot &, llvm::StringRef)": "a56552e4e8aa880bb0bd704fdd726bcb251b0130ac509cb7ac15b9c80d231f37",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::decodePath(llvm::StringRef)": "b710911d7aa0a190e554286cd89c8171a21d112c2cf70f297be953f7bdc87356",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::describeCause(const std::basic_string<char> &, const c_docc::Snapshot &)": "69ed044995f4685dac4f78e6df8cfd6c2e9278ca17262448ca73afccdc698720",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::error(const llvm::Twine &)": "17714468803f79f95d9efd2b6b430569e9362e4a22a20b34a17d6c94f4561433",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::fileError(const std::filesystem::path &, std::error_code)": "3ccb0930d7c39f1535d0baf7ac9004e79154c1ef927ee809b6a774c1eff9611f",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::hashesJson(const std::map<std::basic_string<char>, std::basic_string<char>> &)": "104acbe1bac622c85ff3083464ab9fd78700df55a5ed0ae824fab888145fd763",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::headingFingerprints(llvm::StringRef, llvm::StringRef, cmark_node *)": "850786aff917d5ef493e4d11a5f955b030c94db45aa6719cb806d4e5afdc8657",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::headingSlug(llvm::StringRef)": "6b62fba98dbc2e4620c5977a85976ede720a65babee11996ca33957bdf66dbf3",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::inlineText(cmark_node *, llvm::StringRef, bool)": "4a02f766128ec8dd9dbfc2b5f7f8caa4a70c2aeadab9636e57b936fc7c406dd5",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::inside(const std::filesystem::path &, const std::filesystem::path &)": "3a216728950e61e2d75e7e68dc3e648fa5d81154008312c1eeb1d399ba0f9b99",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::lineOffsets(llvm::StringRef)": "ae6ae19547632445b8468eb435618ca69757d06fbbc603ec00406fad7758f9d2",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::linkLine(cmark_node *, unsigned int)": "41fd19e8ea18cce60483cc048d6082abb519a6a232a6019153224b6c88d16a51",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::linkMessage(llvm::StringRef, llvm::StringRef)": "a4028322fbdc2075ca4da0ee56dbbf7f04b12b2c6472c53f05b4bac3b8fc05d6",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::loadInputs(llvm::StringRef, llvm::StringRef, llvm::StringRef)": "c4ecb875684845c96c914a3c2cc83ad4e8c9f47752c1e02be79d578ed73a711c",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::loadReviews(const std::filesystem::path &)": "e5f3fe4c3e218cd74851df241da41bf6b44299dad2b700ace44ed8ead033d3b5",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::markdownFile(const std::filesystem::path &)": "41fa64edf34a6c91a6aaa8058519376f96a98f6e83b90ab14d487f8c7dda56de",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::pendingReviews(const c_docc::(anonymous namespace)::Inputs &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "b875baa70968c98f5dcf9481ce7fe8abcbdf204c1b7ffc4e84deb8c9eeddf1bc",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::printStatus(const c_docc::(anonymous namespace)::Inputs &, const std::vector<c_docc::(anonymous namespace)::PendingReview> &)": "5b419d6bac4fd0a5943acfcf9428e3c62f5b11b2e1f21727dd0eb21a8e06f881",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readDocs(const std::filesystem::path &, const std::filesystem::path &, const c_docc::Snapshot &)": "d1c87dbd69aaf8290349dbd016c1ffaec0d13ff95448c1bff4ead78dc244ba24",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readHashes(const llvm::json::Object *, std::map<std::basic_string<char>, std::basic_string<char>> &)": "bcead74472ceba8a73254d4b20c48c5af7e73996beaab56c2c13fff3293fdf73",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readLinks(const llvm::json::Object *, std::map<std::basic_string<char>, std::set<std::basic_string<char>>> &)": "f066f9f48fa0558942c0a10a90db6735a2551ca5b7426f17c99bf18e26b01d72",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::readPage(const std::filesystem::path &, const std::filesystem::path &, std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, c_docc::(anonymous namespace)::SourceLinks &, c_docc::(anonymous namespace)::MarkdownLinks &)": "a8d75a704064f1754b82e632e416b67da0d69cbb9d9e9542bc434543690c4fa8",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reconcileReviews(const c_docc::(anonymous namespace)::Inputs &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "4e6d08be868b7122620e8ee9efd59418b93b7e4508dc9b60bfc8bd2444253a7a",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::recordReview(const c_docc::(anonymous namespace)::Inputs &, const std::pair<std::basic_string<char>, std::basic_string<char>> &, std::optional<c_docc::(anonymous namespace)::Review>, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> *)": "c53d2468bdfb2610615e0cafd29f34b183927266de270e1989e2965e01718eb3",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::renamedSections(const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Section> &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "047ad134506aec24071da3886fef877ca007058fd144ab86615184df463479c4",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::report(const std::pair<std::basic_string<char>, std::basic_string<char>> &, unsigned int, llvm::StringRef)": "6329564ba008342e93afbb71d127fb8a00d545d3d15b549a7bb79b2dd67489bc",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reportSourceFingerprint(std::vector<c_docc::(anonymous namespace)::Issue> &, const c_docc::(anonymous namespace)::LinkOccurrence &, const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::map<std::basic_string<char>, std::basic_string<char>> &, llvm::StringRef)": "bafd7b48cfa6fcf910d0131510b94e3efa275c785791d77d54066220832bea43",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::reviewIssues(const c_docc::(anonymous namespace)::Section &, const c_docc::(anonymous namespace)::Review &, const c_docc::Snapshot &)": "aa11d6b44e9a1824f5cb7d54c811f4e3b66d3b259edfde2ab6e2bcf16ea03326",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::saveReviews(const std::filesystem::path &, const std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)": "a3074dd60a56f94f98a4dfc7f8087dfe326c83233a5f29902ff6c8186cd8cefd",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::sourceFile(const std::filesystem::path &)": "4cc8faa6961cff91915106417ab80963260ef7f74c624d74967122d849650251",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::sourceLine(llvm::StringRef)": "296d42e6dba6f91271a9c67bd6572bdd83b8d1d79d9c10b1eede1f06b49c3e8d",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::syncReviews(const c_docc::(anonymous namespace)::Inputs &)": "f5e88f101ce850f525c2de0e4ef5ded439610b9465d25e551a46b4ff1d792728",
+        "src/Docs.cpp::c_docc::(anonymous namespace)::updateReviews(const c_docc::(anonymous namespace)::Inputs &, llvm::function_ref<llvm::Error (std::map<std::pair<std::basic_string<char>, std::basic_string<char>>, c_docc::(anonymous namespace)::Review> &)>)": "1953d730862f8708c5a54cf064b25521cfacb0f22d4f0e67878becbe58741404",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::Node": "ba10a2dfe05590a2aacdb68ef5f78b6a045a7b1171ed94c9948763116be20544",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::NodeTraits": "e72fd00528253e57b8f861863b7890ce795a1253be94f548139ddad507cb18e3",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::findCauses(const c_docc::Snapshot &, const std::set<std::basic_string<char>> &)": "d9a55959d6d34c5b509027ffd389af2299b79cd524765911fa688d5ee58e2e32",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "ff177e1c1ed3db4315322a933bfc005b4a598e9c05de75ef7e16e8489c8f7436",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::sharesComponent(const c_docc::Snapshot &, const std::vector<std::basic_string<char>> &)": "99d6984f97696d88c9c53de20e1071352ebf89b57bda583510ad53d9b3d8f8fa",
+        "src/main.cpp::(anonymous namespace)::diffJson(const c_docc::Snapshot &, const c_docc::Snapshot &)": "cef0e404a320e4f544c0e1419ae9d91d15d857f0b1ebdd84b5e12eb3b19ab5b1",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "d44e1d8650218fdec7e4e06233428c9097ecf32ac29d769cd69ab218b19dd836",
+        "src/main.cpp::(anonymous namespace)::fail(llvm::Error)": "2194bc22d0a5dae32e58ce2f22eae9ee16133a4af222adb48ca9b40c80e74352",
+        "src/main.cpp::(anonymous namespace)::findings(const c_docc::Snapshot &)": "335f73ddaff65acbf3ad025fb9f498f564148932e8fc6a338597f2626dc2a001",
+        "src/main.cpp::(anonymous namespace)::location(const c_docc::Location &)": "2dedfffc852f653f762a2924da52273013493c535b674223a9ad24e89d0a7aba",
+        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "bd34463d18a7467c8f99046397883dc47aa5547e6391d8cba003e7ca0488a83e",
+        "src/main.cpp::(anonymous namespace)::scanJson(const c_docc::Snapshot &)": "1a47739c697400bf9d9564da7c672552e2be3a57cbda020d98f4c3161e199ea7",
+        "src/main.cpp::(anonymous namespace)::usage(llvm::raw_ostream &)": "b5fd1fb5e8097c9eb7a279b75fc3d935cc75c813b851253f9877c7a0382146e1",
+        "src/main.cpp::(anonymous namespace)::usageError(const llvm::Twine &)": "ffb2ea13c4d30626d0f99d1dd046843d626eb4d626207c712be6da606c23ce78"
+      },
+      "links": {
+        "../../src/main.cpp#L105": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L106": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L113": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L123": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L128": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L132-L147": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L134": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L135": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L136": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L137": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L178": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L181": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L185": [
+          "main(int, char **)"
+        ]
+      },
+      "page": "reference/cli.md",
+      "reason": "",
+      "section": "c-docc command and output reference / Options",
+      "symbols": {
+        "main(int, char **)": "97c966ac7f260de19d150160cda634b1ad41309778fb6f1f98f7abb4205f436c",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "4d291def89bf67f9a62c66764f43df2507db9ea7271d89152ccd2a78573928bb"
+      },
+      "text_hash": "28406c421ee42d2ce9f28f6d7bd69a4b0a53e85f2f5d9876d0b96a98710003ba"
     },
     {
       "clang_version": "clang version 23.1.0",

@@ -4,35 +4,52 @@ This reference covers the CLI built from this checkout. Scan and diff output use
 
 ## Commands
 
+The [command dispatcher](../../src/main.cpp#L178) handles global flags and selects the subcommand.
+
 | Command | Result |
 | --- | --- |
-| `c-docc --help` | Prints usage. |
-| `c-docc --version` | Prints the executable's version. |
-| `c-docc scan <source-root> <build-dir>` | Prints the symbols and findings for one snapshot. |
-| `c-docc diff <base-root> <base-build-dir> <head-root> <head-build-dir>` | Prints changes and findings for two snapshots. |
-| `c-docc check [options] [--json]` | Checks local links and recorded reviews in Markdown. |
-| `c-docc approve [options]` | Prompts for each section that needs approval. |
-| `c-docc approve <page> [options]` | Records a review of all linked sections in a Markdown file. |
-| `c-docc approve <page> <section> [options]` | Records an explicit review of one section. |
-| `c-docc invalidate <file-or-directory> [options]` | Requests review of linked sections in a Markdown file or directory. |
+| [`c-docc --help`](../../src/main.cpp#L181) | Prints usage. |
+| [`c-docc --version`](../../src/main.cpp#L185) | Prints the executable's version. |
+| [`c-docc scan <source-root> <build-dir>`](../../src/main.cpp#L189) | Prints the symbols and findings for one snapshot. |
+| [`c-docc diff <base-root> <base-build-dir> <head-root> <head-build-dir>`](../../src/main.cpp#L196) | Prints changes and findings for two snapshots. |
+| [`c-docc check [options]`](../../src/main.cpp#L172) | Checks local links and recorded reviews in Markdown. |
+| [`c-docc approve [options]`](../../src/main.cpp#L161) | Prompts for each section that needs approval. |
+| [`c-docc approve <page> [options]`](../../src/main.cpp#L166) | Records a review of all linked sections in a Markdown file. |
+| [`c-docc approve <page> <section> [options]`](../../src/main.cpp#L171) | Records an explicit review of one section. |
+| [`c-docc invalidate <file-or-directory> [options]`](../../src/main.cpp#L152) | Requests review of linked sections in a Markdown file or directory. |
 
-| Argument | Meaning |
-| --- | --- |
-| `source-root` | Directory that bounds the source files included in the snapshot. The base and head roots specify this directory for each side of a diff. |
-| `build-dir` | Directory containing `compile_commands.json`. A source file can have multiple compile commands. c-docc merges matching definitions and reports conflicts when commands yield different definitions or dependencies for the same symbol. |
-| `docs-root` | Directory inside the source root that contains the Markdown pages and approvals. |
-| `page` | Markdown path relative to `docs-root`. |
-| `section` | Heading path, with ` / ` between nested headings. |
-| `file-or-directory` | Markdown file or directory relative to the docs directory, or an absolute path inside it. |
+## Arguments
 
-The directory options for `check`, `approve`, and `invalidate` default to the current directory. Relative directory paths start there.
+| Argument | Command | Meaning |
+| --- | --- | --- |
+| [`source-root`](../../src/main.cpp#L190) | `scan` | Directory that bounds the source files included in the snapshot. |
+| [`build-dir`](../../src/main.cpp#L190) | `scan` | Directory containing `compile_commands.json`. |
+| [`base-root`](../../src/main.cpp#L197) | `diff` | Source directory for the earlier snapshot. |
+| [`base-build-dir`](../../src/main.cpp#L197) | `diff` | Directory containing `compile_commands.json` for the earlier snapshot. |
+| [`head-root`](../../src/main.cpp#L200) | `diff` | Source directory for the later snapshot. |
+| [`head-build-dir`](../../src/main.cpp#L200) | `diff` | Directory containing `compile_commands.json` for the later snapshot. |
+| [`page`](../../src/main.cpp#L167) | `approve` | Markdown path relative to the docs directory. |
+| [`section`](../../src/main.cpp#L171) | `approve` | Heading path, with ` / ` between nested headings. |
+| [`file-or-directory`](../../src/main.cpp#L155) | `invalidate` | Markdown file or directory relative to the docs directory, or an absolute path inside it. |
 
-| Option | Meaning |
-| --- | --- |
-| `--source-dir <path>` | Source directory. |
-| `--build-dir <path>` | Directory containing `compile_commands.json`. |
-| `--docs-dir <path>` | Directory containing the Markdown pages and approvals. It must be inside the source root. |
-| `--reason <text>` | Optional note for each approval recorded by the command. |
+A source file can have multiple compile commands. c-docc merges matching definitions and reports conflicts when commands yield different definitions or dependencies for the same symbol.
+
+## Options
+
+The [global flag parser](../../src/main.cpp#L178) handles help and version. The [documentation options parser](../../src/main.cpp#L105) handles flags for `check`, `approve`, and `invalidate`.
+
+The [directory defaults](../../src/main.cpp#L113) are the current directory. Relative directory paths start there. Options that take values accept [`--name value` and `--name=value`](../../src/main.cpp#L132-L147).
+
+| Option | Where it applies | Meaning |
+| --- | --- | --- |
+| [`--help`](../../src/main.cpp#L181), [`-h`](../../src/main.cpp#L181) | Global, or as the [sole argument](../../src/main.cpp#L106) to `check`, `approve`, or `invalidate` | Prints usage. |
+| [`--version`](../../src/main.cpp#L185) | Global | Prints the executable's version. |
+| [`--source-dir <path>`](../../src/main.cpp#L134) | `check`, `approve`, `invalidate` | Source directory. |
+| [`--build-dir <path>`](../../src/main.cpp#L135) | `check`, `approve`, `invalidate` | Directory containing `compile_commands.json`. |
+| [`--docs-dir <path>`](../../src/main.cpp#L136) | `check`, `approve`, `invalidate` | Directory containing the Markdown pages and approvals. It must be inside the source directory. |
+| [`--json`](../../src/main.cpp#L128) | `check` | Writes a JSON report with pending reviews and references. |
+| [`--reason <text>`](../../src/main.cpp#L137) | `approve` | Records an optional note with each approval. |
+| [`--`](../../src/main.cpp#L123) | `check`, `approve`, `invalidate` | Ends option parsing. Any following arguments are positional, including paths that start with a dash. |
 
 ## Exit statuses
 
