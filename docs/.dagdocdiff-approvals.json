@@ -46,12 +46,12 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "reference/cli.md": "57dd35e1931e16a4cbb6e77600e7cd0a1780bf98f28c9701d62a2ae12d0ea1be"
+        "reference/cli.md": "5626ff9e96f38b1f53406a1dfe458c69d78695178299610064ce178ba40519f9"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the analyzer links after adding Windows support.",
+      "reason": "Verified support for multiple compile commands per source file.",
       "section": "Dagdocdiff documentation / Reference",
       "symbols": {},
       "text_hash": "c4b2a0815f4ac1b8b5fd45062bb5c0c56a69a0dcc9a0e03ee615708bc44c3618"
@@ -185,7 +185,7 @@
         "dagdocdiff::SourceSpan": "5f745fa02ad49c44b43db1fbf20cdbfaafa216e654753665bff9a545433571f6",
         "dagdocdiff::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
         "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "4b6d7c8ebb6eac96dc38fef00ee60140d8349ec6c0a207a7a845545831e1f9f7",
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "74e9753351d3e8558c1d0e17c7a7a54982c41bd7a7bfe08f491c6a9d14153c81",
         "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
         "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor": "eb1434a5412c9ac061b77c1212a97a2b73dc3b65e9bf6e3e3646a980d05b67ab",
         "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, dagdocdiff::Snapshot &)": "55286ebdf760bd24d3c8bb64221c5b570725ca6bd0e12d01524db9bde31390d3",
@@ -200,22 +200,22 @@
         ]
       },
       "page": "how-to/scan-repository.md",
-      "reason": "Verified the analyzer links after adding Windows support.",
+      "reason": "Verified support for multiple compile commands per source file.",
       "section": "Dagdocdiff symbol index / Symbol IDs and locations",
       "symbols": {
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "eb550ab9cdb036df6c0ef18bec58e4e114dbe12040024ada38da60f9edcb0680"
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "6a174799a35c037e39fd81bdea3b225046b5c7002a00423587056b6a10dc09c8"
       },
       "text_hash": "349e3dbaab69ae940133cb057a3763604eecf2ced426cc64dfc97fd9672fad69"
     },
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "cli.md": "57dd35e1931e16a4cbb6e77600e7cd0a1780bf98f28c9701d62a2ae12d0ea1be"
+        "cli.md": "5626ff9e96f38b1f53406a1dfe458c69d78695178299610064ce178ba40519f9"
       },
       "inputs": {},
       "links": {},
       "page": "reference/README.md",
-      "reason": "Verified the analyzer links after adding Windows support.",
+      "reason": "Verified support for multiple compile commands per source file.",
       "section": "Reference",
       "symbols": {},
       "text_hash": "18ed2ae2c19d6593dabf64f1e414b559a9660fb3e8fa7bf5ed3c598b692cc495"
@@ -235,7 +235,7 @@
         "dagdocdiff::SourceSpan": "5f745fa02ad49c44b43db1fbf20cdbfaafa216e654753665bff9a545433571f6",
         "dagdocdiff::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
         "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "4b6d7c8ebb6eac96dc38fef00ee60140d8349ec6c0a207a7a845545831e1f9f7",
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "74e9753351d3e8558c1d0e17c7a7a54982c41bd7a7bfe08f491c6a9d14153c81",
         "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
         "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor": "eb1434a5412c9ac061b77c1212a97a2b73dc3b65e9bf6e3e3646a980d05b67ab",
         "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, dagdocdiff::Snapshot &)": "55286ebdf760bd24d3c8bb64221c5b570725ca6bd0e12d01524db9bde31390d3",
@@ -250,10 +250,10 @@
         ]
       },
       "page": "reference/cli.md",
-      "reason": "Verified the analyzer links after adding Windows support.",
+      "reason": "Verified support for multiple compile commands per source file.",
       "section": "Dagdocdiff v1 command and output reference / Scan output",
       "symbols": {
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "eb550ab9cdb036df6c0ef18bec58e4e114dbe12040024ada38da60f9edcb0680"
+        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "6a174799a35c037e39fd81bdea3b225046b5c7002a00423587056b6a10dc09c8"
       },
       "text_hash": "3f694a4f818ccfdf013cc854239e06cca5636865bf00bdd8fa33360a52a077ce"
     },

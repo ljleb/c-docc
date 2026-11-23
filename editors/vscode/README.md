@@ -16,6 +16,6 @@ The extension offers to install the Dagdocdiff CLI when it cannot find it. On x6
 
 **Later** dismisses the prompt. **Dagdocdiff: Install CLI** in the Command Palette starts the installation on demand.
 
-The extension can also use a CLI that supports `check --json` (Dagdocdiff 1.11.0 or later). It looks in the project’s build directory, the extension’s storage, and then on `PATH`. The `dagdocdiff.executable` setting can select a specific binary. The `dagdocdiff.sourceDir`, `dagdocdiff.buildDir`, and `dagdocdiff.docsDir` settings can select other project directories. Relative paths start at the workspace folder.
+The extension can also use a CLI that supports `check --json` (Dagdocdiff 1.12.0 or later). It looks in the project’s build directory, the extension’s storage, and then on `PATH`. The `dagdocdiff.executable` setting can select a specific binary. The `dagdocdiff.sourceDir`, `dagdocdiff.buildDir`, and `dagdocdiff.docsDir` settings can select other project directories. Relative paths start at the workspace folder.
 
 The extension refreshes after source and Markdown files change on disk. To refresh on demand, use **Dagdocdiff: Check Documentation**. The source arrows use the editor’s `editor.inlayHints.enabled` setting.

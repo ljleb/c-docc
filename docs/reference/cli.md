@@ -18,7 +18,7 @@ This reference covers the CLI built from this checkout. Scan and diff output use
 | Argument | Meaning |
 | --- | --- |
 | `source-root` | Directory that bounds the source files included in the snapshot. The base and head roots specify this directory for each side of a diff. |
-| `build-dir` | Directory containing `compile_commands.json`. Each analyzed input needs one compile command per snapshot. |
+| `build-dir` | Directory containing `compile_commands.json`. A source file can have multiple compile commands. Dagdocdiff merges matching definitions and reports conflicts when commands yield different definitions or dependencies for the same symbol. |
 | `docs-root` | Directory inside the source root that contains the Markdown pages and approvals. |
 | `page` | Markdown path relative to `docs-root`. |
 | `section` | Heading path, with ` / ` between nested headings. |

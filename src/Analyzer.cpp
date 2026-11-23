@@ -67,7 +67,7 @@ public:
     std::string functionId(const FunctionDecl &decl) const {
         if (decl.isImplicit() || nestedInFunction(decl) || !decl.getDeclName() ||
             decl.getTemplatedKind() != FunctionDecl::TK_NonTemplate ||
-            decl.getTrailingRequiresClause() || decl.getOwningModule())
+            decl.isDependentContext() || decl.getTrailingRequiresClause() || decl.getOwningModule())
             return {};
 
         const bool c = !context.getLangOpts().CPlusPlus;
@@ -235,7 +235,7 @@ private:
         }
         auto id = unit_.functionId(*decl.getCanonicalDecl());
         if (id.empty())
-            unit_.note(loc, "unsupported call target: " + decl.getQualifiedNameAsString());
+            unit_.note(loc, "unsupported call target: " + decl.getNameAsString());
         else
             edges.insert({"call", std::move(id)});
     }
@@ -296,7 +296,7 @@ public:
         if (id.empty()) {
             if (definition)
                 unit_.note(decl->getLocation(), "unsupported function definition: " +
-                                                  decl->getQualifiedNameAsString());
+                                                  decl->getNameAsString());
             return true;
         }
         indexDeclaration(*decl, id, definition);
@@ -489,8 +489,6 @@ llvm::Expected<Snapshot> analyze(llvm::StringRef sourceRoot, llvm::StringRef bui
         const auto path = fs::weakly_canonical(file, ec);
         if (ec || relativePath(path, root).empty())
             continue;
-        if (database->getCompileCommands(file).size() != 1)
-            return failure("expected one compile command for " + llvm::Twine(file));
         sources.push_back(file);
     }
     if (sources.empty())

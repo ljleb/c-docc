@@ -107,3 +107,45 @@ string(JSON count LENGTH "${diff}" changes)
 if(NOT count EQUAL 0)
     message(FATAL_ERROR "Comment-only edit changed hashes: ${diff}")
 endif()
+
+set(variants "${WORK_DIR}/variants")
+file(MAKE_DIRECTORY "${variants}")
+set(variant_source "${variants}/variant.c")
+file(WRITE "${variant_source}" "int variant(void) { return ANSWER; }\n")
+set(first "{\"directory\":\"${variants}\",\"file\":\"${variant_source}\",\"arguments\":[\"${CLANG}\",\"-DANSWER=1\",\"-c\",\"${variant_source}\"]}")
+set(second "{\"directory\":\"${variants}\",\"file\":\"${variant_source}\",\"arguments\":[\"${CLANG}\",\"-DANSWER=1\",\"-DUNUSED=1\",\"-c\",\"${variant_source}\"]}")
+
+file(WRITE "${variants}/compile_commands.json" "[${first}]\n")
+run_tool(single_variant scan "${variants}" "${variants}")
+file(WRITE "${variants}/compile_commands.json" "[${first},${second}]\n")
+run_tool(equivalent_variants scan "${variants}" "${variants}")
+if(NOT equivalent_variants STREQUAL single_variant)
+    message(FATAL_ERROR "Equivalent compile commands changed the snapshot:\n${equivalent_variants}")
+endif()
+
+string(REPLACE "-DANSWER=1" "-DANSWER=2" conflict "${second}")
+file(WRITE "${variants}/compile_commands.json" "[${first},${conflict}]\n")
+execute_process(COMMAND "${PROGRAM}" scan "${variants}" "${variants}"
+    RESULT_VARIABLE status ERROR_VARIABLE stderr)
+if(NOT status EQUAL 1 OR NOT stderr MATCHES "conflicting definitions of variant")
+    message(FATAL_ERROR "Expected conflicting compile commands to fail, got ${status}:\n${stderr}")
+endif()
+
+set(templates "${WORK_DIR}/templates")
+file(MAKE_DIRECTORY "${templates}")
+set(template_source "${templates}/dependent.cpp")
+file(WRITE "${template_source}" [=[
+template<class T> struct Holder {
+    static T value;
+    Holder(decltype(value)&&) {}
+};
+int regular() { return 0; }
+]=])
+file(WRITE "${templates}/compile_commands.json"
+    "[{\"directory\":\"${templates}\",\"file\":\"${template_source}\",\"arguments\":[\"${CLANG}\",\"-std=c++20\",\"-c\",\"${template_source}\"]}]\n")
+run_tool(dependent_template scan "${templates}" "${templates}")
+find_entry(regular "${dependent_template}" symbols "regular()")
+string(JSON template_symbol_count LENGTH "${dependent_template}" symbols)
+if(NOT template_symbol_count EQUAL 1 OR NOT dependent_template MATCHES "unsupported function definition")
+    message(FATAL_ERROR "Expected the dependent constructor to be reported as unsupported:\n${dependent_template}")
+endif()

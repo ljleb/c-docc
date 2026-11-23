@@ -3,7 +3,7 @@
   "displayName": "Dagdocdiff",
   "publisher": "ljleb",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Review C and C++ documentation from Source Control and navigate from code to its referring docs.",
   "engines": {
     "vscode": "^1.90.0"
@@ -100,7 +100,7 @@
       }
     }
   },
-  "dagdocdiffFlake": "github:ljleb/dagdocdiff/1.11.0",
+  "dagdocdiffFlake": "github:ljleb/dagdocdiff/1.12.0",
   "files": [
     "extension.js",
     "installer.js",
