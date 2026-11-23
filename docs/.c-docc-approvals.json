@@ -17,7 +17,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "how-to/build-release.md": "02b86fe1adfe51e9fb8602c1e050243701157e1e85f4eaf1ee626f673aa875cf",
+        "how-to/build-release.md": "ece26c85081ce9ba0385266caaaf17df4be988f4adacf7173d2a7685377750e6",
         "how-to/compare-revisions.md": "5c4ed43d32a8129b430a3d635ef2d7a83f6cc475b94a51907b1f438d38bd1246",
         "how-to/review-linked-docs.md": "b3d93900983fd0b31f2428898c95717f92f8da41aed73cb3b72d0acab080d46b",
         "how-to/scan-repository.md": "2649e4f305c3ebfbde7c6e8f0f9097205bb49b7fa9e627f398102fb47845a89d"
@@ -46,7 +46,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "reference/cli.md": "41770814989d26a2ee9713c8cc2f631ab926b7b23c7e8a7a700631f5260168a6"
+        "reference/cli.md": "205602f2dcb1d3f1d010d597aea98f9c7007f346918cc89a04a370114bccb7bd"
       },
       "inputs": {},
       "links": {},
@@ -127,7 +127,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "build-release.md": "02b86fe1adfe51e9fb8602c1e050243701157e1e85f4eaf1ee626f673aa875cf",
+        "build-release.md": "ece26c85081ce9ba0385266caaaf17df4be988f4adacf7173d2a7685377750e6",
         "compare-revisions.md": "5c4ed43d32a8129b430a3d635ef2d7a83f6cc475b94a51907b1f438d38bd1246",
         "review-linked-docs.md": "b3d93900983fd0b31f2428898c95717f92f8da41aed73cb3b72d0acab080d46b",
         "scan-repository.md": "2649e4f305c3ebfbde7c6e8f0f9097205bb49b7fa9e627f398102fb47845a89d"
@@ -210,7 +210,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "cli.md": "41770814989d26a2ee9713c8cc2f631ab926b7b23c7e8a7a700631f5260168a6"
+        "cli.md": "205602f2dcb1d3f1d010d597aea98f9c7007f346918cc89a04a370114bccb7bd"
       },
       "inputs": {},
       "links": {},
@@ -251,7 +251,7 @@
       },
       "page": "reference/cli.md",
       "reason": "Verified the c-docc fingerprints and release instructions.",
-      "section": "c-docc v1 command and output reference / Scan output",
+      "section": "c-docc command and output reference / Scan output",
       "symbols": {
         "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "48330887d819d1badd24d33056fe52f7b4aad16fdaaf77e93251807220d38468"
       },

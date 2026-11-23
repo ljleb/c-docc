@@ -1,4 +1,4 @@
-# c-docc v1 command and output reference
+# c-docc command and output reference
 
 This reference covers the CLI built from this checkout. Scan and diff output use JSON schema version `1`.
 

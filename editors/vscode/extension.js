@@ -354,6 +354,42 @@ function activate(context) {
             [...projects.values()].find(project => project.pages.has(uri.fsPath) ||
                 project.pageReferences.has(uri.fsPath) || project.references.has(uri.fsPath));
     };
+    const backlink = vscode.window.createTextEditorDecorationType({
+        after: {
+            contentText: '↗',
+            color: new vscode.ThemeColor('editorCodeLens.foreground'),
+            margin: '0 0 0 0.5em',
+        },
+    });
+    const updateBacklinks = editor => {
+        const document = editor.document;
+        const project = projectFor(document.uri);
+        const references = project?.references.get(document.uri.fsPath);
+        if (!references || document.isDirty) {
+            editor.setDecorations(backlink, []);
+            return;
+        }
+
+        const lines = new Map();
+        for (const reference of references) {
+            const first = reference.first_line - 1;
+            const last = Math.min(reference.last_line, document.lineCount) - 1;
+            for (let line = first; line <= last; ++line) {
+                append(lines, line, reference);
+            }
+        }
+        const decorations = [];
+        for (const [line, matches] of lines) {
+            const end = document.lineAt(line).range.end;
+            const args = encodeURIComponent(JSON.stringify([project.folder.uri.toString(), matches]));
+            const link = 'command:c-docc.openReferences?' + args;
+            const hoverMessage = new vscode.MarkdownString('[Open referring documentation](' + link + ')');
+            hoverMessage.isTrusted = { enabledCommands: ['c-docc.openReferences'] };
+            decorations.push({ range: new vscode.Range(end, end), hoverMessage });
+        }
+        editor.setDecorations(backlink, decorations);
+    };
+    const updateVisibleBacklinks = () => vscode.window.visibleTextEditors.forEach(updateBacklinks);
     const add = folder => {
         if (folder.uri.scheme === 'file') {
             const project = new Project(folder, changeNavigation, log, installer);
@@ -379,8 +415,19 @@ function activate(context) {
     const fileChanged = uri => projectFor(uri)?.schedule();
     context.subscriptions.push(
         { dispose: () => { for (const project of projects.values()) { project.dispose(); } } },
-        changeNavigation, log, watcher, installer,
+        changeNavigation, log, watcher, installer, backlink,
+        changeNavigation.event(updateVisibleBacklinks),
+        vscode.window.onDidChangeVisibleTextEditors(updateVisibleBacklinks),
         watcher.onDidCreate(fileChanged), watcher.onDidChange(fileChanged), watcher.onDidDelete(fileChanged),
+        vscode.workspace.onDidChangeTextDocument(({ document, contentChanges }) => {
+            if (contentChanges.length) {
+                for (const editor of vscode.window.visibleTextEditors) {
+                    if (editor.document === document) {
+                        updateBacklinks(editor);
+                    }
+                }
+            }
+        }),
         vscode.workspace.onDidSaveTextDocument(document => fileChanged(document.uri)),
         vscode.workspace.onDidChangeConfiguration(event => {
             if (event.affectsConfiguration('c-docc')) {
@@ -436,41 +483,6 @@ function activate(context) {
             onDidChangeCodeLenses: changeNavigation.event,
             provideCodeLenses(document) {
                 return projectFor(document.uri)?.codeLenses(document) || [];
-            },
-        }),
-        vscode.languages.registerInlayHintsProvider({ scheme: 'file' }, {
-            onDidChangeInlayHints: changeNavigation.event,
-            provideInlayHints(document, range) {
-                const project = projectFor(document.uri);
-                const references = project?.references.get(document.uri.fsPath);
-                if (!references || document.isDirty) {
-                    return [];
-                }
-                const lines = new Map();
-                for (const reference of references) {
-                    const first = Math.max(reference.first_line - 1, range.start.line);
-                    const last = Math.min(reference.last_line - 1, range.end.line, document.lineCount - 1);
-                    for (let line = first; line <= last; ++line) {
-                        append(lines, line, reference);
-                    }
-                }
-                const hints = [];
-                for (const [line, matches] of lines) {
-                    const position = document.lineAt(line).range.end;
-                    if (!range.contains(position)) {
-                        continue;
-                    }
-                    const part = new vscode.InlayHintLabelPart('↗');
-                    part.tooltip = 'Open referring documentation';
-                    part.command = {
-                        command: 'c-docc.openReferences', title: 'Open Referring Documentation',
-                        arguments: [project.folder.uri.toString(), matches],
-                    };
-                    const hint = new vscode.InlayHint(position, [part]);
-                    hint.paddingLeft = true;
-                    hints.push(hint);
-                }
-                return hints;
             },
         }),
     );

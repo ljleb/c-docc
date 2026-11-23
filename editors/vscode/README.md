@@ -4,11 +4,21 @@ Review documentation in VS Code’s Source Control view. c-docc groups files wit
 
 Save an edit to a linked section to clear its review. To put a file or folder back in Needs Review, right-click it in Explorer and choose **Invalidate Documentation**.
 
-In C and C++ files, an end-of-line arrow jumps to the Markdown that links to that line. If several links reach the same line, choose one from the list.
+In C and C++ files, hover over an end-of-line arrow and click **Open referring documentation**. If several links reach the same line, choose one from the list. The arrow works with inlay hints turned off.
 
 ## Install the extension
 
 Download the `.vsix` from the [GitHub releases](https://github.com/ljleb/c-docc/releases). Open the Extensions view in VS Code and select **Install from VSIX…** from the **…** menu. You can also pass the downloaded filename to `code --install-extension` or `codium --install-extension`.
+
+## Package from a checkout
+
+From the repository root, the Nix development shell provides Node.js and `vsce`.
+
+```sh
+nix develop path:. --command npm --prefix editors/vscode run package
+```
+
+The command reads `VERSION` and writes `build/docc-<version>.vsix`. The packaged extension uses the matching c-docc GitHub release for automatic CLI installation.
 
 ## Connect a project
 
@@ -20,4 +30,4 @@ The extension offers to install the c-docc CLI when it cannot find it. On x64 Wi
 
 The extension can also use a c-docc CLI that supports `check --json`. It looks in the project’s build directory, the extension’s storage, and then on `PATH`. The `c-docc.executable` setting can select a specific binary. The `c-docc.sourceDir`, `c-docc.buildDir`, and `c-docc.docsDir` settings can select other project directories. Relative paths start at the workspace folder.
 
-The extension refreshes after source and Markdown files change on disk. To refresh on demand, use **c-docc: Check Documentation**. The source arrows use the editor’s `editor.inlayHints.enabled` setting.
+The extension refreshes after source and Markdown files change on disk. To refresh on demand, use **c-docc: Check Documentation**.

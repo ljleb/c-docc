@@ -3,7 +3,7 @@
   "displayName": "docc",
   "publisher": "ljleb",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Review C and C++ documentation from Source Control and navigate from code to its referring docs.",
   "engines": {
     "vscode": "^1.90.0"
@@ -13,7 +13,8 @@
   ],
   "main": "./extension.js",
   "scripts": {
-    "vscode:prepublish": "node -e \"require('node:fs').copyFileSync('../../LICENSE', 'LICENSE')\""
+    "package": "node prepare-package.js ../../build/vscode && cd ../../build/vscode && vsce package --no-dependencies --out ..",
+    "vscode:prepublish": "node -e \"console.error('Run npm run package to package the release from VERSION.'); process.exit(1)\""
   },
   "extensionKind": [
     "workspace"
@@ -111,7 +112,6 @@
       }
     }
   },
-  "cDoccFlake": "github:ljleb/c-docc/0.0.1",
   "files": [
     "extension.js",
     "installer.js",

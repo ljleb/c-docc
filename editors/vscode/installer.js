@@ -17,7 +17,7 @@ class CliInstaller {
         this.nixHost = process.platform === 'linux' && ['x64', 'arm64'].includes(process.arch);
         this.windows = this.windowsHost && Boolean(cDoccWindowsRelease);
         this.nix = this.nixHost && Boolean(cDoccFlake);
-        const bundle = this.windows ? 'c-docc-' + version + '-x86_64-windows' : 'cli';
+        const bundle = this.windows ? 'c-docc-' + version + '-x86_64-windows' : 'cli-' + version;
         this.installDir = path.join(this.storage, bundle);
         this.binary = path.join(this.installDir, 'bin', cliFileName);
         this.supported = this.windows || this.nix;
