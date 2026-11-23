@@ -4,334 +4,84 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "explanation/symbol-graphs.md": "5de1e4e12f4f4823c92164baf07449dc4aa5c7373a19648fcc77beb42ddd0f6a"
+        "explanation/symbol-graphs.md": "145f6bde113d373e1d300612ba36732e3ff28f3c11cd608e30314d0a3d5a3492"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Dagdocdiff documentation / Explanation",
+      "reason": "",
+      "section": "c-docc documentation / Explanation",
       "symbols": {},
-      "text_hash": "476d7c1a49ba0ed4255e9183a60a5f8c3a70c7740ca0e00b2f52fa4bc2917738"
+      "text_hash": "d7cc7d637f1c540dfbc44bc1ddf37d0795a102c579f534dc81df39219f30749a"
     },
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "how-to/build-release.md": "bb0ccf4d6f74ad2e26c8a3acddfe1ae6c8313af60be3d69fd092070e2dac1c6e",
-        "how-to/compare-revisions.md": "24e3e06cb99b3b3085eddf446977a43f232b988026faa47523cce2d64172651d",
-        "how-to/review-linked-docs.md": "6d02e9b026ce3b8a75cbf7f08025abadb2fb1cbc29084bfa0b58daca4e9a1c21",
-        "how-to/scan-repository.md": "020cf8a6fb356f116c6b3141159dad2047d4b6e10b9ba529ca42a0f74bb63628"
+        "how-to/build-release.md": "11a055024c87eacf1ecaaac825c314c09a63d6f4ca0b0c84661ed90a06d0de8e",
+        "how-to/compare-revisions.md": "e6a08d9d1772371ebaced498a6491584ac1f5db74e5f96287829a7b43ad7eb19",
+        "how-to/review-linked-docs.md": "69f56ef4d2f5de9a3c4a7245b2a830b532f4a972b7a4c3719eea11bda9e5e4b1",
+        "how-to/scan-repository.md": "45cd605fb1919c1022922edcc57add44ba01155a55dfaa830a55b80ac2a83863"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the analyzer links after adding Windows support.",
-      "section": "Dagdocdiff documentation / How-to guides",
+      "reason": "",
+      "section": "c-docc documentation / How-to guides",
       "symbols": {},
-      "text_hash": "29169a3d5f13ac031bb7e43292b5966b7d6e9e88338f94c0c02ae65215a42fbd"
+      "text_hash": "1d5117e9fd701dfe2b76e804268a671ea95b27362925290447f8de8b715c367d"
     },
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "../README.md#build": "5e5825ffea97b34839accd41b102115f913bbd71e3ce6960b9b3ce30667758d5"
+        "../README.md#build": "bfd266a660275f4a6fc23304c9fd42f4bc039a4ee350efedcf358c8e19b0f699"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Dagdocdiff documentation / Published package",
+      "reason": "",
+      "section": "c-docc documentation / Published package",
       "symbols": {},
-      "text_hash": "c6278cd954496cf389550e0ec6fa738ebe70f04e4e8d77e126bf873af1a77095"
+      "text_hash": "d90242b7c79644904a4a6a1b31c609e45c01cca2387b1d9b996648919c8209fb"
     },
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "reference/cli.md": "5626ff9e96f38b1f53406a1dfe458c69d78695178299610064ce178ba40519f9"
+        "reference/cli.md": "b968a8fde4c8b182bccd5cc8ec51458f2b3f09d1bc901390aa164cb524dd97b4"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified support for multiple compile commands per source file.",
-      "section": "Dagdocdiff documentation / Reference",
+      "reason": "",
+      "section": "c-docc documentation / Reference",
       "symbols": {},
-      "text_hash": "c4b2a0815f4ac1b8b5fd45062bb5c0c56a69a0dcc9a0e03ee615708bc44c3618"
+      "text_hash": "5c42efca2ef7bc311e352182956bbdbe2ef032a4fbb3abc3a3be1cd74414af78"
     },
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "tutorials/first-diff.md": "fdb6c2d1604d659aa480cf4cdde3bca3647dfe5954235967f85b0c5622bde948",
-        "tutorials/first-doc-check.md": "869b0f01d79d802d90a94a8aebe9c06a206e8b223f25ceca4d53ed19c9d4d5a7"
+        "tutorials/first-diff.md": "e80750d31b351c74a62bedd568927f34e534d2e4da5dae202fe02baec0bbf8e9",
+        "tutorials/first-doc-check.md": "f173407a005ff35d789cfaf9d1cf574e3d97c64fbc0c606d05f875fca06fd23a"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Dagdocdiff documentation / Tutorials",
+      "reason": "",
+      "section": "c-docc documentation / Tutorials",
       "symbols": {},
       "text_hash": "9123079d7f16f238d704da5ca7379a1060731d013df96ae1de3d6152e865f828"
     },
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "symbol-graphs.md": "5de1e4e12f4f4823c92164baf07449dc4aa5c7373a19648fcc77beb42ddd0f6a"
+        "symbol-graphs.md": "145f6bde113d373e1d300612ba36732e3ff28f3c11cd608e30314d0a3d5a3492"
       },
       "inputs": {},
       "links": {},
       "page": "explanation/README.md",
-      "reason": "Verified the local links and the content the referring page describes.",
+      "reason": "",
       "section": "Explanation",
       "symbols": {},
-      "text_hash": "37ef3ffb8db521315a31230e2f99d5c3e9d2918e12a0703a1befbc07e1a4d003"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "inputs": {
-        "dagdocdiff::Change": "02e4c7ac73fdfdcfa16823bdc2e688a5df97255b6be115b1ea73ed7619cb7e93",
-        "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
-        "dagdocdiff::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
-        "dagdocdiff::Finding": "86efec5d984645320de6495153143f018b5f477183210748f41c0d67a2e9bb35",
-        "dagdocdiff::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
-        "dagdocdiff::Fingerprint::Fingerprint(llvm::StringRef)": "59a42ac3fee155518e7686f8f5d8f9b5e7bf8544a3faa402c13f07188558b12f",
-        "dagdocdiff::Fingerprint::add(llvm::StringRef)": "0f4395cd4d265570964be26890a9e8f402b6a07b21ba1164a4b6b17efb28583a",
-        "dagdocdiff::Fingerprint::finish()": "91fc06d4ddf2088ef56a54a8baed2b6d0efd775c7c92d56237a20c04e5fd8aef",
-        "dagdocdiff::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
-        "dagdocdiff::Snapshot": "797c5ffb8ba7577c71e758c43835e35e7b99d7e627225a77c6798385f65fdc56",
-        "dagdocdiff::SourceSpan": "5f745fa02ad49c44b43db1fbf20cdbfaafa216e654753665bff9a545433571f6",
-        "dagdocdiff::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
-        "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
-        "dagdocdiff::compare(const dagdocdiff::Snapshot &, const dagdocdiff::Snapshot &)": "12deef380be47224d14c30bb29c3725123def49a626b4b72801504ff81dd9d40",
-        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::Node": "fadbe6407064e6ea34566a11198d1f2e1f7a8ea45d98604c1db076ccf73f2a4d",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::findCauses(const dagdocdiff::Snapshot &, const std::set<std::basic_string<char>> &)": "0689fe23e59f0ac3e18a0cb685d71ca60f98cda67a1e33f24e1999489196b3e7",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "96474f8d71272614c8534436c82db8e37de61ec51428516b264a46930946d131",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::sharesComponent(const dagdocdiff::Snapshot &, const std::vector<std::basic_string<char>> &)": "46e7f9cde4a14ea4782e8ddd81b67f2e3dc1b775f02ee061bd991060747b732e"
-      },
-      "links": {
-        "../../src/Graph.cpp#L146": [
-          "dagdocdiff::compare(const dagdocdiff::Snapshot &, const dagdocdiff::Snapshot &)"
-        ],
-        "../../src/Graph.cpp#L90": [
-          "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)"
-        ]
-      },
-      "page": "explanation/symbol-graphs.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
-      "section": "How Dagdocdiff tracks code changes / Recursion changes how hashes propagate",
-      "symbols": {
-        "dagdocdiff::compare(const dagdocdiff::Snapshot &, const dagdocdiff::Snapshot &)": "710e84b452386ec090702bf9efeee24bf49771c4702416bc0ff06b20fe45db1d",
-        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "addc8a4b93aec02d983cfff3584abaaa500773f257b06cbda38cb8c517844527"
-      },
-      "text_hash": "8006c524bcd8607dec63c2ee42a424dbb8ff0a10bbc5968814bcb89c8b4679bd"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "build-release.md": "bb0ccf4d6f74ad2e26c8a3acddfe1ae6c8313af60be3d69fd092070e2dac1c6e",
-        "compare-revisions.md": "24e3e06cb99b3b3085eddf446977a43f232b988026faa47523cce2d64172651d",
-        "review-linked-docs.md": "6d02e9b026ce3b8a75cbf7f08025abadb2fb1cbc29084bfa0b58daca4e9a1c21",
-        "scan-repository.md": "020cf8a6fb356f116c6b3141159dad2047d4b6e10b9ba529ca42a0f74bb63628"
-      },
-      "inputs": {},
-      "links": {},
-      "page": "how-to/README.md",
-      "reason": "Verified the analyzer links after adding Windows support.",
-      "section": "How-to guides",
-      "symbols": {},
-      "text_hash": "a7da553c5590ee87804ea76277ca04b81b962e90624e002ec38210c589745f71"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "../reference/cli.md#diff-output": "6baf58b24ec6cc408a27a407492b67579557b38053abfbe8589efe4c070ce554"
-      },
-      "inputs": {},
-      "links": {},
-      "page": "how-to/compare-revisions.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Git revision comparison / Diff command and output",
-      "symbols": {},
-      "text_hash": "47d196d27edb20e541171643e304e7ef54aa9e0ccb78c0fc00d5e3c4005ddce6"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "../reference/cli.md#source-links-and-approvals": "0767638119b3c943059feb214d54791e18988ca16af952724b268b763dd58f9e",
-        "scan-repository.md": "020cf8a6fb356f116c6b3141159dad2047d4b6e10b9ba529ca42a0f74bb63628"
-      },
-      "inputs": {},
-      "links": {},
-      "page": "how-to/review-linked-docs.md",
-      "reason": "Verified the analyzer links after adding Windows support.",
-      "section": "Code changes and linked docs",
-      "symbols": {},
-      "text_hash": "9dd135e5cce02b3fa6f9ed2d56bff3964f948a03d0a3d5fbdb809186cdc1b3cf"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "../reference/cli.md#scan-output": "ceae3cb92f91b8cf54fb63f2546da70de6bda028925a30f39c33dcbd0159490a"
-      },
-      "inputs": {
-        "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
-        "dagdocdiff::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
-        "dagdocdiff::Finding": "86efec5d984645320de6495153143f018b5f477183210748f41c0d67a2e9bb35",
-        "dagdocdiff::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
-        "dagdocdiff::Fingerprint::Fingerprint(llvm::StringRef)": "59a42ac3fee155518e7686f8f5d8f9b5e7bf8544a3faa402c13f07188558b12f",
-        "dagdocdiff::Fingerprint::add(llvm::StringRef)": "0f4395cd4d265570964be26890a9e8f402b6a07b21ba1164a4b6b17efb28583a",
-        "dagdocdiff::Fingerprint::finish()": "91fc06d4ddf2088ef56a54a8baed2b6d0efd775c7c92d56237a20c04e5fd8aef",
-        "dagdocdiff::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
-        "dagdocdiff::Snapshot": "797c5ffb8ba7577c71e758c43835e35e7b99d7e627225a77c6798385f65fdc56",
-        "dagdocdiff::SourceSpan": "5f745fa02ad49c44b43db1fbf20cdbfaafa216e654753665bff9a545433571f6",
-        "dagdocdiff::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
-        "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "74e9753351d3e8558c1d0e17c7a7a54982c41bd7a7bfe08f491c6a9d14153c81",
-        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor": "eb1434a5412c9ac061b77c1212a97a2b73dc3b65e9bf6e3e3646a980d05b67ab",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, dagdocdiff::Snapshot &)": "55286ebdf760bd24d3c8bb64221c5b570725ca6bd0e12d01524db9bde31390d3",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::failure(llvm::Twine)": "502aeafb315649c8f5a4f8ba2901c5e7ad3b3e0a2e5e7f21a2db5d853681211b",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "6a70d067b5bb88be8af4075a43d9298a778f2d5fb470c1cfa421deadea374122",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::Node": "fadbe6407064e6ea34566a11198d1f2e1f7a8ea45d98604c1db076ccf73f2a4d",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
-      },
-      "links": {
-        "../../src/Analyzer.cpp#L476": [
-          "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)"
-        ]
-      },
-      "page": "how-to/scan-repository.md",
-      "reason": "Verified support for multiple compile commands per source file.",
-      "section": "Dagdocdiff symbol index / Symbol IDs and locations",
-      "symbols": {
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "6a174799a35c037e39fd81bdea3b225046b5c7002a00423587056b6a10dc09c8"
-      },
-      "text_hash": "349e3dbaab69ae940133cb057a3763604eecf2ced426cc64dfc97fd9672fad69"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "cli.md": "5626ff9e96f38b1f53406a1dfe458c69d78695178299610064ce178ba40519f9"
-      },
-      "inputs": {},
-      "links": {},
-      "page": "reference/README.md",
-      "reason": "Verified support for multiple compile commands per source file.",
-      "section": "Reference",
-      "symbols": {},
-      "text_hash": "18ed2ae2c19d6593dabf64f1e414b559a9660fb3e8fa7bf5ed3c598b692cc495"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "inputs": {
-        "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
-        "dagdocdiff::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
-        "dagdocdiff::Finding": "86efec5d984645320de6495153143f018b5f477183210748f41c0d67a2e9bb35",
-        "dagdocdiff::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
-        "dagdocdiff::Fingerprint::Fingerprint(llvm::StringRef)": "59a42ac3fee155518e7686f8f5d8f9b5e7bf8544a3faa402c13f07188558b12f",
-        "dagdocdiff::Fingerprint::add(llvm::StringRef)": "0f4395cd4d265570964be26890a9e8f402b6a07b21ba1164a4b6b17efb28583a",
-        "dagdocdiff::Fingerprint::finish()": "91fc06d4ddf2088ef56a54a8baed2b6d0efd775c7c92d56237a20c04e5fd8aef",
-        "dagdocdiff::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
-        "dagdocdiff::Snapshot": "797c5ffb8ba7577c71e758c43835e35e7b99d7e627225a77c6798385f65fdc56",
-        "dagdocdiff::SourceSpan": "5f745fa02ad49c44b43db1fbf20cdbfaafa216e654753665bff9a545433571f6",
-        "dagdocdiff::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
-        "dagdocdiff::Symbol": "ac257a1903ce9755b728eb61f0f508dbd11012654e253cfe7359cedb6c597ed4",
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "74e9753351d3e8558c1d0e17c7a7a54982c41bd7a7bfe08f491c6a9d14153c81",
-        "dagdocdiff::hashComponents(dagdocdiff::Snapshot &)": "9160843d67b13d029f9a259f60fd1ea5058f4ba8e6496cdb331931084c9669df",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor": "eb1434a5412c9ac061b77c1212a97a2b73dc3b65e9bf6e3e3646a980d05b67ab",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, dagdocdiff::Snapshot &)": "55286ebdf760bd24d3c8bb64221c5b570725ca6bd0e12d01524db9bde31390d3",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::failure(llvm::Twine)": "502aeafb315649c8f5a4f8ba2901c5e7ad3b3e0a2e5e7f21a2db5d853681211b",
-        "src/Analyzer.cpp::dagdocdiff::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "6a70d067b5bb88be8af4075a43d9298a778f2d5fb470c1cfa421deadea374122",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::Node": "fadbe6407064e6ea34566a11198d1f2e1f7a8ea45d98604c1db076ccf73f2a4d",
-        "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
-      },
-      "links": {
-        "../../src/Analyzer.cpp#L476": [
-          "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)"
-        ]
-      },
-      "page": "reference/cli.md",
-      "reason": "Verified support for multiple compile commands per source file.",
-      "section": "Dagdocdiff v1 command and output reference / Scan output",
-      "symbols": {
-        "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "6a174799a35c037e39fd81bdea3b225046b5c7002a00423587056b6a10dc09c8"
-      },
-      "text_hash": "3f694a4f818ccfdf013cc854239e06cca5636865bf00bdd8fa33360a52a077ce"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "first-diff.md": "fdb6c2d1604d659aa480cf4cdde3bca3647dfe5954235967f85b0c5622bde948",
-        "first-doc-check.md": "869b0f01d79d802d90a94a8aebe9c06a206e8b223f25ceca4d53ed19c9d4d5a7"
-      },
-      "inputs": {},
-      "links": {},
-      "page": "tutorials/README.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Tutorials",
-      "symbols": {},
-      "text_hash": "c0165de8dd5ebe545ea69a06a7c8d46a5787ddafb314016e6fc134cf216b902b"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "../../examples/parcel-tracking/compile_commands.json": "fb4936b1e2bdaf6ef9e32a929f4053165d25e4433fd0609df260ba389e444d34",
-        "../../examples/parcel-tracking/delivery.md": "bd885bb762377d470265239d4b09adacf00de52591b902ec0b658828063c0f49"
-      },
-      "inputs": {
-        "delivery_estimate_days": "93ab29da30e004da0ac82af3f6bf6470d591f7082a05afba1b07b82b04d0e156",
-        "depot_sorting_days": "620a9a8b808216bacd015b871eec9dac7277cb9d8811c436078276c199ee4fcb"
-      },
-      "links": {
-        "../../examples/parcel-tracking/delivery_estimate.c#L3": [
-          "delivery_estimate_days"
-        ],
-        "../../examples/parcel-tracking/depot_sorting.c#L1": [
-          "depot_sorting_days"
-        ]
-      },
-      "page": "tutorials/first-diff.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Trace a change in a delivery estimate / The estimate and its guide",
-      "symbols": {
-        "delivery_estimate_days": "73d90910955af1f1754ac3738eb62287a335ce6968bb098205dd7e8593dc58e1",
-        "depot_sorting_days": "ca0126268e6bb3dccd8f41f4455adecc37122dedac751de21fd7126087b849e4"
-      },
-      "text_hash": "814031f570299c933fca52943aa2db32db4808480ba2cd2c779d0e8dca4155b1"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "../../examples/photo-backup/compile_commands.json": "1331561b8366878277e750ed559aaaadea4be3fc227536fc0e7f7533d51d30ef",
-        "../../examples/photo-backup/retries.md": "a20421ac9c3618bffd2c29d7632e6c6d3b77517d21b56e4ac1845998ac4e8830"
-      },
-      "inputs": {
-        "retry_limit": "386dd76f451343e9400ab751f6ada681f4b48261746707abb7d74037ed68822e"
-      },
-      "links": {
-        "../../examples/photo-backup/retries.c#L1": [
-          "retry_limit"
-        ]
-      },
-      "page": "tutorials/first-doc-check.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Change a retry limit and update its docs / A function and its guide",
-      "symbols": {
-        "retry_limit": "9a86cd81d9ccd79a31b43d9c0fde5f0bff69d41503fdd0b230740495ae9d8378"
-      },
-      "text_hash": "6da2dd0c76f16f113763aa0a561d951c1ac074c6ebd99078d857fa77b68dc30c"
-    },
-    {
-      "clang_version": "clang version 23.1.0",
-      "file_links": {
-        "first-diff.md": "fdb6c2d1604d659aa480cf4cdde3bca3647dfe5954235967f85b0c5622bde948"
-      },
-      "inputs": {},
-      "links": {},
-      "page": "tutorials/first-doc-check.md",
-      "reason": "Verified the local links and the content the referring page describes.",
-      "section": "Change a retry limit and update its docs / A recorded review of the change",
-      "symbols": {},
-      "text_hash": "729bfab06d562fe65bac4b6c8f89a3b2e8225acb30536f28d629680cba5af34d"
+      "text_hash": "c49f160e01bc44b1ac30f0b4b59a68c52ce1aa9e46889e3361cce94a4241b8df"
     }
   ]
 }

@@ -1,4 +1,4 @@
 {
-  "dagdocdiff.docsDir": "docs",
-  "dagdocdiff.buildDir": "build"
+  "c-docc.docsDir": "docs",
+  "c-docc.buildDir": "build"
 }

@@ -20,8 +20,11 @@ endfunction()
 
 file(REMOVE_RECURSE "${WORK_DIR}/navigation" "${WORK_DIR}/ranges")
 file(MAKE_DIRECTORY "${WORK_DIR}/docs" "${WORK_DIR}/build")
-file(REMOVE "${WORK_DIR}/docs/.dagdocdiff-approvals.json"
-    "${WORK_DIR}/.dagdocdiff-approvals.json" "${WORK_DIR}/compile_commands.json")
+set(approval_file "${WORK_DIR}/docs/.c-docc-approvals.json")
+set(legacy_approval_file "${WORK_DIR}/docs/.dagdocdiff-approvals.json")
+file(REMOVE "${approval_file}" "${legacy_approval_file}"
+    "${WORK_DIR}/.c-docc-approvals.json" "${WORK_DIR}/.dagdocdiff-approvals.json"
+    "${WORK_DIR}/compile_commands.json")
 file(WRITE "${WORK_DIR}/api.hpp" [=[
 namespace demo {
 int parse(int);
@@ -77,7 +80,14 @@ run_cli(0 "Approved documentation sections: 2\n  guide.md:3: Guide / Header\n  g
     check ${path_options})
 run_cli(0 "Recorded review" approve ${path_options} --reason "Reviewed the caller" guide.md "Guide / Result")
 run_cli(0 "Approved documentation sections: 2" check ${path_options})
-file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" approvals)
+file(RENAME "${approval_file}" "${legacy_approval_file}")
+run_cli(0 "Approved documentation sections: 2" check ${path_options})
+run_cli(0 "Recorded review" approve ${path_options} --reason "Reviewed the caller" guide.md "Guide / Result")
+if(EXISTS "${approval_file}")
+    message(FATAL_ERROR "Updating existing approvals created a second approval file")
+endif()
+file(RENAME "${legacy_approval_file}" "${approval_file}")
+file(READ "${approval_file}" approvals)
 string(JSON header_reason GET "${approvals}" sections 0 reason)
 string(JSON result_reason GET "${approvals}" sections 1 reason)
 if(NOT header_reason STREQUAL "" OR NOT result_reason STREQUAL "Reviewed the caller")
@@ -92,6 +102,13 @@ string(REPLACE "return 1" "return 2" changed "${header}")
 file(WRITE "${WORK_DIR}/api.hpp" "${changed}")
 run_cli(1 [=[guide[.]md:9: Guide / Result: "Read the value": code changed: read_value.* -> demo::parse.* -> a[.]cpp::demo::helper[(][)] [(]api[.]hpp:4[)].*guide[.]md:11: Guide / Result: "Read again please": code changed:]=]
     check ${path_options})
+execute_process(COMMAND "${PROGRAM}" check --json ${path_options}
+    WORKING_DIRECTORY "${WORK_DIR}" RESULT_VARIABLE status OUTPUT_VARIABLE change_report)
+string(JSON cause_file GET "${change_report}" pending 1 issues 0 cause file)
+string(JSON cause_line GET "${change_report}" pending 1 issues 0 cause line)
+if(NOT status EQUAL 1 OR NOT cause_file STREQUAL "api.hpp" OR NOT cause_line EQUAL 4)
+    message(FATAL_ERROR "Expected the changed dependency's definition location:\n${change_report}")
+endif()
 run_interactive("?\nr\ny\n" "Enter y, r, or q.*Left for revision.*Recorded review for guide.md / Guide / Result")
 run_cli(1 [=[Guide / Header: "header helper": code changed:]=] check ${path_options})
 run_interactive("q\n" "Guide / Header")
@@ -109,9 +126,9 @@ file(APPEND "${WORK_DIR}/a.cpp" "int x() { return 0; } int y() { return 0; }\n")
 file(WRITE "${page}" "${markdown}\n[Ambiguous](../a.cpp#L7)\n")
 run_cli(1 [=["Ambiguous": multiple declarations]=] check ${path_options})
 run_interactive("y\n" "Fix the broken links before approving this section")
-file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" before)
+file(READ "${WORK_DIR}/docs/.c-docc-approvals.json" before)
 run_cli(1 "resolve links before approving this page" approve guide.md ${path_options} --reason "Blocked")
-file(READ "${WORK_DIR}/docs/.dagdocdiff-approvals.json" after)
+file(READ "${WORK_DIR}/docs/.c-docc-approvals.json" after)
 if(NOT before STREQUAL after)
     message(FATAL_ERROR "Approving a page with a broken link changed its approvals")
 endif()
@@ -182,6 +199,16 @@ set(navigation_page [=[
 ]=])
 file(WRITE "${navigation}/README.md" "${navigation_page}")
 run_cli(1 "approval required" check --docs-dir navigation)
+execute_process(COMMAND "${PROGRAM}" check --json --source-dir "${WORK_DIR}" --build-dir build --docs-dir navigation
+    WORKING_DIRECTORY "${WORK_DIR}" RESULT_VARIABLE status OUTPUT_VARIABLE link_report)
+string(JSON heading_file GET "${link_report}" file_references 1 file)
+string(JSON heading_line GET "${link_report}" file_references 1 first_line)
+string(JSON whole_file GET "${link_report}" file_references 4 file)
+string(JSON whole_line GET "${link_report}" file_references 4 first_line)
+if(NOT status EQUAL 1 OR NOT heading_file STREQUAL "navigation/topics/Build notes.md" OR NOT heading_line EQUAL 3
+   OR NOT whole_file STREQUAL heading_file OR NOT whole_line EQUAL 1)
+    message(FATAL_ERROR "Expected resolved heading and whole-file destinations:\n${link_report}")
+endif()
 run_cli(0 "Recorded review for README.md" approve README.md --docs-dir navigation)
 run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
 

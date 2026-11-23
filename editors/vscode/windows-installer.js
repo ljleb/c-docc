@@ -49,9 +49,9 @@ async function installWindowsCli(release, version, destination, signal, progress
         const options = { cwd: staging, signal, windowsHide: true };
         await exec(tar, ['-xf', archive], options);
         const extracted = path.join(staging, bundle);
-        const { stdout } = await exec(path.join(extracted, 'bin', 'dagdocdiff.exe'), ['--version'], options);
-        if (stdout.trim() !== 'dagdocdiff ' + version) {
-            throw new Error('The Windows ZIP contains a different Dagdocdiff version.');
+        const { stdout } = await exec(path.join(extracted, 'bin', 'c-docc.exe'), ['--version'], options);
+        if (stdout.trim() !== 'c-docc ' + version) {
+            throw new Error('The Windows ZIP contains a different c-docc version.');
         }
 
         signal.throwIfAborted();
@@ -59,7 +59,7 @@ async function installWindowsCli(release, version, destination, signal, progress
             await rename(extracted, destination);
         } catch (error) {
             // Another editor window can finish installing the same release first.
-            if (!existsSync(path.join(destination, 'bin', 'dagdocdiff.exe'))) {
+            if (!existsSync(path.join(destination, 'bin', 'c-docc.exe'))) {
                 throw error;
             }
         }

@@ -1,16 +1,16 @@
 # Change a retry limit and update its docs
 
-A photo backup app tries again when Wi-Fi drops during an upload. Its troubleshooting guide says the app retries up to three times before giving up. You will raise that limit to five and run Dagdocdiff as you update the code and the guide.
+A photo backup app tries again when Wi-Fi drops during an upload. Its troubleshooting guide says the app retries up to three times before giving up. You will raise that limit to five and run c-docc as you update the code and the guide.
 
-## Dagdocdiff from this checkout
+## c-docc from this checkout
 
-This walkthrough uses a build from the Dagdocdiff repository. On Linux with Nix flakes enabled, run this from the repository root.
+This walkthrough uses a build from the c-docc repository. On Linux with Nix flakes enabled, run this from the repository root.
 
 ```sh
 nix shell path:.
 ```
 
-Nix builds Dagdocdiff and makes the command available in a new shell. Use that shell for the rest of the walkthrough.
+Nix builds c-docc and makes the command available in a new shell. Use that shell for the rest of the walkthrough.
 
 ## A function and its guide
 
@@ -35,7 +35,7 @@ If Wi-Fi drops during an upload, the app [retries the upload](retries.c#L1) up t
 
 The relative link points to the function on line 1 of `retries.c` in the same folder.
 
-Create [`compile_commands.json`](../../examples/photo-backup/compile_commands.json) in the same folder. It gives Dagdocdiff the source file and the compiler options for reading it as C17. The `directory` field tells Clang where the compiler would run. It needs the full path to your example folder.
+Create [`compile_commands.json`](../../examples/photo-backup/compile_commands.json) in the same folder. It gives c-docc the source file and the compiler options for reading it as C17. The `directory` field tells Clang where the compiler would run. It needs the full path to your example folder.
 
 ```json
 [
@@ -51,26 +51,26 @@ Switch to your example folder in the shell that Nix opened. The command `pwd` pr
 
 ## The first approval
 
-Run Dagdocdiff against the guide. By default, it looks for the source, compilation database, and Markdown in your current folder.
+Run c-docc against the guide. By default, it looks for the source, compilation database, and Markdown in your current folder.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
-You should see `retries.md:1: Retries: approval required`. The link works. Dagdocdiff is asking you to choose a starting point for future comparisons.
+You should see `retries.md:1: Retries: approval required`. The link works. c-docc is asking you to choose a starting point for future comparisons.
 
-Suppose you first run Dagdocdiff after someone raises the limit to 5 while the guide still says 3. If Dagdocdiff accepts those versions automatically, later runs can pass while the guide still gives the wrong number. The first approval gives you a chance to catch that mismatch.
+Suppose you first run c-docc after someone raises the limit to 5 while the guide still says 3. If c-docc accepts those versions automatically, later runs can pass while the guide still gives the wrong number. The first approval gives you a chance to catch that mismatch.
 
 In this example, the guide says the app retries up to 3 times, and `retry_limit` returns 3. Approve `retries.md` to record the guide and code you just compared. Future runs use that record to flag changes.
 
 ```sh
-dagdocdiff approve retries.md
+c-docc approve retries.md
 ```
 
 You should see `Recorded review for retries.md`. Run `check` again.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
 You should see the number of approved sections followed by the section you just approved.
@@ -82,10 +82,10 @@ Approved documentation sections: 1
 
 ## Five retries in the code
 
-In `retries.c`, change `return 3;` to `return 5;`. Keep the function on line 1 so the Markdown link still points to it. Save the file and run Dagdocdiff again.
+In `retries.c`, change `return 3;` to `return 5;`. Keep the function on line 1 so the Markdown link still points to it. Save the file and run c-docc again.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
 The command should exit with status `1`. You should see the text of the affected Markdown link and the location of the changed function.
@@ -98,10 +98,10 @@ Open `retries.md`. It still tells people to expect up to 3 retries.
 
 ## Five retries in the guide
 
-Change “up to 3 times” to “up to 5 times” in `retries.md`. Save the file and run Dagdocdiff again.
+Change “up to 3 times” to “up to 5 times” in `retries.md`. Save the file and run c-docc again.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
 The command should still exit with status `1`. You should see a new message, `Retries: section text changed`, alongside the code change. The sentence now matches the function, and the approval still records the earlier version of both.
@@ -111,13 +111,13 @@ The command should still exit with status `1`. You should see a new message, `Re
 The guide now describes the new limit of 5. Approve the revised file.
 
 ```sh
-dagdocdiff approve retries.md
+c-docc approve retries.md
 ```
 
-You should see `Recorded review for retries.md` again. The updated record is in `.dagdocdiff-approvals.json`. Run Dagdocdiff once more to see what it reports for the updated guide.
+You should see `Recorded review for retries.md` again. The updated record is in `.c-docc-approvals.json`. Run c-docc once more to see what it reports for the updated guide.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
 You should see `retries.md:1: Retries` under `Approved documentation sections: 1` again.

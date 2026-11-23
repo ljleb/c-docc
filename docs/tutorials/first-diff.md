@@ -2,17 +2,17 @@
 
 A parcel tracking app shows how long delivery will take once a parcel reaches the local depot. The estimate includes two business days for sorting and one for delivery. The depot gets new sorting equipment and can now sort parcels in one day.
 
-You will change the sorting time in one file, then use Dagdocdiff to find the guide that describes the estimate.
+You will change the sorting time in one file, then use c-docc to find the guide that describes the estimate.
 
-## Dagdocdiff from this checkout
+## c-docc from this checkout
 
-This walkthrough uses a build from the Dagdocdiff repository. On Linux with Nix flakes enabled, run this from the repository root.
+This walkthrough uses a build from the c-docc repository. On Linux with Nix flakes enabled, run this from the repository root.
 
 ```sh
 nix shell path:.
 ```
 
-Nix builds Dagdocdiff and makes the command available in a new shell. Use that shell for the rest of the walkthrough.
+Nix builds c-docc and makes the command available in a new shell. Use that shell for the rest of the walkthrough.
 
 ## The estimate and its guide
 
@@ -48,7 +48,7 @@ Once a parcel reaches the local depot, the app [estimates delivery](delivery_est
 
 The link points to `delivery_estimate_days` on line 3 of `delivery_estimate.c`. Follow its call to `depot_sorting_days` to see where the estimate gets its sorting time.
 
-Create [`compile_commands.json`](../../examples/parcel-tracking/compile_commands.json) next to the C files. It lists both files and their compiler options so Dagdocdiff can follow the call between them. Each `directory` field tells Clang where the compiler would run and needs the full path to your example folder.
+Create [`compile_commands.json`](../../examples/parcel-tracking/compile_commands.json) next to the C files. It lists both files and their compiler options so c-docc can follow the call between them. Each `directory` field tells Clang where the compiler would run and needs the full path to your example folder.
 
 ```json
 [
@@ -72,13 +72,13 @@ Switch to your example folder in the shell that Nix opened. Use `pwd` to find th
 Two days for sorting plus one for delivery matches the guide's estimate of three business days. Approve the guide in `delivery.md`.
 
 ```sh
-dagdocdiff approve delivery.md
+c-docc approve delivery.md
 ```
 
-You should see `Recorded review for delivery.md`. Run Dagdocdiff against the guide to see the starting result.
+You should see `Recorded review for delivery.md`. Run c-docc against the guide to see the starting result.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
 You should see this result.
@@ -90,10 +90,10 @@ Approved documentation sections: 1
 
 ## One day for sorting
 
-In `depot_sorting.c`, change `return 2;` to `return 1;`. Save that file and run Dagdocdiff again.
+In `depot_sorting.c`, change `return 2;` to `return 1;`. Save that file and run c-docc again.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
 The command should exit with status `1`. Look for this line in the report.
@@ -109,13 +109,13 @@ The report starts at the guide's link on line 3. The arrow shows the call from `
 In `delivery.md`, change “3 business days” to “2 business days” and keep the link to `delivery_estimate_days`. Save the guide and approve the updated file.
 
 ```sh
-dagdocdiff approve delivery.md
+c-docc approve delivery.md
 ```
 
-You should see `Recorded review for delivery.md` again. Run Dagdocdiff once more against the updated guide.
+You should see `Recorded review for delivery.md` again. Run c-docc once more against the updated guide.
 
 ```sh
-dagdocdiff check
+c-docc check
 ```
 
 You should see `delivery.md:1: Delivery estimates` under `Approved documentation sections: 1` again.

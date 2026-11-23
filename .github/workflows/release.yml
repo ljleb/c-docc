@@ -44,9 +44,9 @@ jobs:
           TARGET_SYSTEM: ${{ matrix.system }}
         run: |
           package=$(nix build --print-build-logs --no-link --print-out-paths "path:.#packages.$TARGET_SYSTEM.default")
-          test "$("$package/bin/dagdocdiff" --version)" = "dagdocdiff $GITHUB_REF_NAME"
+          test "$("$package/bin/c-docc" --version)" = "c-docc $GITHUB_REF_NAME"
 
-          bundle="dagdocdiff-$GITHUB_REF_NAME-$TARGET_SYSTEM"
+          bundle="c-docc-$GITHUB_REF_NAME-$TARGET_SYSTEM"
           staging="$RUNNER_TEMP/$bundle"
           mkdir -p "$staging" dist
           printf '%s\n' "$package" > "$staging/store-path"
@@ -55,11 +55,11 @@ jobs:
           nix-store --export "${requisites[@]}" > "$staging/closure.nix-export"
 
           cat > "$staging/README.txt" <<'EOF'
-          This archive contains Dagdocdiff and its Nix runtime dependencies.
+          This archive contains c-docc and its Nix runtime dependencies.
           Extract it and run these commands inside the extracted directory.
 
           nix-store --import < closure.nix-export
-          "$(cat store-path)/bin/dagdocdiff" --version
+          "$(cat store-path)/bin/c-docc" --version
 
           Use a trusted Nix account to import the archive on a multi-user installation.
           EOF
@@ -70,22 +70,22 @@ jobs:
         shell: bash
         run: |
           checkout="$PWD"
-          staging="$RUNNER_TEMP/dagdocdiff-vsix"
+          staging="$RUNNER_TEMP/c-docc-vsix"
           editor="$staging/editors/vscode"
           mkdir -p "$editor" dist
           cp LICENSE "$staging/LICENSE"
           cp -R editors/vscode/. "$editor"
           jq --arg version "$GITHUB_REF_NAME" --arg flake "github:$GITHUB_REPOSITORY/$GITHUB_SHA" \
             --arg windows_release "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME" \
-            '.version = $version | .dagdocdiffFlake = $flake | .dagdocdiffWindowsRelease = $windows_release' \
+            '.version = $version | .cDoccFlake = $flake | .cDoccWindowsRelease = $windows_release' \
             editors/vscode/package.json > "$editor/package.json"
           cd "$editor"
           nix shell --inputs-from "git+file://$checkout" nixpkgs#vsce nixpkgs#nodejs --command vsce package \
-            --no-dependencies --out "$checkout/dist/dagdocdiff-$GITHUB_REF_NAME.vsix"
+            --no-dependencies --out "$checkout/dist/c-docc-$GITHUB_REF_NAME.vsix"
 
       - uses: actions/upload-artifact@v7
         with:
-          name: dagdocdiff-${{ matrix.system }}
+          name: c-docc-${{ matrix.system }}
           path: |
             dist/*.tar.gz
             dist/*.vsix
@@ -127,11 +127,11 @@ jobs:
           cmake --build build --parallel 2
           ctest --test-dir build --output-on-failure
 
-          bundle="dagdocdiff-$GITHUB_REF_NAME-x86_64-windows"
+          bundle="c-docc-$GITHUB_REF_NAME-x86_64-windows"
           staging="$(cygpath -u "$RUNNER_TEMP")/$bundle"
           cmake --install build --prefix "$staging"
           cp -R "$MINGW_PREFIX/share/licenses" "$staging/licenses"
-          test "$(PATH=/usr/bin "$staging/bin/dagdocdiff.exe" --version | tr -d '\r')" = "dagdocdiff $GITHUB_REF_NAME"
+          test "$(PATH=/usr/bin "$staging/bin/c-docc.exe" --version | tr -d '\r')" = "c-docc $GITHUB_REF_NAME"
 
           mkdir -p dist
           output="$PWD/dist/$bundle.zip"
@@ -140,7 +140,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: dagdocdiff-x86_64-windows
+          name: c-docc-x86_64-windows
           path: dist/*.zip
           if-no-files-found: error
           compression-level: 0
@@ -154,7 +154,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
-          pattern: dagdocdiff-*
+          pattern: c-docc-*
           path: dist
           merge-multiple: true
 
@@ -166,10 +166,10 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           tag="$GITHUB_REF_NAME"
-          assets=("dagdocdiff-$tag-x86_64-linux.tar.gz" "dagdocdiff-$tag-aarch64-linux.tar.gz"
-                  "dagdocdiff-$tag-x86_64-windows.zip" "dagdocdiff-$tag.vsix")
+          assets=("c-docc-$tag-x86_64-linux.tar.gz" "c-docc-$tag-aarch64-linux.tar.gz"
+                  "c-docc-$tag-x86_64-windows.zip" "c-docc-$tag.vsix")
           sha256sum "${assets[@]}" > SHA256SUMS
-          printf -v notes 'Run with Nix using %s. Each Linux archive includes the runtime dependencies and import instructions. On Windows x64, extract the ZIP and run bin/dagdocdiff.exe. Install the VS Code extension from the .vsix file.' "\`nix run github:$GH_REPO/$tag\`"
+          printf -v notes 'Run with Nix using %s. Each Linux archive includes the runtime dependencies and import instructions. On Windows x64, extract the ZIP and run bin/c-docc.exe. Install the VS Code extension from the .vsix file.' "\`nix run github:$GH_REPO/$tag\`"
 
           if draft=$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null); then
             gh release upload "$tag" "${assets[@]}" SHA256SUMS --clobber

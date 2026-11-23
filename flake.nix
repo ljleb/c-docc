@@ -1,5 +1,5 @@
 {
-  description = "Dagdocdiff C and C++ dependency diff";
+  description = "c-docc C and C++ dependency diff";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -27,7 +27,7 @@
         let tools = toolsFor system;
         in {
           default = tools.pkgs.stdenv.mkDerivation {
-            pname = "dagdocdiff";
+            pname = "c-docc";
             version = tools.pkgs.lib.removeSuffix "\n" (builtins.readFile ./VERSION);
             src = tools.pkgs.lib.cleanSourceWith {
               src = ./.;
@@ -45,7 +45,7 @@
               ctest --output-on-failure
               runHook postCheck
             '';
-            meta.mainProgram = "dagdocdiff";
+            meta.mainProgram = "c-docc";
           };
         });
 

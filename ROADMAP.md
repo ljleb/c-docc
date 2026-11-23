@@ -1,4 +1,4 @@
-# Dagdocdiff implementation roadmap
+# c-docc implementation roadmap
 
 - Extend dependency coverage to template instantiations, virtual dispatch targets, and function pointer targets.
 - Decide how links to non-method declarations inside class bodies and macro-generated names resolve to symbols.

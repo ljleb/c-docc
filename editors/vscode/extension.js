@@ -6,7 +6,7 @@ const { CliInstaller, cliFileName } = require('./installer');
 
 function settings(folder, installer) {
     const root = folder.uri.fsPath;
-    const config = vscode.workspace.getConfiguration('dagdocdiff', folder.uri);
+    const config = vscode.workspace.getConfiguration('c-docc', folder.uri);
     const source = path.resolve(root, config.get('sourceDir'));
     const build = config.get('buildDir');
     const docs = config.get('docsDir');
@@ -36,7 +36,7 @@ function runTool(options, command, args, signal) {
             if (!error || typeof error.code === 'number') {
                 resolve({ status: error ? error.code : 0, stdout, stderr });
             } else if (error.code === 'ENOENT') {
-                reject(new Error('Cannot run ' + options.executable + '. Build Dagdocdiff or set dagdocdiff.executable.', { cause: error }));
+                reject(new Error('Cannot run ' + options.executable + '. Build c-docc or set c-docc.executable.', { cause: error }));
             } else {
                 reject(error);
             }
@@ -46,20 +46,20 @@ function runTool(options, command, args, signal) {
 
 function readStatus(result) {
     if (result.status === 2 && result.stderr.includes('unknown option --json')) {
-        throw new Error('This extension requires a Dagdocdiff build with check --json support.');
+        throw new Error('This extension requires a c-docc build with check --json support.');
     }
     if (result.status > 1 || !result.stdout.trim()) {
-        throw new Error(result.stderr.trim().split('\n').at(-1) || 'Dagdocdiff did not return a result.');
+        throw new Error(result.stderr.trim().split('\n').at(-1) || 'c-docc did not return a result.');
     }
     let status;
     try {
         status = JSON.parse(result.stdout);
     } catch {
-        throw new Error('Dagdocdiff returned invalid JSON.');
+        throw new Error('c-docc returned invalid JSON.');
     }
     if (status?.schema_version !== 1 || !Array.isArray(status.pending) || !Array.isArray(status.references) ||
         typeof status.docs_dir !== 'string' || typeof status.source_dir !== 'string') {
-        throw new Error('This extension requires a Dagdocdiff build with check --json support.');
+        throw new Error('This extension requires a c-docc build with check --json support.');
     }
     return status;
 }
@@ -76,29 +76,26 @@ function atLine(number) {
     return new vscode.Range(position, position);
 }
 
-async function openDocument(uri, number) {
+async function openDocument(uri, number, viewColumn) {
     const doc = await vscode.workspace.openTextDocument(uri);
     const line = Math.min(Math.max(1, number), doc.lineCount);
-    return vscode.window.showTextDocument(doc, { selection: atLine(line), preview: true });
+    return vscode.window.showTextDocument(doc, { selection: atLine(line), preview: true, viewColumn });
 }
 
 async function pick(items, placeHolder) {
     return items.length === 1 ? items[0] : vscode.window.showQuickPick(items, { placeHolder, matchOnDetail: true });
 }
 
-function reviewItem(review) {
-    return { label: review.section, description: review.page, detail: review.issues.map(issue => issue.message).join(' • '), review };
-}
-
 class Project {
-    constructor(folder, changeHints, log, installer) {
+    constructor(folder, changeNavigation, log, installer) {
         this.folder = folder;
-        this.changeHints = changeHints;
+        this.changeNavigation = changeNavigation;
         this.log = log;
         this.installer = installer;
-        this.diagnostics = vscode.languages.createDiagnosticCollection('dagdocdiff');
+        this.diagnostics = vscode.languages.createDiagnosticCollection('c-docc');
         this.abort = new AbortController();
         this.references = new Map();
+        this.pageReferences = new Map();
         this.pages = new Map();
         this.revision = 0;
     }
@@ -133,7 +130,7 @@ class Project {
                 return;
             }
             if (!this.scm) {
-                this.scm = vscode.scm.createSourceControl('dagdocdiff', 'Dagdocdiff', this.folder.uri);
+                this.scm = vscode.scm.createSourceControl('c-docc', 'c-docc', this.folder.uri);
                 this.scm.inputBox.visible = false;
                 this.reviewGroup = this.scm.createResourceGroup('review', 'Needs Review');
                 this.brokenGroup = this.scm.createResourceGroup('broken', 'Broken Links');
@@ -157,7 +154,7 @@ class Project {
                 }
                 if (this.lastError !== error.message) {
                     this.lastError = error.message;
-                    void vscode.window.showWarningMessage('Dagdocdiff: ' + error.message, 'Show Log').then(action => {
+                    void vscode.window.showWarningMessage('c-docc: ' + error.message, 'Show Log').then(action => {
                         if (action) {
                             this.log.show();
                         }
@@ -176,15 +173,18 @@ class Project {
 
     apply(status) {
         this.docsDir = status?.docs_dir;
+        this.sourceDir = status?.source_dir;
         this.references.clear();
+        this.pageReferences.clear();
         this.pages.clear();
         this.diagnostics.clear();
         if (status) {
-            const referenceSections = new Map();
             for (const reference of status.references) {
-                const file = path.join(status.source_dir, reference.file);
-                append(this.references, file, reference);
-                append(referenceSections, reference.page + '\0' + reference.section, { reference, file });
+                append(this.references, this.sourceUri(reference.file).fsPath, reference);
+                append(this.pageReferences, this.pageUri(reference.page).fsPath, reference);
+            }
+            for (const reference of status.file_references || []) {
+                append(this.pageReferences, this.pageUri(reference.page).fsPath, reference);
             }
 
             const diagnostics = new Map();
@@ -194,12 +194,18 @@ class Project {
                 for (const issue of review.issues) {
                     const diagnostic = new vscode.Diagnostic(atLine(issue.line), issue.message,
                         review.approvable ? vscode.DiagnosticSeverity.Warning : vscode.DiagnosticSeverity.Error);
-                    diagnostic.source = 'Dagdocdiff';
-                    const references = referenceSections.get(review.page + '\0' + review.section) || [];
-                    diagnostic.relatedInformation = references
-                        .filter(({ reference }) => issue.line === review.line || issue.line === reference.line)
-                        .map(({ reference, file }) => new vscode.DiagnosticRelatedInformation(
-                            new vscode.Location(vscode.Uri.file(file), atLine(reference.first_line)), reference.text));
+                    diagnostic.source = 'c-docc';
+                    const references = this.pageReferences.get(uri.fsPath) || [];
+                    const related = references
+                        .filter(reference => reference.section === review.section &&
+                            (issue.line === review.line || issue.line === reference.line))
+                        .map(reference => new vscode.DiagnosticRelatedInformation(
+                            new vscode.Location(this.sourceUri(reference.file), atLine(reference.first_line)), reference.text));
+                    if (issue.cause) {
+                        related.unshift(new vscode.DiagnosticRelatedInformation(
+                            new vscode.Location(this.sourceUri(issue.cause.file), atLine(issue.cause.line)), 'Changed definition'));
+                    }
+                    diagnostic.relatedInformation = related;
                     append(diagnostics, uri.fsPath, diagnostic);
                 }
             }
@@ -213,25 +219,24 @@ class Project {
             this.reviewGroup.resourceStates = this.resourceStates(true);
             this.brokenGroup.resourceStates = this.resourceStates(false);
         }
-        this.changeHints.fire();
+        this.changeNavigation.fire();
     }
 
     resourceStates(approvable) {
         const resources = [];
         for (const [file, reviews] of this.pages) {
-            const entries = reviews.filter(review => review.approvable === approvable);
-            if (!entries.length) {
+            if (reviews.every(review => review.approvable) !== approvable) {
                 continue;
             }
             resources.push({
                 resourceUri: vscode.Uri.file(file),
                 decorations: {
-                    tooltip: entries.flatMap(review => review.issues.map(issue => issue.message)).join('\n'),
-                    strikeThrough: entries.every(review => review.line === 0),
+                    tooltip: reviews.flatMap(review => review.issues.map(issue => issue.message)).join('\n'),
+                    strikeThrough: reviews.every(review => review.line === 0),
                 },
                 command: {
-                    command: 'dagdocdiff.openReview', title: 'Open Documentation Review',
-                    arguments: [this.folder.uri.toString(), entries],
+                    command: 'c-docc.openReview', title: 'Open Documentation Review',
+                    arguments: [this.folder.uri.toString(), reviews],
                 },
             });
         }
@@ -242,41 +247,77 @@ class Project {
         return vscode.Uri.file(path.join(this.docsDir, page));
     }
 
+    sourceUri(file) {
+        return vscode.Uri.file(path.join(this.sourceDir, file));
+    }
+
     async openReview(reviews) {
-        const item = await pick(reviews.map(reviewItem), 'Select a documentation section to review');
-        if (item && this.docsDir) {
-            if (item.review.line === 0 && !existsSync(this.pageUri(item.review.page).fsPath)) {
-                await vscode.window.showInformationMessage(item.detail);
+        const review = reviews.find(entry => entry.line > 0) || reviews[0];
+        if (!review || !this.docsDir) {
+            return;
+        }
+        const uri = this.pageUri(review.page);
+        if (!existsSync(uri.fsPath)) {
+            for (const entry of reviews) {
+                for (const issue of entry.issues) {
+                    this.log.appendLine(entry.page + ' / ' + entry.section + ': ' + issue.message);
+                }
+            }
+            this.log.show();
+            return;
+        }
+        const line = Math.min(...review.issues.map(issue => issue.line || review.line || 1));
+        await openDocument(uri, line);
+    }
+
+    codeLenses(document) {
+        if (document.isDirty) {
+            return [];
+        }
+        const lenses = [];
+        const add = (line, title, tooltip, target) => {
+            if (line < 1 || line > document.lineCount) {
                 return;
             }
-            await openDocument(this.pageUri(item.review.page), item.review.line);
+            const command = { title, tooltip, command: '' };
+            if (target) {
+                command.command = 'c-docc.openTarget';
+                command.arguments = [this.sourceUri(target.file), target.line];
+            }
+            lenses.push(new vscode.CodeLens(atLine(line), command));
+        };
+        const references = this.pageReferences.get(document.uri.fsPath) || [];
+        for (const reference of references) {
+            const label = path.basename(reference.file) + ':' + reference.first_line;
+            add(reference.line, 'Open ' + label, reference.text + ' → ' + reference.file + ':' + reference.first_line,
+                { file: reference.file, line: reference.first_line });
         }
+        const reviews = this.pages.get(document.uri.fsPath) || [];
+        for (const review of reviews) {
+            for (const issue of review.issues) {
+                const line = issue.line || review.line || 1;
+                if (issue.cause) {
+                    const label = path.basename(issue.cause.file) + ':' + issue.cause.line;
+                    add(line, 'Changed definition in ' + label, issue.message, issue.cause);
+                } else {
+                    add(line, issue.message, issue.message);
+                }
+            }
+        }
+        return lenses;
     }
 
     async approve(file) {
         if (this.approving || this.abort.signal.aborted || !vscode.workspace.isTrusted) {
             return;
         }
-        const reviews = this.pages.get(file) || [];
-        const eligible = reviews.filter(review => review.approvable);
-        if (!eligible.length) {
+        const reviews = this.pages.get(file);
+        if (!reviews?.length || reviews.some(review => !review.approvable)) {
             return;
         }
         this.approving = true;
         try {
-            const items = eligible.map(reviewItem);
-            if (eligible.length > 1 && eligible.length === reviews.length) {
-                items.unshift({ label: 'Approve whole file', description: eligible[0].page });
-            }
-            const item = await pick(items, 'Approve the documentation you reviewed');
-            if (!item || this.abort.signal.aborted) {
-                return;
-            }
-            const args = ['--', eligible[0].page];
-            if (item.review) {
-                args.push(item.review.section);
-            }
-            const result = await runTool(this.options, 'approve', args, this.abort.signal);
+            const result = await runTool(this.options, 'approve', ['--', reviews[0].page], this.abort.signal);
             if (result.status !== 0) {
                 throw new Error(result.stderr.trim().split('\n').at(-1) || 'Could not approve documentation.');
             }
@@ -292,25 +333,26 @@ class Project {
         clearTimeout(this.timer);
         this.scm?.dispose();
         this.diagnostics.dispose();
-        this.changeHints.fire();
+        this.changeNavigation.fire();
     }
 }
 
 function activate(context) {
     const projects = new Map();
-    const changeHints = new vscode.EventEmitter();
-    const log = vscode.window.createOutputChannel('Dagdocdiff');
+    const changeNavigation = new vscode.EventEmitter();
+    const log = vscode.window.createOutputChannel('c-docc');
     const projectFor = uri => {
         if (!uri) {
             return undefined;
         }
         const folder = vscode.workspace.getWorkspaceFolder(uri);
         return (folder && projects.get(folder.uri.toString())) ||
-            [...projects.values()].find(project => project.pages.has(uri.fsPath) || project.references.has(uri.fsPath));
+            [...projects.values()].find(project => project.pages.has(uri.fsPath) ||
+                project.pageReferences.has(uri.fsPath) || project.references.has(uri.fsPath));
     };
     const add = folder => {
         if (folder.uri.scheme === 'file') {
-            const project = new Project(folder, changeHints, log, installer);
+            const project = new Project(folder, changeNavigation, log, installer);
             projects.set(folder.uri.toString(), project);
             project.schedule(0);
         }
@@ -326,18 +368,18 @@ function activate(context) {
             await work();
         } catch (error) {
             log.appendLine(error.message);
-            await vscode.window.showErrorMessage('Dagdocdiff: ' + error.message);
+            await vscode.window.showErrorMessage('c-docc: ' + error.message);
         }
     };
     const watcher = vscode.workspace.createFileSystemWatcher('**/*.{c,cc,cpp,cxx,C,h,hh,hpp,hxx,H,inc,ipp,tpp,md,markdown,json}');
     const fileChanged = uri => projectFor(uri)?.schedule();
     context.subscriptions.push(
         { dispose: () => { for (const project of projects.values()) { project.dispose(); } } },
-        changeHints, log, watcher, installer,
+        changeNavigation, log, watcher, installer,
         watcher.onDidCreate(fileChanged), watcher.onDidChange(fileChanged), watcher.onDidDelete(fileChanged),
         vscode.workspace.onDidSaveTextDocument(document => fileChanged(document.uri)),
         vscode.workspace.onDidChangeConfiguration(event => {
-            if (event.affectsConfiguration('dagdocdiff')) {
+            if (event.affectsConfiguration('c-docc')) {
                 scheduleAll();
             }
         }),
@@ -350,11 +392,13 @@ function activate(context) {
             event.added.forEach(add);
         }),
         vscode.workspace.onDidGrantWorkspaceTrust(scheduleAll),
-        vscode.commands.registerCommand('dagdocdiff.refresh', scheduleAll),
-        vscode.commands.registerCommand('dagdocdiff.install', () => installer.install()),
-        vscode.commands.registerCommand('dagdocdiff.openReview', (key, reviews) =>
+        vscode.commands.registerCommand('c-docc.refresh', scheduleAll),
+        vscode.commands.registerCommand('c-docc.install', () => installer.install()),
+        vscode.commands.registerCommand('c-docc.openReview', (key, reviews) =>
             reportError(() => projects.get(key)?.openReview(reviews))),
-        vscode.commands.registerCommand('dagdocdiff.approve', (...resources) => reportError(async () => {
+        vscode.commands.registerCommand('c-docc.openTarget', (uri, line) =>
+            reportError(() => openDocument(uri, line, vscode.ViewColumn.Beside))),
+        vscode.commands.registerCommand('c-docc.approve', (...resources) => reportError(async () => {
             const files = resources.map(resource => resource?.resourceUri).filter(Boolean);
             if (!files.length) {
                 const uri = vscode.window.activeTextEditor?.document.uri;
@@ -366,7 +410,7 @@ function activate(context) {
                 await projectFor(uri)?.approve(uri.fsPath);
             }
         })),
-        vscode.commands.registerCommand('dagdocdiff.openReferences', (key, references) => reportError(async () => {
+        vscode.commands.registerCommand('c-docc.openReferences', (key, references) => reportError(async () => {
             const project = projects.get(key);
             if (!project?.docsDir) {
                 return;
@@ -380,8 +424,14 @@ function activate(context) {
                 await openDocument(project.pageUri(item.reference.page), item.reference.line);
             }
         })),
+        vscode.languages.registerCodeLensProvider({ language: 'markdown', scheme: 'file' }, {
+            onDidChangeCodeLenses: changeNavigation.event,
+            provideCodeLenses(document) {
+                return projectFor(document.uri)?.codeLenses(document) || [];
+            },
+        }),
         vscode.languages.registerInlayHintsProvider({ scheme: 'file' }, {
-            onDidChangeInlayHints: changeHints.event,
+            onDidChangeInlayHints: changeNavigation.event,
             provideInlayHints(document, range) {
                 const project = projectFor(document.uri);
                 const references = project?.references.get(document.uri.fsPath);
@@ -405,7 +455,7 @@ function activate(context) {
                     const part = new vscode.InlayHintLabelPart('↗');
                     part.tooltip = 'Open referring documentation';
                     part.command = {
-                        command: 'dagdocdiff.openReferences', title: 'Open Referring Documentation',
+                        command: 'c-docc.openReferences', title: 'Open Referring Documentation',
                         arguments: [project.folder.uri.toString(), matches],
                     };
                     const hint = new vscode.InlayHint(position, [part]);

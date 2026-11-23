@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace dagdocdiff {
+namespace c_docc {
 
 class Fingerprint {
 public:
@@ -83,4 +83,4 @@ struct Change {
 void hashComponents(Snapshot &snapshot);
 std::vector<Change> compare(const Snapshot &base, const Snapshot &head);
 
-} // namespace dagdocdiff
+} // namespace c_docc

@@ -14,7 +14,7 @@
 
 namespace {
 
-using namespace dagdocdiff;
+using namespace c_docc;
 namespace json = llvm::json;
 
 json::Object location(const Location &value) {
@@ -71,24 +71,24 @@ json::Object diffJson(const Snapshot &base, const Snapshot &head) {
 
 void print(json::Object result) {
     result["schema_version"] = 1;
-    result["tool_version"] = DAGDOCDIFF_VERSION;
+    result["tool_version"] = C_DOCC_VERSION;
     result["clang_version"] = clang::getClangFullVersion();
     llvm::outs() << llvm::formatv("{0:2}\n", json::Value(std::move(result)));
 }
 
 int fail(llvm::Error error) {
-    llvm::logAllUnhandledErrors(std::move(error), llvm::errs(), "dagdocdiff: ");
+    llvm::logAllUnhandledErrors(std::move(error), llvm::errs(), "c-docc: ");
     return 1;
 }
 
 void usage(llvm::raw_ostream &out) {
     out << "Usage:\n"
-        << "  dagdocdiff --version\n"
-        << "  dagdocdiff scan <source-root> <build-dir>\n"
-        << "  dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>\n"
-        << "  dagdocdiff check [options] [--json]\n"
-        << "  dagdocdiff approve [options] [--reason <text>]\n"
-        << "  dagdocdiff approve <page> [<section>] [options] [--reason <text>]\n"
+        << "  c-docc --version\n"
+        << "  c-docc scan <source-root> <build-dir>\n"
+        << "  c-docc diff <base-root> <base-build-dir> <head-root> <head-build-dir>\n"
+        << "  c-docc check [options] [--json]\n"
+        << "  c-docc approve [options] [--reason <text>]\n"
+        << "  c-docc approve <page> [<section>] [options] [--reason <text>]\n"
         << "\nOptions for check and approve (each path defaults to the current directory):\n"
         << "  --source-dir <path>  Source directory\n"
         << "  --build-dir <path>    Directory containing compile_commands.json\n"
@@ -96,7 +96,7 @@ void usage(llvm::raw_ostream &out) {
 }
 
 int usageError(const llvm::Twine &message) {
-    llvm::errs() << "dagdocdiff: " << message << '\n';
+    llvm::errs() << "c-docc: " << message << '\n';
     usage(llvm::errs());
     return 2;
 }
@@ -175,21 +175,21 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (command == "--version" && argc == 2) {
-        llvm::outs() << "dagdocdiff " DAGDOCDIFF_VERSION "\n";
+        llvm::outs() << "c-docc " C_DOCC_VERSION "\n";
         return 0;
     }
     if (command == "scan" && argc == 4) {
-        auto snapshot = dagdocdiff::analyze(argv[2], argv[3]);
+        auto snapshot = c_docc::analyze(argv[2], argv[3]);
         if (!snapshot)
             return fail(snapshot.takeError());
         print(scanJson(*snapshot));
         return 0;
     }
     if (command == "diff" && argc == 6) {
-        auto base = dagdocdiff::analyze(argv[2], argv[3]);
+        auto base = c_docc::analyze(argv[2], argv[3]);
         if (!base)
             return fail(base.takeError());
-        auto head = dagdocdiff::analyze(argv[4], argv[5]);
+        auto head = c_docc::analyze(argv[4], argv[5]);
         if (!head)
             return fail(head.takeError());
         print(diffJson(*base, *head));

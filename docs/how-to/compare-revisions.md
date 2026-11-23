@@ -1,6 +1,6 @@
 # Git revision comparison
 
-Dagdocdiff compares two source checkouts with their compilation databases. Matching build options keep the comparison focused on source changes.
+c-docc compares two source checkouts with their compilation databases. Matching build options keep the comparison focused on source changes.
 
 ## Checkouts and compilation databases
 
@@ -26,10 +26,10 @@ Projects with generated headers need those headers in each checkout before analy
 
 ## Diff command and output
 
-`tool` holds the absolute path to the Dagdocdiff executable. The four arguments are the base source and build directories, followed by the head source and build directories.
+`tool` holds the absolute path to the c-docc executable. The four arguments are the base source and build directories, followed by the head source and build directories.
 
 ```sh
-tool=/absolute/path/to/dagdocdiff
+tool=/absolute/path/to/c-docc
 "$tool" diff "$work/base" "$work/base-build" "$work/head" "$work/head-build" > changes.json
 ```
 

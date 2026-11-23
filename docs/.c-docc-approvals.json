@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "sections": [
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "explanation/symbol-graphs.md": "145f6bde113d373e1d300612ba36732e3ff28f3c11cd608e30314d0a3d5a3492"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "c-docc documentation / Explanation",
+      "symbols": {},
+      "text_hash": "d7cc7d637f1c540dfbc44bc1ddf37d0795a102c579f534dc81df39219f30749a"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "how-to/build-release.md": "11a055024c87eacf1ecaaac825c314c09a63d6f4ca0b0c84661ed90a06d0de8e",
+        "how-to/compare-revisions.md": "e6a08d9d1772371ebaced498a6491584ac1f5db74e5f96287829a7b43ad7eb19",
+        "how-to/review-linked-docs.md": "69f56ef4d2f5de9a3c4a7245b2a830b532f4a972b7a4c3719eea11bda9e5e4b1",
+        "how-to/scan-repository.md": "45cd605fb1919c1022922edcc57add44ba01155a55dfaa830a55b80ac2a83863"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "c-docc documentation / How-to guides",
+      "symbols": {},
+      "text_hash": "1d5117e9fd701dfe2b76e804268a671ea95b27362925290447f8de8b715c367d"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../README.md#build": "bfd266a660275f4a6fc23304c9fd42f4bc039a4ee350efedcf358c8e19b0f699"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "c-docc documentation / Published package",
+      "symbols": {},
+      "text_hash": "d90242b7c79644904a4a6a1b31c609e45c01cca2387b1d9b996648919c8209fb"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "reference/cli.md": "b968a8fde4c8b182bccd5cc8ec51458f2b3f09d1bc901390aa164cb524dd97b4"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the review navigation fields in the CLI reference.",
+      "section": "c-docc documentation / Reference",
+      "symbols": {},
+      "text_hash": "5c42efca2ef7bc311e352182956bbdbe2ef032a4fbb3abc3a3be1cd74414af78"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "tutorials/first-diff.md": "e80750d31b351c74a62bedd568927f34e534d2e4da5dae202fe02baec0bbf8e9",
+        "tutorials/first-doc-check.md": "f173407a005ff35d789cfaf9d1cf574e3d97c64fbc0c606d05f875fca06fd23a"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "README.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "c-docc documentation / Tutorials",
+      "symbols": {},
+      "text_hash": "9123079d7f16f238d704da5ca7379a1060731d013df96ae1de3d6152e865f828"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "symbol-graphs.md": "145f6bde113d373e1d300612ba36732e3ff28f3c11cd608e30314d0a3d5a3492"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "explanation/README.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "Explanation",
+      "symbols": {},
+      "text_hash": "c49f160e01bc44b1ac30f0b4b59a68c52ce1aa9e46889e3361cce94a4241b8df"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "c_docc::Change": "02e4c7ac73fdfdcfa16823bdc2e688a5df97255b6be115b1ea73ed7619cb7e93",
+        "c_docc::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
+        "c_docc::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
+        "c_docc::Finding": "b4bf7c0fa61e85fc2366b0b65a9bd91904dabf19f05d576640f8cd61b6966d22",
+        "c_docc::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
+        "c_docc::Fingerprint::Fingerprint(llvm::StringRef)": "95ae677522e437d921111e90a0716f53c4390e879eccc736f61d07d5cc0d61e2",
+        "c_docc::Fingerprint::add(llvm::StringRef)": "97a14e7ef62da15e373eb68ae09e6a9a07753b9a295ec54b28e106179c88c223",
+        "c_docc::Fingerprint::finish()": "d9693031e901c5686cb677b21a62d266d41914466fea763dafe5c965accca9bd",
+        "c_docc::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
+        "c_docc::Snapshot": "66955060745d396d52c958833b6dc59fafdbfaef95dbcacbe4ad247fd83c4a8c",
+        "c_docc::SourceSpan": "5a8872c602d7e4069cfd8bdb109ac6c0a19c3b0f2ef9b1def79c94800c9ecfdf",
+        "c_docc::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
+        "c_docc::Symbol": "e04f9356e0c2ced8c92e29b18fcc85ee3a4666ae3a6d4c93b920cb4e674fd1f3",
+        "c_docc::compare(const c_docc::Snapshot &, const c_docc::Snapshot &)": "b9bf9fc12c40dc4f3e420415a89f3d52401c26561cb9ac6f934697110d0848de",
+        "c_docc::hashComponents(c_docc::Snapshot &)": "1938df0e5d9cfc523915bf4dce6ccad8441d61a5ea204b646463359dd1378f98",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::Node": "50c20e2e9eff06dea8a611f49e52d464c147222dbe4f943520b772b4768907bf",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::findCauses(const c_docc::Snapshot &, const std::set<std::basic_string<char>> &)": "c19ab4961f59d9158de485e57ca5d934d9c2802459fdddcbdd299ed23b9203fe",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "96474f8d71272614c8534436c82db8e37de61ec51428516b264a46930946d131",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::sharesComponent(const c_docc::Snapshot &, const std::vector<std::basic_string<char>> &)": "5a288a707063c56eb595ce4963f13bfeec4198450e244843a50df3206fa18c1a"
+      },
+      "links": {
+        "../../src/Graph.cpp#L146": [
+          "c_docc::compare(const c_docc::Snapshot &, const c_docc::Snapshot &)"
+        ],
+        "../../src/Graph.cpp#L90": [
+          "c_docc::hashComponents(c_docc::Snapshot &)"
+        ]
+      },
+      "page": "explanation/symbol-graphs.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "How c-docc tracks code changes / Recursion changes how hashes propagate",
+      "symbols": {
+        "c_docc::compare(const c_docc::Snapshot &, const c_docc::Snapshot &)": "e0569e31ff33f3f05798d3225c9c7993b5e985cfb964ce6a8a4a20235bd673b3",
+        "c_docc::hashComponents(c_docc::Snapshot &)": "d52092ead63134677e604ed1e41cb487a5525fece0525cca79c01189a15a30b5"
+      },
+      "text_hash": "d7c6a46a11d278f08a8f012c013f8c2b8365386102bffd4444a0b819feb26a64"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "build-release.md": "11a055024c87eacf1ecaaac825c314c09a63d6f4ca0b0c84661ed90a06d0de8e",
+        "compare-revisions.md": "e6a08d9d1772371ebaced498a6491584ac1f5db74e5f96287829a7b43ad7eb19",
+        "review-linked-docs.md": "69f56ef4d2f5de9a3c4a7245b2a830b532f4a972b7a4c3719eea11bda9e5e4b1",
+        "scan-repository.md": "45cd605fb1919c1022922edcc57add44ba01155a55dfaa830a55b80ac2a83863"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "how-to/README.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "How-to guides",
+      "symbols": {},
+      "text_hash": "bb1245ce12f6f072f85eae2704d0842b34e208fb3b59bcaa6e94f8bc2e545f89"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../reference/cli.md#diff-output": "6baf58b24ec6cc408a27a407492b67579557b38053abfbe8589efe4c070ce554"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "how-to/compare-revisions.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "Git revision comparison / Diff command and output",
+      "symbols": {},
+      "text_hash": "3729a49016774f75edf4c6036cf0b929f00ff362c71873c53bf3310a9f5cfcda"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../reference/cli.md#source-links-and-approvals": "1e0088d5aca29e7dd9647a36fafe7c1abc1de257ca60b051494f39f5e921214a",
+        "scan-repository.md": "45cd605fb1919c1022922edcc57add44ba01155a55dfaa830a55b80ac2a83863"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "how-to/review-linked-docs.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "Code changes and linked docs",
+      "symbols": {},
+      "text_hash": "e323afe748d86cdef59daa1ca502241d2b6707b4ad9cd4ac1c1fbd9d9cdeb55c"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../reference/cli.md#scan-output": "ceae3cb92f91b8cf54fb63f2546da70de6bda028925a30f39c33dcbd0159490a"
+      },
+      "inputs": {
+        "c_docc::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
+        "c_docc::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
+        "c_docc::Finding": "b4bf7c0fa61e85fc2366b0b65a9bd91904dabf19f05d576640f8cd61b6966d22",
+        "c_docc::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
+        "c_docc::Fingerprint::Fingerprint(llvm::StringRef)": "95ae677522e437d921111e90a0716f53c4390e879eccc736f61d07d5cc0d61e2",
+        "c_docc::Fingerprint::add(llvm::StringRef)": "97a14e7ef62da15e373eb68ae09e6a9a07753b9a295ec54b28e106179c88c223",
+        "c_docc::Fingerprint::finish()": "d9693031e901c5686cb677b21a62d266d41914466fea763dafe5c965accca9bd",
+        "c_docc::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
+        "c_docc::Snapshot": "66955060745d396d52c958833b6dc59fafdbfaef95dbcacbe4ad247fd83c4a8c",
+        "c_docc::SourceSpan": "5a8872c602d7e4069cfd8bdb109ac6c0a19c3b0f2ef9b1def79c94800c9ecfdf",
+        "c_docc::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
+        "c_docc::Symbol": "e04f9356e0c2ced8c92e29b18fcc85ee3a4666ae3a6d4c93b920cb4e674fd1f3",
+        "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "7d07b5410f158fb2ac510e0c7f1b9a1706cc1faa38be1dd76c283bb63a38db26",
+        "c_docc::hashComponents(c_docc::Snapshot &)": "1938df0e5d9cfc523915bf4dce6ccad8441d61a5ea204b646463359dd1378f98",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "3444a15bee352ec313d6302b904bd71a89c332752b7b32379b9475d41b284cb8",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "81ee5e1c016e45042cad4710351f221eb6cccdaa5e9002c313a755287cb87cb5",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "502aeafb315649c8f5a4f8ba2901c5e7ad3b3e0a2e5e7f21a2db5d853681211b",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "6a70d067b5bb88be8af4075a43d9298a778f2d5fb470c1cfa421deadea374122",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::Node": "50c20e2e9eff06dea8a611f49e52d464c147222dbe4f943520b772b4768907bf",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
+      },
+      "links": {
+        "../../src/Analyzer.cpp#L476": [
+          "c_docc::analyze(llvm::StringRef, llvm::StringRef)"
+        ]
+      },
+      "page": "how-to/scan-repository.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "c-docc symbol index / Symbol IDs and locations",
+      "symbols": {
+        "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "e57faa142ac5fe8398a334d400e0fce9b1c8e44b7597f8b62b7539f0dc8a6533"
+      },
+      "text_hash": "6367a0ff60b7a379eb3101de5b721ee58bf06d04c5c3ef6e930e5ec0c8e00a07"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "cli.md": "b968a8fde4c8b182bccd5cc8ec51458f2b3f09d1bc901390aa164cb524dd97b4"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "reference/README.md",
+      "reason": "Verified the review navigation fields in the CLI reference.",
+      "section": "Reference",
+      "symbols": {},
+      "text_hash": "df597c16fe879c1041575b1f04c3f1226d2f24c3955d4f2ded8263bb26da91f6"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "inputs": {
+        "c_docc::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
+        "c_docc::Dependency": "04ae5c577c504c2036395c6a8d5b7cd6cc1ca4ceff94513d63bd019122aa87e8",
+        "c_docc::Finding": "b4bf7c0fa61e85fc2366b0b65a9bd91904dabf19f05d576640f8cd61b6966d22",
+        "c_docc::Fingerprint": "ef7aa08727c9bfc1fd9c41c55220fe9c705988d35b34f2aae6e4ed1badcc639b",
+        "c_docc::Fingerprint::Fingerprint(llvm::StringRef)": "95ae677522e437d921111e90a0716f53c4390e879eccc736f61d07d5cc0d61e2",
+        "c_docc::Fingerprint::add(llvm::StringRef)": "97a14e7ef62da15e373eb68ae09e6a9a07753b9a295ec54b28e106179c88c223",
+        "c_docc::Fingerprint::finish()": "d9693031e901c5686cb677b21a62d266d41914466fea763dafe5c965accca9bd",
+        "c_docc::Location": "4c560896e5c29d307c7728e281af27e55f3a4615b0ed18f43565326ca2d03eb7",
+        "c_docc::Snapshot": "66955060745d396d52c958833b6dc59fafdbfaef95dbcacbe4ad247fd83c4a8c",
+        "c_docc::SourceSpan": "5a8872c602d7e4069cfd8bdb109ac6c0a19c3b0f2ef9b1def79c94800c9ecfdf",
+        "c_docc::SourceTargets": "a5cf54902793b9ef18414261b2bd62a4b0895a5868d8b1ef72338d990aeafe6d",
+        "c_docc::Symbol": "e04f9356e0c2ced8c92e29b18fcc85ee3a4666ae3a6d4c93b920cb4e674fd1f3",
+        "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "7d07b5410f158fb2ac510e0c7f1b9a1706cc1faa38be1dd76c283bb63a38db26",
+        "c_docc::hashComponents(c_docc::Snapshot &)": "1938df0e5d9cfc523915bf4dce6ccad8441d61a5ea204b646463359dd1378f98",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "3444a15bee352ec313d6302b904bd71a89c332752b7b32379b9475d41b284cb8",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "81ee5e1c016e45042cad4710351f221eb6cccdaa5e9002c313a755287cb87cb5",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "502aeafb315649c8f5a4f8ba2901c5e7ad3b3e0a2e5e7f21a2db5d853681211b",
+        "src/Analyzer.cpp::c_docc::(anonymous namespace)::relativePath(const std::filesystem::path &, const std::filesystem::path &)": "6a70d067b5bb88be8af4075a43d9298a778f2d5fb470c1cfa421deadea374122",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::Node": "50c20e2e9eff06dea8a611f49e52d464c147222dbe4f943520b772b4768907bf",
+        "src/Graph.cpp::c_docc::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
+      },
+      "links": {
+        "../../src/Analyzer.cpp#L476": [
+          "c_docc::analyze(llvm::StringRef, llvm::StringRef)"
+        ]
+      },
+      "page": "reference/cli.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "c-docc v1 command and output reference / Scan output",
+      "symbols": {
+        "c_docc::analyze(llvm::StringRef, llvm::StringRef)": "e57faa142ac5fe8398a334d400e0fce9b1c8e44b7597f8b62b7539f0dc8a6533"
+      },
+      "text_hash": "3f694a4f818ccfdf013cc854239e06cca5636865bf00bdd8fa33360a52a077ce"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "first-diff.md": "e80750d31b351c74a62bedd568927f34e534d2e4da5dae202fe02baec0bbf8e9",
+        "first-doc-check.md": "f173407a005ff35d789cfaf9d1cf574e3d97c64fbc0c606d05f875fca06fd23a"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "tutorials/README.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "Tutorials",
+      "symbols": {},
+      "text_hash": "c0165de8dd5ebe545ea69a06a7c8d46a5787ddafb314016e6fc134cf216b902b"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../../examples/parcel-tracking/compile_commands.json": "fb4936b1e2bdaf6ef9e32a929f4053165d25e4433fd0609df260ba389e444d34",
+        "../../examples/parcel-tracking/delivery.md": "bd885bb762377d470265239d4b09adacf00de52591b902ec0b658828063c0f49"
+      },
+      "inputs": {
+        "delivery_estimate_days": "93ab29da30e004da0ac82af3f6bf6470d591f7082a05afba1b07b82b04d0e156",
+        "depot_sorting_days": "620a9a8b808216bacd015b871eec9dac7277cb9d8811c436078276c199ee4fcb"
+      },
+      "links": {
+        "../../examples/parcel-tracking/delivery_estimate.c#L3": [
+          "delivery_estimate_days"
+        ],
+        "../../examples/parcel-tracking/depot_sorting.c#L1": [
+          "depot_sorting_days"
+        ]
+      },
+      "page": "tutorials/first-diff.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "Trace a change in a delivery estimate / The estimate and its guide",
+      "symbols": {
+        "delivery_estimate_days": "73d90910955af1f1754ac3738eb62287a335ce6968bb098205dd7e8593dc58e1",
+        "depot_sorting_days": "ca0126268e6bb3dccd8f41f4455adecc37122dedac751de21fd7126087b849e4"
+      },
+      "text_hash": "4aac25e8a05dc4a8e4712a484103e31401c30dc7a387d21b30ac738121a91295"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "../../examples/photo-backup/compile_commands.json": "1331561b8366878277e750ed559aaaadea4be3fc227536fc0e7f7533d51d30ef",
+        "../../examples/photo-backup/retries.md": "a20421ac9c3618bffd2c29d7632e6c6d3b77517d21b56e4ac1845998ac4e8830"
+      },
+      "inputs": {
+        "retry_limit": "386dd76f451343e9400ab751f6ada681f4b48261746707abb7d74037ed68822e"
+      },
+      "links": {
+        "../../examples/photo-backup/retries.c#L1": [
+          "retry_limit"
+        ]
+      },
+      "page": "tutorials/first-doc-check.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "Change a retry limit and update its docs / A function and its guide",
+      "symbols": {
+        "retry_limit": "9a86cd81d9ccd79a31b43d9c0fde5f0bff69d41503fdd0b230740495ae9d8378"
+      },
+      "text_hash": "743f50ada52aa0cdc5e9961d00501c01dc439a4d71c10247cd2796bfab6498b5"
+    },
+    {
+      "clang_version": "clang version 23.1.0",
+      "file_links": {
+        "first-diff.md": "e80750d31b351c74a62bedd568927f34e534d2e4da5dae202fe02baec0bbf8e9"
+      },
+      "inputs": {},
+      "links": {},
+      "page": "tutorials/first-doc-check.md",
+      "reason": "Verified the c-docc rename and updated references.",
+      "section": "Change a retry limit and update its docs / A recorded review of the change",
+      "symbols": {},
+      "text_hash": "a7fbca589b7838f909263b3f9266ed68a7f3f399199251c51db9234fffd861ee"
+    }
+  ]
+}

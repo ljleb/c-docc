@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace dagdocdiff {
+namespace c_docc {
 namespace {
 
 namespace fs = std::filesystem;
@@ -33,24 +33,27 @@ namespace json = llvm::json;
 using Hashes = std::map<std::string, std::string>;
 using Links = std::map<std::string, std::set<std::string>>;
 using Key = std::pair<std::string, std::string>;
-using Issues = std::vector<std::pair<unsigned, std::string>>;
-
-constexpr auto approvalName = ".dagdocdiff-approvals.json";
-
-struct LinkOccurrence {
+struct Issue {
     unsigned line;
-    std::string text;
-    std::string url;
+    std::string message;
+    std::optional<Location> cause = std::nullopt;
 };
 
-struct SourceTarget {
+using Issues = std::vector<Issue>;
+
+constexpr auto approvalName = ".c-docc-approvals.json";
+
+struct LinkTarget {
     std::string file;
     unsigned firstLine;
     unsigned lastLine;
 };
 
-struct SourceOccurrence : LinkOccurrence {
-    SourceTarget target;
+struct LinkOccurrence {
+    unsigned line;
+    std::string text;
+    std::string url;
+    LinkTarget target;
 };
 
 struct Section {
@@ -58,7 +61,7 @@ struct Section {
     std::string textHash;
     Links links;
     Issues issues;
-    std::vector<SourceOccurrence> occurrences;
+    std::vector<LinkOccurrence> occurrences;
     Hashes fileLinks;
     Hashes declarationLinks;
     Hashes sourceTextLinks;
@@ -144,7 +147,7 @@ std::optional<unsigned> sourceLine(llvm::StringRef anchor) {
 }
 
 struct SourceLink {
-    SourceTarget target;
+    LinkTarget target;
     std::set<std::string> definitions;
     std::string declarations;
     std::string text;
@@ -311,10 +314,17 @@ std::string contentFingerprint(llvm::StringRef path, llvm::StringRef text) {
     return hash.finish();
 }
 
-Hashes headingFingerprints(llvm::StringRef path, llvm::StringRef text, cmark_node *tree) {
+struct HeadingFingerprint {
+    std::string hash;
+    unsigned line;
+};
+
+std::map<std::string, HeadingFingerprint> headingFingerprints(llvm::StringRef path, llvm::StringRef text,
+                                                              cmark_node *tree) {
     struct Heading {
         int level;
         size_t start;
+        unsigned line;
         std::string anchor;
     };
     const auto starts = lineOffsets(text);
@@ -333,11 +343,11 @@ Hashes headingFingerprints(llvm::StringRef path, llvm::StringRef text, cmark_nod
             while (!anchors.insert(anchor).second)
                 anchor = slug + "-" + std::to_string(++suffixes[slug]);
         }
-        headings.push_back({cmark_node_get_heading_level(node),
-                            starts.at(cmark_node_get_start_line(node) - 1), std::move(anchor)});
+        const auto line = static_cast<unsigned>(cmark_node_get_start_line(node));
+        headings.push_back({cmark_node_get_heading_level(node), starts.at(line - 1), line, std::move(anchor)});
     }
 
-    Hashes result;
+    std::map<std::string, HeadingFingerprint> result;
     for (auto heading = headings.begin(); heading != headings.end(); ++heading) {
         if (heading->anchor.empty())
             continue;
@@ -346,21 +356,25 @@ Hashes headingFingerprints(llvm::StringRef path, llvm::StringRef text, cmark_nod
             ++end;
         const auto offset = end == headings.end() ? text.size() : end->start;
         const auto contents = text.slice(heading->start, offset).rtrim();
-        result.emplace(heading->anchor, contentFingerprint(path, contents));
+        result.emplace(heading->anchor, HeadingFingerprint{contentFingerprint(path, contents), heading->line});
     }
     return result;
 }
+
+struct FileLink {
+    std::string hash;
+    LinkTarget target;
+};
 
 class MarkdownLinks {
 public:
     explicit MarkdownLinks(const fs::path &source) : source(source) {}
 
-    // An empty fingerprint means the link is valid and has no content dependency.
-    llvm::Expected<std::string> resolve(llvm::StringRef url, const fs::path &page) {
+    llvm::Expected<std::optional<FileLink>> resolve(llvm::StringRef url, const fs::path &page) {
         const auto [destination, fragment] = url.split('#');
         const auto encodedPath = destination.split('?').first;
         if (encodedPath.starts_with("//") || encodedPath.split('/').first.contains(':'))
-            return std::string{};
+            return std::optional<FileLink>{};
         const auto decoded = decodePath(encodedPath);
         if (!decoded)
             return error("invalid encoding in local link: " + url);
@@ -380,19 +394,19 @@ public:
             if (ec || !inside(target, source) || !fs::is_regular_file(target, ec))
                 return error("local link directory has no Markdown index for the fragment: " + url);
         } else if (!fs::is_regular_file(status) || (!fragment.empty() && !markdownFile(target))) {
-            return std::string{};
+            return std::optional<FileLink>{};
         }
         const bool samePage = path.empty() || target == page;
         if (fragment.empty() && samePage)
-            return std::string{};
+            return std::optional<FileLink>{};
 
+        const auto relative = target.lexically_relative(source).generic_string();
         auto found = files.find(target);
         if (found == files.end()) {
             auto contents = llvm::MemoryBuffer::getFile(target.string());
             if (!contents)
                 return error("cannot read local link target: " + url);
             const auto text = (*contents)->getBuffer();
-            const auto relative = target.lexically_relative(source).generic_string();
             FileFingerprints fingerprints{contentFingerprint(relative, text), {}};
             if (markdownFile(target)) {
                 std::unique_ptr<cmark_node, decltype(&cmark_node_free)> tree(
@@ -402,20 +416,23 @@ public:
             found = files.emplace(target, std::move(fingerprints)).first;
         }
         if (fragment.empty())
-            return found->second.whole;
+            return std::optional<FileLink>{{found->second.whole, {relative, 1, 1}}};
         const auto anchor = decodePath(fragment);
         if (!anchor)
             return error("invalid encoding in local link fragment: " + url);
         const auto heading = found->second.headings.find(*anchor);
         if (heading == found->second.headings.end())
             return error("Markdown heading not found: " + url);
-        return samePage ? std::string{} : heading->second;
+        if (samePage)
+            return std::optional<FileLink>{};
+        const auto line = heading->second.line;
+        return std::optional<FileLink>{{heading->second.hash, {relative, line, line}}};
     }
 
 private:
     struct FileFingerprints {
         std::string whole;
-        Hashes headings;
+        std::map<std::string, HeadingFingerprint> headings;
     };
 
     const fs::path &source;
@@ -454,15 +471,16 @@ void collectLinks(cmark_node *node, unsigned blockLine, const fs::path &page,
                 section.declarationLinks.try_emplace(key, std::move(link.declarations));
             if (!link.text.empty())
                 section.sourceTextLinks.try_emplace(key, std::move(link.text));
-            section.occurrences.push_back({{line, inlineText(node, " "), key}, std::move(link.target)});
+            section.occurrences.push_back({line, inlineText(node, " "), key, std::move(link.target)});
         } else {
             auto fingerprint = markdown.resolve(url, page);
             if (!fingerprint) {
                 section.issues.emplace_back(line, linkMessage(inlineText(node, " "),
                                                                llvm::toString(fingerprint.takeError())));
-            } else if (!fingerprint->empty()) {
-                section.fileLinks.try_emplace(url.str(), std::move(*fingerprint));
-                section.fileOccurrences.push_back({line, inlineText(node, " "), url.str()});
+            } else if (*fingerprint) {
+                auto &link = **fingerprint;
+                section.fileLinks.try_emplace(url.str(), std::move(link.hash));
+                section.fileOccurrences.push_back({line, inlineText(node, " "), url.str(), std::move(link.target)});
             }
         }
     }
@@ -564,6 +582,15 @@ bool readLinks(const json::Object *object, Links &links) {
         }
     }
     return true;
+}
+
+fs::path approvalPath(const fs::path &docs) {
+    const auto path = docs / approvalName;
+    std::error_code ec;
+    if (fs::exists(path, ec) || ec)
+        return path;
+    const auto previous = docs / ".dagdocdiff-approvals.json";
+    return fs::exists(previous, ec) || ec ? previous : path;
 }
 
 llvm::Expected<Reviews> loadReviews(const fs::path &path) {
@@ -683,15 +710,20 @@ Review currentReview(const Section &section, const Snapshot &snapshot, llvm::Str
     return result;
 }
 
-std::string definitionSuffix(const std::string &id, const Snapshot &snapshot) {
+struct ChangeCause {
+    std::string description;
+    std::optional<Location> location;
+};
+
+ChangeCause describeCause(const std::string &id, const Snapshot &snapshot) {
     const auto symbol = snapshot.symbols.find(id);
     if (symbol == snapshot.symbols.end())
-        return {};
+        return {id, std::nullopt};
     const auto &location = symbol->second.definition;
-    return " (" + location.file + ":" + std::to_string(location.line) + ")";
+    return {id + " (" + location.file + ":" + std::to_string(location.line) + ")", location};
 }
 
-std::string causePath(const std::string &root, const Review &before, const Review &after,
+ChangeCause causePath(const std::string &root, const Review &before, const Review &after,
                       const Snapshot &snapshot) {
     std::map<std::string, std::string> parents{{root, ""}};
     std::deque<std::string> pending{root};
@@ -700,10 +732,10 @@ std::string causePath(const std::string &root, const Review &before, const Revie
         pending.pop_front();
         const auto previous = before.inputs.find(id);
         if (previous == before.inputs.end() || previous->second != after.inputs.at(id)) {
-            std::string path = id + definitionSuffix(id, snapshot);
+            auto cause = describeCause(id, snapshot);
             for (auto parent = parents.at(id); !parent.empty(); parent = parents.at(parent))
-                path = parent + " -> " + path;
-            return path;
+                cause.description = parent + " -> " + cause.description;
+            return cause;
         }
         const auto symbol = snapshot.symbols.find(id);
         if (symbol != snapshot.symbols.end()) {
@@ -713,7 +745,7 @@ std::string causePath(const std::string &root, const Review &before, const Revie
             }
         }
     }
-    return root + definitionSuffix(root, snapshot);
+    return describeCause(root, snapshot);
 }
 
 void report(const Key &key, unsigned line, llvm::StringRef message) {
@@ -769,13 +801,15 @@ Issues reviewIssues(const Section &section, const Review &before, const Snapshot
     if (before.links != after.links)
         issues.emplace_back(section.line, "source link targets changed");
 
-    std::map<std::string, std::string> symbolIssues;
+    std::map<std::string, ChangeCause> symbolIssues;
     for (const auto &[id, hash] : after.symbols) {
         const auto oldHash = before.symbols.find(id);
         if (oldHash == before.symbols.end()) {
-            symbolIssues.emplace(id, "approval lacks a code fingerprint for " + id);
+            symbolIssues.emplace(id, ChangeCause{"approval lacks a code fingerprint for " + id, std::nullopt});
         } else if (oldHash->second != hash) {
-            symbolIssues.emplace(id, "code changed: " + causePath(id, before, after, snapshot));
+            auto cause = causePath(id, before, after, snapshot);
+            cause.description = "code changed: " + cause.description;
+            symbolIssues.emplace(id, std::move(cause));
         }
     }
     for (const auto &link : section.occurrences) {
@@ -790,7 +824,8 @@ Issues reviewIssues(const Section &section, const Review &before, const Snapshot
             for (const auto &id : ids) {
                 const auto issue = symbolIssues.find(id);
                 if (issue != symbolIssues.end())
-                    issues.emplace_back(link.line, linkMessage(link.text, issue->second));
+                    issues.emplace_back(link.line, linkMessage(link.text, issue->second.description),
+                                        issue->second.location);
             }
         }
         reportSourceFingerprint(issues, link, before.declarationLinks, after.declarationLinks, "declaration changed");
@@ -906,25 +941,36 @@ void printStatus(const Inputs &inputs, const std::vector<PendingReview> &pending
     json::Array items;
     for (const auto &review : pending) {
         json::Array issues;
-        for (const auto &[line, message] : review.issues)
-            issues.push_back(json::Object{{"line", line}, {"message", message}});
+        for (const auto &issue : review.issues) {
+            json::Object item{{"line", issue.line}, {"message", issue.message}};
+            if (issue.cause) {
+                const auto &cause = *issue.cause;
+                item["cause"] = json::Object{{"file", cause.file}, {"line", cause.line}, {"column", cause.column}};
+            }
+            issues.push_back(std::move(item));
+        }
         items.push_back(json::Object{
             {"page", review.key.first}, {"section", review.key.second}, {"line", review.line},
             {"approvable", !review.section || review.section->issues.empty()}, {"issues", std::move(issues)}
         });
     }
     json::Array references;
+    json::Array fileReferences;
     for (const auto &[key, section] : inputs.sections) {
-        for (const auto &link : section.occurrences) {
-            references.push_back(json::Object{
-                {"file", link.target.file}, {"first_line", link.target.firstLine}, {"last_line", link.target.lastLine},
-                {"page", key.first}, {"section", key.second}, {"line", link.line}, {"text", link.text}
-            });
-        }
+        auto appendReferences = [&](json::Array &out, const std::vector<LinkOccurrence> &links) {
+            for (const auto &link : links) {
+                out.push_back(json::Object{
+                    {"file", link.target.file}, {"first_line", link.target.firstLine}, {"last_line", link.target.lastLine},
+                    {"page", key.first}, {"section", key.second}, {"line", link.line}, {"text", link.text}
+                });
+            }
+        };
+        appendReferences(references, section.occurrences);
+        appendReferences(fileReferences, section.fileOccurrences);
     }
     llvm::outs() << llvm::formatv("{0:2}\n", json::Value(json::Object{
         {"schema_version", 1}, {"source_dir", inputs.source.string()}, {"docs_dir", inputs.docs.string()},
-        {"pending", std::move(items)}, {"references", std::move(references)}
+        {"pending", std::move(items)}, {"references", std::move(references)}, {"file_references", std::move(fileReferences)}
     }));
 }
 
@@ -934,7 +980,7 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
     auto inputs = loadInputs(source, build, docs);
     if (!inputs)
         return inputs.takeError();
-    auto reviews = loadReviews(inputs->docs / approvalName);
+    auto reviews = loadReviews(approvalPath(inputs->docs));
     if (!reviews)
         return reviews.takeError();
     const auto pending = pendingReviews(*inputs, *reviews);
@@ -943,8 +989,8 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
         return pending.empty() ? llvm::Error::success() : error("documentation needs review");
     }
     for (const auto &item : pending) {
-        for (const auto &[line, message] : item.issues)
-            report(item.key, line, message);
+        for (const auto &issue : item.issues)
+            report(item.key, issue.line, issue.message);
     }
     if (!pending.empty())
         return error("documentation needs review");
@@ -965,7 +1011,7 @@ llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::Stri
     auto inputs = loadInputs(source, build, docs);
     if (!inputs)
         return inputs.takeError();
-    const auto path = inputs->docs / approvalName;
+    const auto path = approvalPath(inputs->docs);
     auto reviews = loadReviews(path);
     if (!reviews)
         return reviews.takeError();
@@ -977,11 +1023,11 @@ llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::Stri
         if (item.line)
             llvm::outs() << ':' << item.line;
         llvm::outs() << "  " << item.key.second << '\n';
-        for (const auto &[line, message] : item.issues) {
+        for (const auto &issue : item.issues) {
             llvm::outs() << "  ";
-            if (line && line != item.line)
-                llvm::outs() << "Line " << line << ": ";
-            llvm::outs() << message << '\n';
+            if (issue.line && issue.line != item.line)
+                llvm::outs() << "Line " << issue.line << ": ";
+            llvm::outs() << issue.message << '\n';
         }
         if (item.section && !item.section->issues.empty()) {
             llvm::outs() << "Fix the broken links before approving this section.\n";
@@ -1018,8 +1064,8 @@ llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::Str
         if (key.first != pagePath)
             continue;
         if (!section.issues.empty()) {
-            for (const auto &[line, message] : section.issues)
-                report(key, line, message);
+            for (const auto &issue : section.issues)
+                report(key, issue.line, issue.message);
             blocked = true;
             continue;
         }
@@ -1028,7 +1074,7 @@ llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::Str
     if (blocked)
         return error("resolve links before approving this page");
 
-    auto result = updateReviews(inputs->docs / approvalName, [&](Reviews &reviews) -> llvm::Error {
+    auto result = updateReviews(approvalPath(inputs->docs), [&](Reviews &reviews) -> llvm::Error {
         const auto count = std::erase_if(reviews, [&](const auto &entry) {
             return entry.first.first == pagePath;
         });
@@ -1053,13 +1099,13 @@ llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::Str
     std::optional<Review> review;
     if (current != inputs->sections.end()) {
         if (!current->second.issues.empty()) {
-            for (const auto &[line, message] : current->second.issues)
-                report(key, line, message);
+            for (const auto &issue : current->second.issues)
+                report(key, issue.line, issue.message);
             return error("resolve links before approving this section");
         }
         review = currentReview(current->second, inputs->snapshot, reason.trim());
     }
-    return recordReview(inputs->docs / approvalName, key, std::move(review));
+    return recordReview(approvalPath(inputs->docs), key, std::move(review));
 }
 
-} // namespace dagdocdiff
+} // namespace c_docc

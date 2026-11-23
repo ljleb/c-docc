@@ -1,9 +1,9 @@
 {
-  "name": "dagdocdiff",
-  "displayName": "Dagdocdiff",
+  "name": "c-docc",
+  "displayName": "c-docc",
   "publisher": "ljleb",
   "license": "MIT",
-  "version": "0.1.1",
+  "version": "0.0.1",
   "description": "Review C and C++ documentation from Source Control and navigate from code to its referring docs.",
   "engines": {
     "vscode": "^1.90.0"
@@ -20,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ljleb/dagdocdiff.git",
+    "url": "https://github.com/ljleb/c-docc.git",
     "directory": "editors/vscode"
   },
   "activationEvents": [
@@ -37,61 +37,61 @@
   "contributes": {
     "commands": [
       {
-        "command": "dagdocdiff.refresh",
+        "command": "c-docc.refresh",
         "title": "Check Documentation",
-        "category": "Dagdocdiff",
+        "category": "c-docc",
         "icon": "$(refresh)"
       },
       {
-        "command": "dagdocdiff.approve",
-        "title": "Approve Documentation…",
-        "category": "Dagdocdiff",
+        "command": "c-docc.approve",
+        "title": "Approve Documentation File",
+        "category": "c-docc",
         "icon": "$(check)"
       },
       {
-        "command": "dagdocdiff.install",
+        "command": "c-docc.install",
         "title": "Install CLI",
-        "category": "Dagdocdiff"
+        "category": "c-docc"
       }
     ],
     "menus": {
       "scm/title": [
         {
-          "command": "dagdocdiff.refresh",
-          "when": "scmProvider == dagdocdiff",
+          "command": "c-docc.refresh",
+          "when": "scmProvider == c-docc",
           "group": "navigation"
         }
       ],
       "scm/resourceState/context": [
         {
-          "command": "dagdocdiff.approve",
-          "when": "scmProvider == dagdocdiff && scmResourceGroup == review",
+          "command": "c-docc.approve",
+          "when": "scmProvider == c-docc && scmResourceGroup == review",
           "group": "inline"
         }
       ]
     },
     "configuration": {
-      "title": "Dagdocdiff",
+      "title": "c-docc",
       "properties": {
-        "dagdocdiff.executable": {
+        "c-docc.executable": {
           "type": "string",
           "default": "",
           "scope": "resource",
-          "description": "Path to Dagdocdiff relative to this workspace folder, or a command on PATH. When empty, look in the build directory, the extension’s storage, and then on PATH."
+          "description": "Path to c-docc relative to this workspace folder, or a command on PATH. When empty, look in the build directory, the extension’s storage, and then on PATH."
         },
-        "dagdocdiff.sourceDir": {
+        "c-docc.sourceDir": {
           "type": "string",
           "default": ".",
           "scope": "resource",
           "description": "Source directory relative to this workspace folder."
         },
-        "dagdocdiff.buildDir": {
+        "c-docc.buildDir": {
           "type": "string",
           "default": "",
           "scope": "resource",
           "description": "Directory containing compile_commands.json, relative to this workspace folder. When empty, look in build and then the source directory."
         },
-        "dagdocdiff.docsDir": {
+        "c-docc.docsDir": {
           "type": "string",
           "default": "",
           "scope": "resource",
@@ -100,7 +100,7 @@
       }
     }
   },
-  "dagdocdiffFlake": "github:ljleb/dagdocdiff/1.12.0",
+  "dagdocdiffFlake": "github:ljleb/c-docc/0.0.1",
   "files": [
     "extension.js",
     "installer.js",

@@ -3,8 +3,8 @@
 #include "Graph.h"
 #include "llvm/Support/Error.h"
 
-namespace dagdocdiff {
+namespace c_docc {
 
 llvm::Expected<Snapshot> analyze(llvm::StringRef sourceRoot, llvm::StringRef buildDirectory);
 
-} // namespace dagdocdiff
+} // namespace c_docc

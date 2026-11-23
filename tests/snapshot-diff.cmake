@@ -56,7 +56,7 @@ set(comment "${WORK_DIR}/comment-only")
 
 run_tool(version --version)
 string(STRIP "${version}" version)
-if(NOT version STREQUAL "dagdocdiff ${VERSION}")
+if(NOT version STREQUAL "c-docc ${VERSION}")
     message(FATAL_ERROR "Unexpected version output: ${version}")
 endif()
 

@@ -7,7 +7,7 @@
 #include <deque>
 #include <utility>
 
-namespace dagdocdiff {
+namespace c_docc {
 
 Fingerprint::Fingerprint(llvm::StringRef domain) { add(domain); }
 
@@ -192,4 +192,4 @@ std::vector<Change> compare(const Snapshot &base, const Snapshot &head) {
     return changes;
 }
 
-} // namespace dagdocdiff
+} // namespace c_docc

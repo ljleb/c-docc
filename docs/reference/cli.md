@@ -1,4 +1,4 @@
-# Dagdocdiff v1 command and output reference
+# c-docc v1 command and output reference
 
 This reference covers the CLI built from this checkout. Scan and diff output use JSON schema version `1`.
 
@@ -6,19 +6,19 @@ This reference covers the CLI built from this checkout. Scan and diff output use
 
 | Command | Result |
 | --- | --- |
-| `dagdocdiff --help` | Prints usage. |
-| `dagdocdiff --version` | Prints the executable's version. |
-| `dagdocdiff scan <source-root> <build-dir>` | Prints the symbols and findings for one snapshot. |
-| `dagdocdiff diff <base-root> <base-build-dir> <head-root> <head-build-dir>` | Prints changes and findings for two snapshots. |
-| `dagdocdiff check [options] [--json]` | Checks local links and recorded reviews in Markdown. |
-| `dagdocdiff approve [options]` | Prompts for each section that needs approval. |
-| `dagdocdiff approve <page> [options]` | Records a review of all linked sections in a Markdown file. |
-| `dagdocdiff approve <page> <section> [options]` | Records an explicit review of one section. |
+| `c-docc --help` | Prints usage. |
+| `c-docc --version` | Prints the executable's version. |
+| `c-docc scan <source-root> <build-dir>` | Prints the symbols and findings for one snapshot. |
+| `c-docc diff <base-root> <base-build-dir> <head-root> <head-build-dir>` | Prints changes and findings for two snapshots. |
+| `c-docc check [options] [--json]` | Checks local links and recorded reviews in Markdown. |
+| `c-docc approve [options]` | Prompts for each section that needs approval. |
+| `c-docc approve <page> [options]` | Records a review of all linked sections in a Markdown file. |
+| `c-docc approve <page> <section> [options]` | Records an explicit review of one section. |
 
 | Argument | Meaning |
 | --- | --- |
 | `source-root` | Directory that bounds the source files included in the snapshot. The base and head roots specify this directory for each side of a diff. |
-| `build-dir` | Directory containing `compile_commands.json`. A source file can have multiple compile commands. Dagdocdiff merges matching definitions and reports conflicts when commands yield different definitions or dependencies for the same symbol. |
+| `build-dir` | Directory containing `compile_commands.json`. A source file can have multiple compile commands. c-docc merges matching definitions and reports conflicts when commands yield different definitions or dependencies for the same symbol. |
 | `docs-root` | Directory inside the source root that contains the Markdown pages and approvals. |
 | `page` | Markdown path relative to `docs-root`. |
 | `section` | Heading path, with ` / ` between nested headings. |
@@ -37,30 +37,30 @@ The directory options for `check` and `approve` default to the current directory
 | Status | Meaning |
 | --- | --- |
 | `0` | The command completed. A diff that finds changes also returns `0`. |
-| `1` | Analysis failed, Dagdocdiff reported a documentation issue, or it could not record the approval. |
+| `1` | Analysis failed, c-docc reported a documentation issue, or it could not record the approval. |
 | `2` | The invocation was invalid. |
 
 Scan and diff write JSON to standard output. A successful `check` writes the count and lists each approved section by page, line, and heading. Clang diagnostics and issues reported by `check` go to standard error.
 
 Link diagnostics include the link text and its line in the Markdown page. For code changes, the dependency path ends with the changed definition’s file and line when available. The source path is relative to `--source-dir`.
 
-Use `check --json` to read pending reviews and backlinks from an editor or script. The report lists pending sections, whether they can be approved, and the source file and line range of each resolved Markdown source link. A report with pending reviews still returns status `1`.
+Use `check --json` to read pending reviews and backlinks from an editor or script. The report lists pending sections and whether they can be approved. The `references` array contains resolved source links. The `file_references` array contains tracked whole-file and Markdown heading links. When a code change has a known source location, the issue includes a `cause` with its file, line, and column. Target files and cause files are relative to the source directory. A report with pending reviews still returns status `1`.
 
 ## Local Markdown links
 
-`check` reports local links whose destination file or directory is missing. A fragment in a Markdown link must match a heading anchor. Dagdocdiff also checks fragments in the current page and in a directory's `README.md`. It uses GitHub-style heading anchors, including the numeric suffixes for repeated headings.
+`check` reports local links whose destination file or directory is missing. A fragment in a Markdown link must match a heading anchor. c-docc also checks fragments in the current page and in a directory's `README.md`. It uses GitHub-style heading anchors, including the numeric suffixes for repeated headings.
 
 Relative paths start at the referring page. A link that starts with `/` starts at the source directory. Fix a broken navigation link by updating its destination.
 
 A whole-file link tracks the contents of the target file. A link to a heading in another page tracks that heading and its contents, including nested headings. Directory links without a heading and links within the current page check that the destination exists.
 
-When tracked contents change, Dagdocdiff reports the link in the referring page. Review that page and approve it again.
+When tracked contents change, c-docc reports the link in the referring page. Review that page and approve it again.
 
 ## Common JSON fields
 
 | Field | Meaning |
 | --- | --- |
-| `tool_version` | Release version of Dagdocdiff. |
+| `tool_version` | Release version of c-docc. |
 | `schema_version` | Version of the JSON format. |
 | `clang_version` | Version string from the Clang library used by the analyzer. |
 
@@ -104,7 +104,9 @@ A declaration without a body tracks its own tokens. Changing the definition else
 
 A range combines the declarations and definitions it touches. Each dependency is tracked once, and uncovered lines are tracked as plain text. You can use a range with the same start and end line to track multiple declarations on one line.
 
-The approval file is `.dagdocdiff-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores fingerprints of linked declarations, source text, files, or Markdown headings and any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
+The approval file is `.c-docc-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores fingerprints of linked declarations, source text, files, or Markdown headings and any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
+
+Projects with an existing `.dagdocdiff-approvals.json` can rename it to `.c-docc-approvals.json` to carry their reviews forward. c-docc uses the existing file until the new filename is present.
 
 Passing only the page to `approve` updates all its linked sections and clears approvals for sections or links removed from that page. If any source link in the page fails to resolve, the command leaves the page's approvals as they were.
 

@@ -24,7 +24,7 @@
 #include <filesystem>
 #include <utility>
 
-namespace dagdocdiff {
+namespace c_docc {
 namespace {
 
 namespace fs = std::filesystem;
@@ -433,7 +433,7 @@ std::string resourceDirectory() {
             return bundled.str().str();
     }
 #endif
-    return DAGDOCDIFF_RESOURCE_DIR;
+    return C_DOCC_RESOURCE_DIR;
 }
 
 tooling::CommandLineArguments compilerDefaults(const tooling::CommandLineArguments &args,
@@ -508,4 +508,4 @@ llvm::Expected<Snapshot> analyze(llvm::StringRef sourceRoot, llvm::StringRef bui
     return snapshot;
 }
 
-} // namespace dagdocdiff
+} // namespace c_docc

@@ -1,6 +1,6 @@
-# Dagdocdiff
+# c-docc
 
-Dagdocdiff is a command-line documentation checker for C and C++ projects. It follows source links in Markdown and flags the sections that need review when linked code or a tracked dependency changes.
+c-docc is a command-line documentation checker for C and C++ projects. It follows source links in Markdown and flags the sections that need review when linked code or a tracked dependency changes.
 
 The published Nix package runs from a release tag on Linux.
 
@@ -10,7 +10,7 @@ Quick build from the repository root. The flake pins Clang and LLVM.
 
 ```sh
 nix build path:.
-./result/bin/dagdocdiff --version
+./result/bin/c-docc --version
 ```
 
 ## Documentation
