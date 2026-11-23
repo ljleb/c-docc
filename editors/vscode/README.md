@@ -4,19 +4,18 @@ Review documentation in VS Code’s Source Control view. Dagdocdiff groups files
 
 In C and C++ files, an end-of-line arrow jumps to the Markdown that links to that line. If several links reach the same line, choose one from the list.
 
-## Setup
+## Install the extension
 
-Use a Dagdocdiff build with `check --json`. From the Dagdocdiff checkout, build the CLI in the Nix development shell.
+Download the `.vsix` from the [GitHub releases](https://github.com/ljleb/dagdocdiff/releases). Open the Extensions view in VS Code and select **Install from VSIX…** from the **…** menu. You can also pass the downloaded filename to `code --install-extension` or `codium --install-extension`.
 
-```sh
-nix develop path:. -c cmake -S . -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-nix develop path:. -c cmake --build build
-```
+## Connect a project
 
-To try the extension from source, run `code --extensionDevelopmentPath="$PWD/editors/vscode" "$PWD"` from the checkout. You can also install a packaged `.vsix` from the Extensions view.
+Open a trusted workspace containing a C or C++ project. The extension looks for `compile_commands.json` in `build` or the source directory. It uses the project’s `docs` directory when present.
 
-Open a trusted local workspace containing the C or C++ project. The extension looks for `compile_commands.json` in `build` or the source directory. It uses the binary in the build directory when available, or finds `dagdocdiff` on VS Code's `PATH`. The project’s `docs` directory is the default Markdown directory when present.
+The extension offers to install the Dagdocdiff CLI when it cannot find it. On x64 Windows, a VSIX from a GitHub release offers **Install Dagdocdiff**. It downloads the matching Windows ZIP and verifies its checksum. On x64 or ARM64 Linux, **Install with Nix** uses Nix to fetch or build the selected release. Both options keep the CLI in the extension’s storage.
 
-The `dagdocdiff.executable`, `dagdocdiff.sourceDir`, `dagdocdiff.buildDir`, and `dagdocdiff.docsDir` settings override these paths. Relative settings start at the workspace folder.
+**Later** dismisses the prompt. **Dagdocdiff: Install CLI** in the Command Palette starts the installation on demand.
 
-The extension refreshes after source and Markdown files change on disk. To refresh on demand, use **Dagdocdiff: Check Documentation**. Keep `editor.inlayHints.enabled` on to see the source arrows.
+The extension can also use a CLI that supports `check --json` (Dagdocdiff 1.11.0 or later). It looks in the project’s build directory, the extension’s storage, and then on `PATH`. The `dagdocdiff.executable` setting can select a specific binary. The `dagdocdiff.sourceDir`, `dagdocdiff.buildDir`, and `dagdocdiff.docsDir` settings can select other project directories. Relative paths start at the workspace folder.
+
+The extension refreshes after source and Markdown files change on disk. To refresh on demand, use **Dagdocdiff: Check Documentation**. The source arrows use the editor’s `editor.inlayHints.enabled` setting.

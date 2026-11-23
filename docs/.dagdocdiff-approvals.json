@@ -20,12 +20,12 @@
         "how-to/build-release.md": "bb0ccf4d6f74ad2e26c8a3acddfe1ae6c8313af60be3d69fd092070e2dac1c6e",
         "how-to/compare-revisions.md": "24e3e06cb99b3b3085eddf446977a43f232b988026faa47523cce2d64172651d",
         "how-to/review-linked-docs.md": "6d02e9b026ce3b8a75cbf7f08025abadb2fb1cbc29084bfa0b58daca4e9a1c21",
-        "how-to/scan-repository.md": "9edfb63cc2decf27f251c51f7395d368157083550d0309fe56175a2c6f36e342"
+        "how-to/scan-repository.md": "020cf8a6fb356f116c6b3141159dad2047d4b6e10b9ba529ca42a0f74bb63628"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
+      "reason": "Verified the analyzer links after adding Windows support.",
       "section": "Dagdocdiff documentation / How-to guides",
       "symbols": {},
       "text_hash": "29169a3d5f13ac031bb7e43292b5966b7d6e9e88338f94c0c02ae65215a42fbd"
@@ -46,12 +46,12 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "reference/cli.md": "69d602a0f77394140cbfc4c3111fe7e329f4843f19dbf7b94ae2fc746f0da8a4"
+        "reference/cli.md": "57dd35e1931e16a4cbb6e77600e7cd0a1780bf98f28c9701d62a2ae12d0ea1be"
       },
       "inputs": {},
       "links": {},
       "page": "README.md",
-      "reason": "Verified the CLI reference after adding the JSON interface.",
+      "reason": "Verified the analyzer links after adding Windows support.",
       "section": "Dagdocdiff documentation / Reference",
       "symbols": {},
       "text_hash": "c4b2a0815f4ac1b8b5fd45062bb5c0c56a69a0dcc9a0e03ee615708bc44c3618"
@@ -130,12 +130,12 @@
         "build-release.md": "bb0ccf4d6f74ad2e26c8a3acddfe1ae6c8313af60be3d69fd092070e2dac1c6e",
         "compare-revisions.md": "24e3e06cb99b3b3085eddf446977a43f232b988026faa47523cce2d64172651d",
         "review-linked-docs.md": "6d02e9b026ce3b8a75cbf7f08025abadb2fb1cbc29084bfa0b58daca4e9a1c21",
-        "scan-repository.md": "9edfb63cc2decf27f251c51f7395d368157083550d0309fe56175a2c6f36e342"
+        "scan-repository.md": "020cf8a6fb356f116c6b3141159dad2047d4b6e10b9ba529ca42a0f74bb63628"
       },
       "inputs": {},
       "links": {},
       "page": "how-to/README.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
+      "reason": "Verified the analyzer links after adding Windows support.",
       "section": "How-to guides",
       "symbols": {},
       "text_hash": "a7da553c5590ee87804ea76277ca04b81b962e90624e002ec38210c589745f71"
@@ -157,12 +157,12 @@
       "clang_version": "clang version 23.1.0",
       "file_links": {
         "../reference/cli.md#source-links-and-approvals": "0767638119b3c943059feb214d54791e18988ca16af952724b268b763dd58f9e",
-        "scan-repository.md": "9edfb63cc2decf27f251c51f7395d368157083550d0309fe56175a2c6f36e342"
+        "scan-repository.md": "020cf8a6fb356f116c6b3141159dad2047d4b6e10b9ba529ca42a0f74bb63628"
       },
       "inputs": {},
       "links": {},
       "page": "how-to/review-linked-docs.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
+      "reason": "Verified the analyzer links after adding Windows support.",
       "section": "Code changes and linked docs",
       "symbols": {},
       "text_hash": "9dd135e5cce02b3fa6f9ed2d56bff3964f948a03d0a3d5fbdb809186cdc1b3cf"
@@ -170,7 +170,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "../reference/cli.md#scan-output": "2bcf1113f52e497b904423971e0599f6d396fe7cb493061d52832eba3f3b0c19"
+        "../reference/cli.md#scan-output": "ceae3cb92f91b8cf54fb63f2546da70de6bda028925a30f39c33dcbd0159490a"
       },
       "inputs": {
         "dagdocdiff::Component": "1141f2a4280bcd1b169557e882300c7e50d1066971588447f604b983a54f7431",
@@ -195,27 +195,27 @@
         "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
       },
       "links": {
-        "../../src/Analyzer.cpp#L459": [
+        "../../src/Analyzer.cpp#L476": [
           "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)"
         ]
       },
       "page": "how-to/scan-repository.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
+      "reason": "Verified the analyzer links after adding Windows support.",
       "section": "Dagdocdiff symbol index / Symbol IDs and locations",
       "symbols": {
         "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "eb550ab9cdb036df6c0ef18bec58e4e114dbe12040024ada38da60f9edcb0680"
       },
-      "text_hash": "6569cb5dc6a526dbd1461c5966acc195b9c491c28b6c74eb49a84a5561a44b6b"
+      "text_hash": "349e3dbaab69ae940133cb057a3763604eecf2ced426cc64dfc97fd9672fad69"
     },
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "cli.md": "69d602a0f77394140cbfc4c3111fe7e329f4843f19dbf7b94ae2fc746f0da8a4"
+        "cli.md": "57dd35e1931e16a4cbb6e77600e7cd0a1780bf98f28c9701d62a2ae12d0ea1be"
       },
       "inputs": {},
       "links": {},
       "page": "reference/README.md",
-      "reason": "Verified the CLI reference after adding the JSON interface.",
+      "reason": "Verified the analyzer links after adding Windows support.",
       "section": "Reference",
       "symbols": {},
       "text_hash": "18ed2ae2c19d6593dabf64f1e414b559a9660fb3e8fa7bf5ed3c598b692cc495"
@@ -245,17 +245,17 @@
         "src/Graph.cpp::dagdocdiff::(anonymous namespace)::NodeTraits": "063bf4c3907638c76331bc2823cf39815501de3616f647a3beaf59013dbe687b"
       },
       "links": {
-        "../../src/Analyzer.cpp#L459": [
+        "../../src/Analyzer.cpp#L476": [
           "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)"
         ]
       },
       "page": "reference/cli.md",
-      "reason": "Verified the analyzer changes, updated source anchors, and range documentation.",
+      "reason": "Verified the analyzer links after adding Windows support.",
       "section": "Dagdocdiff v1 command and output reference / Scan output",
       "symbols": {
         "dagdocdiff::analyze(llvm::StringRef, llvm::StringRef)": "eb550ab9cdb036df6c0ef18bec58e4e114dbe12040024ada38da60f9edcb0680"
       },
-      "text_hash": "54035758a143316cd27d73b7b118cee278fdebe2a86f9039254d384a60c19ca7"
+      "text_hash": "3f694a4f818ccfdf013cc854239e06cca5636865bf00bdd8fa33360a52a077ce"
     },
     {
       "clang_version": "clang version 23.1.0",

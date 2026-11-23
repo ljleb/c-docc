@@ -17,6 +17,8 @@ nix build path:.
 
 The [documentation](docs/README.md) includes tutorials, how-to guides, explanation, and reference.
 
+The [VS Code extension](editors/vscode/README.md) brings documentation review and source backlinks into the editor.
+
 ## Roadmap
 
 The [roadmap](ROADMAP.md) lists planned work.

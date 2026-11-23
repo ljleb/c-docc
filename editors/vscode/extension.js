@@ -2,8 +2,9 @@ const { execFile } = require('node:child_process');
 const { existsSync, statSync } = require('node:fs');
 const path = require('node:path');
 const vscode = require('vscode');
+const { CliInstaller, cliFileName } = require('./installer');
 
-function settings(folder) {
+function settings(folder, installer) {
     const root = folder.uri.fsPath;
     const config = vscode.workspace.getConfiguration('dagdocdiff', folder.uri);
     const source = path.resolve(root, config.get('sourceDir'));
@@ -17,10 +18,12 @@ function settings(folder) {
     if (executable.includes('/') || executable.includes('\\')) {
         executable = path.resolve(root, executable);
     }
-    const local = path.join(buildDir, 'dagdocdiff');
+    const local = path.join(buildDir, cliFileName);
+    executable ||= existsSync(local) ? local : installer.executable;
     return {
         source, buildDir, docsDir,
-        executable: executable || (existsSync(local) ? local : 'dagdocdiff'),
+        executable: executable || cliFileName,
+        usePath: !executable,
         configured: Boolean(build) || existsSync(path.join(buildDir, 'compile_commands.json')),
     };
 }
@@ -33,7 +36,7 @@ function runTool(options, command, args, signal) {
             if (!error || typeof error.code === 'number') {
                 resolve({ status: error ? error.code : 0, stdout, stderr });
             } else if (error.code === 'ENOENT') {
-                reject(new Error('Cannot run ' + options.executable + '. Build Dagdocdiff or set dagdocdiff.executable.'));
+                reject(new Error('Cannot run ' + options.executable + '. Build Dagdocdiff or set dagdocdiff.executable.', { cause: error }));
             } else {
                 reject(error);
             }
@@ -88,10 +91,11 @@ function reviewItem(review) {
 }
 
 class Project {
-    constructor(folder, changeHints, log) {
+    constructor(folder, changeHints, log, installer) {
         this.folder = folder;
         this.changeHints = changeHints;
         this.log = log;
+        this.installer = installer;
         this.diagnostics = vscode.languages.createDiagnosticCollection('dagdocdiff');
         this.abort = new AbortController();
         this.references = new Map();
@@ -119,8 +123,9 @@ class Project {
 
         this.running = true;
         const revision = this.revision;
+        let options;
         try {
-            const options = settings(this.folder);
+            options = settings(this.folder, this.installer);
             if (!options.configured) {
                 this.scm?.dispose();
                 this.scm = undefined;
@@ -146,6 +151,10 @@ class Project {
             if (revision === this.revision && !this.abort.signal.aborted) {
                 this.apply(undefined);
                 this.log.appendLine(this.folder.name + ': ' + error.message);
+                if (error.cause?.code === 'ENOENT' && options?.usePath && existsSync(options.source) && this.installer.supported) {
+                    void this.installer.offer();
+                    return;
+                }
                 if (this.lastError !== error.message) {
                     this.lastError = error.message;
                     void vscode.window.showWarningMessage('Dagdocdiff: ' + error.message, 'Show Log').then(action => {
@@ -301,7 +310,7 @@ function activate(context) {
     };
     const add = folder => {
         if (folder.uri.scheme === 'file') {
-            const project = new Project(folder, changeHints, log);
+            const project = new Project(folder, changeHints, log, installer);
             projects.set(folder.uri.toString(), project);
             project.schedule(0);
         }
@@ -311,6 +320,7 @@ function activate(context) {
             project.schedule(0);
         }
     };
+    const installer = new CliInstaller(context, log, scheduleAll);
     const reportError = async work => {
         try {
             await work();
@@ -323,7 +333,7 @@ function activate(context) {
     const fileChanged = uri => projectFor(uri)?.schedule();
     context.subscriptions.push(
         { dispose: () => { for (const project of projects.values()) { project.dispose(); } } },
-        changeHints, log, watcher,
+        changeHints, log, watcher, installer,
         watcher.onDidCreate(fileChanged), watcher.onDidChange(fileChanged), watcher.onDidDelete(fileChanged),
         vscode.workspace.onDidSaveTextDocument(document => fileChanged(document.uri)),
         vscode.workspace.onDidChangeConfiguration(event => {
@@ -341,6 +351,7 @@ function activate(context) {
         }),
         vscode.workspace.onDidGrantWorkspaceTrust(scheduleAll),
         vscode.commands.registerCommand('dagdocdiff.refresh', scheduleAll),
+        vscode.commands.registerCommand('dagdocdiff.install', () => installer.install()),
         vscode.commands.registerCommand('dagdocdiff.openReview', (key, reviews) =>
             reportError(() => projects.get(key)?.openReview(reviews))),
         vscode.commands.registerCommand('dagdocdiff.approve', (...resources) => reportError(async () => {

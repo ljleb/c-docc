@@ -55,7 +55,7 @@
           inherit (tools) pkgs llvm;
         in {
           default = pkgs.mkShell {
-            packages = tools.buildTools ++ tools.libraries ++ [ llvm.llvm ];
+            packages = tools.buildTools ++ tools.libraries ++ [ llvm.llvm pkgs.nodejs pkgs.vsce ];
             shellHook = ''
               export CC=${llvm.clang}/bin/clang
               export CXX=${llvm.clang}/bin/clang++

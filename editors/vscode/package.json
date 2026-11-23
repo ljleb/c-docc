@@ -2,6 +2,7 @@
   "name": "dagdocdiff",
   "displayName": "Dagdocdiff",
   "publisher": "ljleb",
+  "license": "MIT",
   "version": "0.1.0",
   "description": "Review C and C++ documentation from Source Control and navigate from code to its referring docs.",
   "engines": {
@@ -11,6 +12,9 @@
     "Other"
   ],
   "main": "./extension.js",
+  "scripts": {
+    "vscode:prepublish": "node -e \"require('node:fs').copyFileSync('../../LICENSE', 'LICENSE')\""
+  },
   "extensionKind": [
     "workspace"
   ],
@@ -43,6 +47,11 @@
         "title": "Approve Documentation…",
         "category": "Dagdocdiff",
         "icon": "$(check)"
+      },
+      {
+        "command": "dagdocdiff.install",
+        "title": "Install CLI",
+        "category": "Dagdocdiff"
       }
     ],
     "menus": {
@@ -68,7 +77,7 @@
           "type": "string",
           "default": "",
           "scope": "resource",
-          "description": "Path to Dagdocdiff relative to this workspace folder, or a command on PATH. When empty, use the binary in the build directory if it exists, otherwise use dagdocdiff on PATH."
+          "description": "Path to Dagdocdiff relative to this workspace folder, or a command on PATH. When empty, look in the build directory, the extension’s storage, and then on PATH."
         },
         "dagdocdiff.sourceDir": {
           "type": "string",
@@ -90,5 +99,12 @@
         }
       }
     }
-  }
+  },
+  "dagdocdiffFlake": "github:ljleb/dagdocdiff/1.11.0",
+  "files": [
+    "extension.js",
+    "installer.js",
+    "windows-installer.js",
+    "LICENSE"
+  ]
 }

@@ -65,16 +65,89 @@ jobs:
           EOF
           tar -C "$RUNNER_TEMP" -czf "dist/$bundle.tar.gz" "$bundle"
 
+      - name: Package VS Code extension
+        if: matrix.system == 'x86_64-linux'
+        shell: bash
+        run: |
+          checkout="$PWD"
+          staging="$RUNNER_TEMP/dagdocdiff-vsix"
+          editor="$staging/editors/vscode"
+          mkdir -p "$editor" dist
+          cp LICENSE "$staging/LICENSE"
+          cp -R editors/vscode/. "$editor"
+          jq --arg version "$GITHUB_REF_NAME" --arg flake "github:$GITHUB_REPOSITORY/$GITHUB_SHA" \
+            --arg windows_release "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME" \
+            '.version = $version | .dagdocdiffFlake = $flake | .dagdocdiffWindowsRelease = $windows_release' \
+            editors/vscode/package.json > "$editor/package.json"
+          cd "$editor"
+          nix shell --inputs-from "git+file://$checkout" nixpkgs#vsce nixpkgs#nodejs --command vsce package \
+            --no-dependencies --out "$checkout/dist/dagdocdiff-$GITHUB_REF_NAME.vsix"
+
       - uses: actions/upload-artifact@v7
         with:
           name: dagdocdiff-${{ matrix.system }}
-          path: dist/*.tar.gz
+          path: |
+            dist/*.tar.gz
+            dist/*.vsix
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
+
+  build-windows:
+    if: ${{ !github.event.deleted }}
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          pacboy: >-
+            clang:p
+            clang-tools-extra:p
+            libc++:p
+            llvm:p
+            cmake:p
+            ninja:p
+            cmark:p
+            libutf8proc:p
+
+      - name: Build, test, and package
+        run: |
+          test "$(tr -d '\r' < VERSION)" = "$GITHUB_REF_NAME"
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_PREFIX_PATH="$(cygpath -m "$MINGW_PREFIX")"
+          cmake --build build --parallel 2
+          ctest --test-dir build --output-on-failure
+
+          bundle="dagdocdiff-$GITHUB_REF_NAME-x86_64-windows"
+          staging="$(cygpath -u "$RUNNER_TEMP")/$bundle"
+          cmake --install build --prefix "$staging"
+          cp -R "$MINGW_PREFIX/share/licenses" "$staging/licenses"
+          test "$(PATH=/usr/bin "$staging/bin/dagdocdiff.exe" --version | tr -d '\r')" = "dagdocdiff $GITHUB_REF_NAME"
+
+          mkdir -p dist
+          output="$PWD/dist/$bundle.zip"
+          cd "$(dirname "$staging")"
+          cmake -E tar cf "$output" --format=zip "$bundle"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dagdocdiff-x86_64-windows
+          path: dist/*.zip
           if-no-files-found: error
           compression-level: 0
           overwrite: true
 
   publish:
-    needs: build
+    needs: [build, build-windows]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -93,9 +166,10 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           tag="$GITHUB_REF_NAME"
-          assets=("dagdocdiff-$tag-x86_64-linux.tar.gz" "dagdocdiff-$tag-aarch64-linux.tar.gz")
+          assets=("dagdocdiff-$tag-x86_64-linux.tar.gz" "dagdocdiff-$tag-aarch64-linux.tar.gz"
+                  "dagdocdiff-$tag-x86_64-windows.zip" "dagdocdiff-$tag.vsix")
           sha256sum "${assets[@]}" > SHA256SUMS
-          printf -v notes 'Run with Nix using %s. Each Linux archive includes the runtime dependencies and import instructions.' "\`nix run github:$GH_REPO/$tag\`"
+          printf -v notes 'Run with Nix using %s. Each Linux archive includes the runtime dependencies and import instructions. On Windows x64, extract the ZIP and run bin/dagdocdiff.exe. Install the VS Code extension from the .vsix file.' "\`nix run github:$GH_REPO/$tag\`"
 
           if draft=$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null); then
             gh release upload "$tag" "${assets[@]}" SHA256SUMS --clobber

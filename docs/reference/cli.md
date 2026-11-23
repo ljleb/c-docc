@@ -68,7 +68,7 @@ A location object has a path in `file`, relative to the source root, and one-bas
 
 ## Scan output
 
-[`analyze`](../../src/Analyzer.cpp#L459) produces the symbols and findings for the given source root and build directory. The scan response contains `symbols`, `findings`, and `declarations`. Each declaration has a `location` and an array of `ids`.
+[`analyze`](../../src/Analyzer.cpp#L476) produces the symbols and findings for the given source root and build directory. The scan response contains `symbols`, `findings`, and `declarations`. Each declaration has a `location` and an array of `ids`.
 
 | Symbol field | Meaning |
 | --- | --- |

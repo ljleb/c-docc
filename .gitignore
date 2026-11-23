@@ -1,3 +1,5 @@
 /.direnv/
 /build/
 /result
+/editors/vscode/LICENSE
+*.vsix

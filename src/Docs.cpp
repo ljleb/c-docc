@@ -87,7 +87,7 @@ llvm::Error error(const llvm::Twine &message) {
 }
 
 llvm::Error fileError(const fs::path &path, std::error_code code) {
-    return llvm::createStringError(code, "%s: %s", path.c_str(), code.message().c_str());
+    return llvm::createStringError(code, "%s: %s", path.string().c_str(), code.message().c_str());
 }
 
 bool inside(const fs::path &path, const fs::path &root) {
@@ -366,7 +366,7 @@ public:
             return error("invalid encoding in local link: " + url);
 
         const fs::path path(*decoded);
-        const auto base = path.is_absolute() ? source : page.parent_path();
+        const auto base = (decoded->starts_with('/') || path.is_absolute()) ? source : page.parent_path();
         std::error_code ec;
         auto target = fs::weakly_canonical(path.empty() ? page : base / path.relative_path(), ec);
         if (ec || !inside(target, source))

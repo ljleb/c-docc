@@ -13,9 +13,12 @@
 #include "clang/Tooling/Syntax/Tokens.h"
 #include "clang/Tooling/Tooling.h"
 #include "llvm/ADT/STLExtras.h"
+#include "llvm/ADT/SmallString.h"
 #include "llvm/Support/Allocator.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Support/FileSystem.h"
 #include "llvm/Support/MemoryBuffer.h"
+#include "llvm/Support/Path.h"
 #include "llvm/Support/StringSaver.h"
 
 #include <filesystem>
@@ -420,9 +423,23 @@ private:
     Snapshot &snapshot_;
 };
 
+std::string resourceDirectory() {
+#ifdef _WIN32
+    const auto executable = llvm::sys::fs::getMainExecutable(nullptr, nullptr);
+    if (!executable.empty()) {
+        llvm::SmallString<256> bundled(llvm::sys::path::parent_path(executable));
+        llvm::sys::path::append(bundled, "clang-resource");
+        if (llvm::sys::fs::is_directory(bundled))
+            return bundled.str().str();
+    }
+#endif
+    return DAGDOCDIFF_RESOURCE_DIR;
+}
+
 tooling::CommandLineArguments compilerDefaults(const tooling::CommandLineArguments &args,
                                                llvm::StringRef) {
-    tooling::CommandLineArguments adjusted{args.front(), "-resource-dir=" DAGDOCDIFF_RESOURCE_DIR};
+    static const auto resourceArgument = "-resource-dir=" + resourceDirectory();
+    tooling::CommandLineArguments adjusted{args.front(), resourceArgument};
     if (llvm::StringRef(args.front()).starts_with("/nix/store/")) {
         // LibTooling opens an in-process Clang driver, so the Nix wrapper's
         // shell script does not add its standard library flags.

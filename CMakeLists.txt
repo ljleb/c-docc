@@ -20,14 +20,19 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
     COMMAND_ERROR_IS_FATAL ANY
 )
+if(WIN32)
+    file(TO_CMAKE_PATH "${DAGDOCDIFF_RESOURCE_DIR}" DAGDOCDIFF_RESOURCE_DIR)
+endif()
 
 add_executable(dagdocdiff src/main.cpp src/Analyzer.cpp src/Graph.cpp src/Docs.cpp)
 target_compile_features(dagdocdiff PRIVATE cxx_std_20)
-# Keep these paths in compile_commands.json when the Nix wrapper adds them implicitly.
-list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS})
+if(NOT WIN32)
+    # Keep these paths in compile_commands.json when the Nix wrapper adds them implicitly.
+    list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES
+        ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS} "${CMARK_INCLUDE_DIR}" "${UTF8PROC_INCLUDE_DIR}")
+endif()
 target_include_directories(dagdocdiff SYSTEM PRIVATE ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS})
 target_include_directories(dagdocdiff SYSTEM PRIVATE "${CMARK_INCLUDE_DIR}" "${UTF8PROC_INCLUDE_DIR}")
-list(REMOVE_ITEM CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "${CMARK_INCLUDE_DIR}" "${UTF8PROC_INCLUDE_DIR}")
 target_link_libraries(dagdocdiff PRIVATE "${CMARK_LIBRARY}" "${UTF8PROC_LIBRARY}")
 target_compile_definitions(dagdocdiff PRIVATE
     DAGDOCDIFF_RESOURCE_DIR="${DAGDOCDIFF_RESOURCE_DIR}"
@@ -38,7 +43,20 @@ if(TARGET clang-cpp AND TARGET LLVM)
 else()
     target_link_libraries(dagdocdiff PRIVATE clangTooling clangToolingSyntax LLVMSupport)
 endif()
-install(TARGETS dagdocdiff RUNTIME DESTINATION bin)
+if(WIN32 AND NOT CMAKE_CROSSCOMPILING)
+    get_filename_component(DAGDOCDIFF_TOOLCHAIN_BIN "${DAGDOCDIFF_CLANG}" DIRECTORY)
+    install(TARGETS dagdocdiff
+        RUNTIME_DEPENDENCIES
+            DIRECTORIES "${DAGDOCDIFF_TOOLCHAIN_BIN}"
+            PRE_EXCLUDE_REGEXES "^(api|ext)-ms-"
+            POST_EXCLUDE_REGEXES "[/\\\\][Ss][Yy][Ss][Tt][Ee][Mm]32[/\\\\]"
+        RUNTIME DESTINATION bin
+    )
+    install(DIRECTORY "${DAGDOCDIFF_RESOURCE_DIR}/include" DESTINATION bin/clang-resource)
+    install(FILES LICENSE DESTINATION .)
+else()
+    install(TARGETS dagdocdiff RUNTIME DESTINATION bin)
+endif()
 
 # Include tutorial declarations in the compilation database for documentation checks.
 add_library(dagdocdiff-tutorial-examples OBJECT EXCLUDE_FROM_ALL
