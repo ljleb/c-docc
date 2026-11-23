@@ -18,13 +18,10 @@ function(run_interactive answers expected)
     endif()
 endfunction()
 
-file(REMOVE_RECURSE "${WORK_DIR}/navigation" "${WORK_DIR}/ranges")
+file(REMOVE_RECURSE "${WORK_DIR}/navigation" "${WORK_DIR}/ranges" "${WORK_DIR}/markdown-edits")
 file(MAKE_DIRECTORY "${WORK_DIR}/docs" "${WORK_DIR}/build")
 set(approval_file "${WORK_DIR}/docs/.c-docc-approvals.json")
-set(legacy_approval_file "${WORK_DIR}/docs/.dagdocdiff-approvals.json")
-file(REMOVE "${approval_file}" "${legacy_approval_file}"
-    "${WORK_DIR}/.c-docc-approvals.json" "${WORK_DIR}/.dagdocdiff-approvals.json"
-    "${WORK_DIR}/compile_commands.json")
+file(REMOVE "${approval_file}" "${WORK_DIR}/.c-docc-approvals.json" "${WORK_DIR}/compile_commands.json")
 file(WRITE "${WORK_DIR}/api.hpp" [=[
 namespace demo {
 int parse(int);
@@ -74,19 +71,12 @@ please](../a.cpp#L4).
 file(WRITE "${page}" "${markdown}")
 
 run_cli(2 "missing value for --build-dir" check --build-dir)
-run_cli(1 "approval required" check ${path_options})
+run_cli(0 "Approved documentation sections: 2" check ${path_options})
 run_cli(0 "Recorded review for guide.md" approve ./guide.md ${path_options})
 run_cli(0 "Approved documentation sections: 2\n  guide.md:3: Guide / Header\n  guide.md:7: Guide / Result\n"
     check ${path_options})
 run_cli(0 "Recorded review" approve ${path_options} --reason "Reviewed the caller" guide.md "Guide / Result")
 run_cli(0 "Approved documentation sections: 2" check ${path_options})
-file(RENAME "${approval_file}" "${legacy_approval_file}")
-run_cli(0 "Approved documentation sections: 2" check ${path_options})
-run_cli(0 "Recorded review" approve ${path_options} --reason "Reviewed the caller" guide.md "Guide / Result")
-if(EXISTS "${approval_file}")
-    message(FATAL_ERROR "Updating existing approvals created a second approval file")
-endif()
-file(RENAME "${legacy_approval_file}" "${approval_file}")
 file(READ "${approval_file}" approvals)
 string(JSON header_reason GET "${approvals}" sections 0 reason)
 string(JSON result_reason GET "${approvals}" sections 1 reason)
@@ -140,10 +130,8 @@ run_cli(0 "Recorded review for guide.md" approve guide.md ${path_options})
 run_cli(0 "Approved documentation sections: 2" check ${path_options})
 
 file(WRITE "${page}" "# Guide\n\nThe linked sections were removed.\n")
-run_cli(1 "approved section or its tracked links were removed" check ${path_options})
-run_cli(0 "Recorded review" approve ${path_options} guide.md "Guide / Header")
-run_interactive("y\n" "approve the removal.*Recorded review for guide.md / Guide / Result")
 run_cli(0 "Approved documentation sections: 0" check ${path_options})
+run_interactive("" "No sections need approval")
 
 file(WRITE "${page}" "${markdown}")
 run_cli(0 "Recorded review for guide.md" approve guide.md ${path_options})
@@ -153,7 +141,7 @@ run_cli(0 "Approved documentation sections: 0" check ${path_options})
 
 file(COPY "${WORK_DIR}/build/compile_commands.json" DESTINATION "${WORK_DIR}")
 file(WRITE "${WORK_DIR}/local.md" "# Local\n\n[Parse integer input](api.hpp#L2).\n")
-run_cli(1 "approval required" check)
+run_cli(0 "Approved documentation sections: 1" check)
 run_cli(0 "Recorded review for local.md / Local" approve local.md Local)
 run_cli(0 "Approved documentation sections: 1" check)
 
@@ -198,14 +186,14 @@ set(navigation_page [=[
 [Topics directory](topics/).
 ]=])
 file(WRITE "${navigation}/README.md" "${navigation_page}")
-run_cli(1 "approval required" check --docs-dir navigation)
+run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
 execute_process(COMMAND "${PROGRAM}" check --json --source-dir "${WORK_DIR}" --build-dir build --docs-dir navigation
     WORKING_DIRECTORY "${WORK_DIR}" RESULT_VARIABLE status OUTPUT_VARIABLE link_report)
 string(JSON heading_file GET "${link_report}" file_references 1 file)
 string(JSON heading_line GET "${link_report}" file_references 1 first_line)
 string(JSON whole_file GET "${link_report}" file_references 4 file)
 string(JSON whole_line GET "${link_report}" file_references 4 first_line)
-if(NOT status EQUAL 1 OR NOT heading_file STREQUAL "navigation/topics/Build notes.md" OR NOT heading_line EQUAL 3
+if(NOT status EQUAL 0 OR NOT heading_file STREQUAL "navigation/topics/Build notes.md" OR NOT heading_line EQUAL 3
    OR NOT whole_file STREQUAL heading_file OR NOT whole_line EQUAL 1)
     message(FATAL_ERROR "Expected resolved heading and whole-file destinations:\n${link_report}")
 endif()
@@ -232,7 +220,7 @@ run_cli(1 [=[README[.]md:5: Start here: "Other page": local link target does not
     check --docs-dir navigation)
 string(REPLACE "Build%20notes.md" "Getting%20started.md" updated_navigation "${navigation_page}")
 file(WRITE "${navigation}/README.md" "${updated_navigation}")
-run_cli(1 "approval lacks a fingerprint" check --docs-dir navigation)
+run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
 run_cli(0 "Recorded review for README.md" approve README.md --docs-dir navigation)
 run_cli(0 "Approved documentation sections: 2" check --docs-dir navigation)
 
@@ -283,8 +271,8 @@ file(WRITE "${ranges}/compile_commands.json"
 set(span_options --source-dir "${ranges}" --build-dir "${ranges}" --docs-dir "${ranges}/docs")
 execute_process(COMMAND "${PROGRAM}" check --json ${span_options}
     RESULT_VARIABLE status OUTPUT_VARIABLE json_report ERROR_VARIABLE diagnostics)
-if(NOT status EQUAL 1)
-    message(FATAL_ERROR "Expected pending JSON review status: ${status} ${diagnostics}")
+if(NOT status EQUAL 0)
+    message(FATAL_ERROR "Expected a successful initial JSON review status: ${status} ${diagnostics}")
 endif()
 string(JSON schema GET "${json_report}" schema_version)
 string(JSON pending LENGTH "${json_report}" pending)
@@ -292,7 +280,7 @@ string(JSON reference_file GET "${json_report}" references 4 file)
 string(JSON first_line GET "${json_report}" references 4 first_line)
 string(JSON last_line GET "${json_report}" references 4 last_line)
 string(JSON page GET "${json_report}" references 4 page)
-if(NOT schema EQUAL 1 OR NOT pending EQUAL 3 OR NOT reference_file STREQUAL "spans.cpp"
+if(NOT schema EQUAL 1 OR NOT pending EQUAL 0 OR NOT reference_file STREQUAL "spans.cpp"
    OR NOT first_line EQUAL 12 OR NOT last_line EQUAL 16 OR NOT page STREQUAL "guide.md")
     message(FATAL_ERROR "Unexpected range backlink in JSON report: ${json_report}")
 endif()
@@ -326,3 +314,62 @@ run_cli(0 "Approved documentation sections: 3" check ${span_options})
 file(APPEND "${ranges}/docs/guide.md" "\n[Reversed](../spans.cpp#L12-L10).\n[Past EOF](../spans.cpp#L12-L100).\n")
 run_cli(1 [=["Reversed": expected a source link.*"Past EOF": source link goes beyond the end of the file]=]
     check ${span_options})
+
+set(edits "${WORK_DIR}/markdown-edits")
+file(MAKE_DIRECTORY "${edits}/more/nested")
+file(WRITE "${edits}/answer.c" "int answer(void) { return 1; }\n")
+file(WRITE "${edits}/compile_commands.json"
+    "[{\"directory\":\"${edits}\",\"file\":\"${edits}/answer.c\",\"arguments\":[\"${CLANG}\",\"-std=c17\",\"-c\",\"${edits}/answer.c\"]}]\n")
+set(edit_options --source-dir "${edits}" --build-dir "${edits}" --docs-dir "${edits}")
+set(guide "${edits}/guide.md")
+set(notes "# Notes\n\n[The value](answer.c#L1) is described here.\n")
+file(WRITE "${guide}" "# Original title\n\n[Answer](answer.c#L1) returns 1.\n\n${notes}")
+file(WRITE "${edits}/follow.md" "# Follow-up\n\n[The guide](guide.md) covers the answer.\n")
+file(WRITE "${edits}/more/nested/example.md" "# Example\n\n[Answer](../../answer.c#L1) returns 1.\n")
+file(WRITE "${edits}/broken.md" "# Broken\n\n[Missing example](missing.md).\n")
+run_cli(1 [=["Missing example": local link target does not exist: missing.md]=] check ${edit_options})
+file(READ "${edits}/.c-docc-approvals.json" initialized)
+string(JSON initialized_count LENGTH "${initialized}" sections)
+if(NOT initialized_count EQUAL 4)
+    message(FATAL_ERROR "Expected first check to record only sections with valid links")
+endif()
+file(REMOVE "${edits}/broken.md")
+run_cli(0 "Approved documentation sections: 4" check ${edit_options})
+
+file(WRITE "${edits}/answer.c" "int answer(void) { return 2; }\n")
+run_cli(1 [=[guide[.]md:3: Original title: "Answer": code changed: answer]=] check ${edit_options})
+file(WRITE "${guide}" "# Updated title\n\nThe [answer](answer.c#L1) is 2.\n\n${notes}")
+execute_process(COMMAND "${PROGRAM}" check --json ${edit_options}
+    RESULT_VARIABLE status OUTPUT_VARIABLE edit_report)
+string(JSON edit_count LENGTH "${edit_report}" pending)
+string(JSON referring_page GET "${edit_report}" pending 0 page)
+string(JSON referring_issue GET "${edit_report}" pending 0 issues 0 message)
+string(JSON untouched GET "${edit_report}" pending 1 section)
+if(NOT status EQUAL 1 OR NOT edit_count EQUAL 3 OR NOT referring_page STREQUAL "follow.md" OR
+   NOT referring_issue MATCHES "linked file changed" OR NOT untouched STREQUAL "Notes")
+    message(FATAL_ERROR "Expected only untouched sections to need review:\n${edit_report}")
+endif()
+
+file(WRITE "${edits}/answer.c" "int answer(void) { return 3; }\n")
+run_cli(1 [=[guide[.]md:3: Updated title: "answer": code changed: answer]=] check ${edit_options})
+run_cli(0 "Recorded review for guide.md" approve guide.md ${edit_options})
+run_cli(0 "Recorded review for follow.md" approve follow.md ${edit_options})
+run_cli(0 "Recorded review for more/nested/example.md" approve more/nested/example.md ${edit_options})
+run_cli(0 "Approved documentation sections: 4" check ${edit_options})
+
+run_cli(2 "invalidate requires a Markdown file or directory" invalidate ${edit_options})
+run_cli(0 "Invalidated documentation sections: 2" invalidate guide.md ${edit_options})
+run_cli(1 "Updated title: approval manually invalidated.*Notes: approval manually invalidated" check ${edit_options})
+file(WRITE "${guide}" "# Updated title\n\nThe [answer](answer.c#L1) is 3.\n\n${notes}")
+run_cli(1 "Notes: approval manually invalidated" check ${edit_options})
+run_cli(0 "Recorded review for guide.md" approve guide.md ${edit_options})
+run_cli(0 "Recorded review for follow.md" approve follow.md ${edit_options})
+run_cli(0 "Invalidated documentation sections: 1" invalidate more ${edit_options})
+run_cli(1 "more/nested/example.md:1: Example: approval manually invalidated" check ${edit_options})
+run_cli(0 "Recorded review for more/nested/example.md" approve more/nested/example.md ${edit_options})
+run_cli(0 "Approved documentation sections: 4" check ${edit_options})
+
+file(WRITE "${edits}/new.md" "# New note\n\n[Answer](answer.c#L1) returns 3.\n")
+run_cli(0 "Approved documentation sections: 5" check ${edit_options})
+file(REMOVE "${edits}/new.md")
+run_cli(0 "Approved documentation sections: 4" check ${edit_options})

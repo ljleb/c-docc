@@ -69,13 +69,7 @@ Switch to your example folder in the shell that Nix opened. Use `pwd` to find th
 
 ## An approved starting point
 
-Two days for sorting plus one for delivery matches the guide's estimate of three business days. Approve the guide in `delivery.md`.
-
-```sh
-c-docc approve delivery.md
-```
-
-You should see `Recorded review for delivery.md`. Run c-docc against the guide to see the starting result.
+Two days for sorting plus one for delivery matches the guide's estimate of three business days. Run c-docc to record the guide and its linked code as the starting point.
 
 ```sh
 c-docc check
@@ -106,13 +100,7 @@ The report starts at the guide's link on line 3. The arrow shows the call from `
 
 ## Two days in the guide
 
-In `delivery.md`, change “3 business days” to “2 business days” and keep the link to `delivery_estimate_days`. Save the guide and approve the updated file.
-
-```sh
-c-docc approve delivery.md
-```
-
-You should see `Recorded review for delivery.md` again. Run c-docc once more against the updated guide.
+In `delivery.md`, change “3 business days” to “2 business days” and keep the link to `delivery_estimate_days`. Save the guide and run the check so c-docc can record the edit.
 
 ```sh
 c-docc check

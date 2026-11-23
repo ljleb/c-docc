@@ -89,7 +89,8 @@ void usage(llvm::raw_ostream &out) {
         << "  c-docc check [options] [--json]\n"
         << "  c-docc approve [options] [--reason <text>]\n"
         << "  c-docc approve <page> [<section>] [options] [--reason <text>]\n"
-        << "\nOptions for check and approve (each path defaults to the current directory):\n"
+        << "  c-docc invalidate <file-or-directory> [options]\n"
+        << "\nOptions for check, approve, and invalidate (each path defaults to the current directory):\n"
         << "  --source-dir <path>  Source directory\n"
         << "  --build-dir <path>    Directory containing compile_commands.json\n"
         << "  --docs-dir <path>    Markdown directory\n";
@@ -108,6 +109,7 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
     }
 
     const bool approve = command == "approve";
+    const bool invalidate = command == "invalidate";
     llvm::StringRef source = ".", build = ".", docs = ".", reason;
     bool json = false;
     llvm::SmallVector<llvm::StringRef, 2> positional;
@@ -123,7 +125,7 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
             continue;
         }
 
-        if (!approve && arg == "--json") {
+        if (command == "check" && arg == "--json") {
             json = true;
             continue;
         }
@@ -147,6 +149,12 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
     }
     if (approve && positional.size() > 2)
         return usageError("approve accepts a page and an optional section");
+    if (invalidate) {
+        if (positional.size() != 1)
+            return usageError("invalidate requires a Markdown file or directory");
+        auto result = invalidateDocs(source, build, docs, positional[0]);
+        return result ? fail(std::move(result)) : 0;
+    }
     if (!approve && !positional.empty())
         return usageError("check takes no positional arguments");
 
@@ -195,7 +203,7 @@ int main(int argc, char **argv) {
         print(diffJson(*base, *head));
         return 0;
     }
-    if (command == "check" || command == "approve")
+    if (command == "check" || command == "approve" || command == "invalidate")
         return docsCommand(command, llvm::ArrayRef(argv + 2, argc - 2));
     usage(llvm::errs());
     return 2;

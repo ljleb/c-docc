@@ -49,12 +49,23 @@
         "icon": "$(check)"
       },
       {
+        "command": "c-docc.invalidate",
+        "title": "Invalidate Documentation",
+        "category": "c-docc"
+      },
+      {
         "command": "c-docc.install",
         "title": "Install CLI",
         "category": "c-docc"
       }
     ],
     "menus": {
+      "explorer/context": [
+        {
+          "command": "c-docc.invalidate",
+          "when": "resourceScheme == file && (explorerResourceIsFolder || resourceExtname == .md || resourceExtname == .markdown)"
+        }
+      ],
       "scm/title": [
         {
           "command": "c-docc.refresh",
@@ -100,7 +111,7 @@
       }
     }
   },
-  "dagdocdiffFlake": "github:ljleb/c-docc/0.0.1",
+  "cDoccFlake": "github:ljleb/c-docc/0.0.1",
   "files": [
     "extension.js",
     "installer.js",

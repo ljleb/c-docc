@@ -13,4 +13,7 @@ llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::Str
 llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
                         llvm::StringRef page, llvm::StringRef section, llvm::StringRef reason);
 
+llvm::Error invalidateDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
+                           llvm::StringRef path);
+
 } // namespace c_docc

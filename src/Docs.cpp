@@ -78,6 +78,7 @@ struct Review {
     Hashes fileLinks;
     Hashes declarationLinks;
     Hashes sourceTextLinks;
+    bool invalidated = false;
 
     bool operator==(const Review &) const = default;
 };
@@ -227,7 +228,7 @@ public:
         }
 
         if (!declarations.empty()) {
-            Fingerprint hash("dagdocdiff.linked-declarations.v1");
+            Fingerprint hash("c-docc.linked-declarations.v1");
             for (const auto &[id, fingerprint] : declarations) {
                 hash.add(id);
                 hash.add(fingerprint);
@@ -235,7 +236,7 @@ public:
             link.declarations = hash.finish();
         }
         if (llvm::is_contained(covered, false)) {
-            Fingerprint hash("dagdocdiff.linked-source-text.v1");
+            Fingerprint hash("c-docc.linked-source-text.v1");
             hash.add(relative);
             for (size_t i = 0; i < covered.size(); ++i) {
                 if (covered[i])
@@ -308,7 +309,7 @@ std::string headingSlug(llvm::StringRef heading) {
 }
 
 std::string contentFingerprint(llvm::StringRef path, llvm::StringRef text) {
-    Fingerprint hash("dagdocdiff.linked-content.v1");
+    Fingerprint hash("c-docc.linked-content.v1");
     hash.add(path);
     hash.add(text);
     return hash.finish();
@@ -505,7 +506,7 @@ llvm::Error readPage(const fs::path &page, const fs::path &docs, Sections &secti
     auto finish = [&](size_t end) -> llvm::Error {
         if (section.occurrences.empty() && section.fileOccurrences.empty() && section.issues.empty())
             return llvm::Error::success();
-        Fingerprint hash("dagdocdiff.doc-section.v1");
+        Fingerprint hash("c-docc.doc-section.v1");
         hash.add(text.slice(starts.at(section.line - 1), end));
         section.textHash = hash.finish();
         if (!sections.try_emplace({relative, name}, std::move(section)).second)
@@ -584,20 +585,11 @@ bool readLinks(const json::Object *object, Links &links) {
     return true;
 }
 
-fs::path approvalPath(const fs::path &docs) {
-    const auto path = docs / approvalName;
-    std::error_code ec;
-    if (fs::exists(path, ec) || ec)
-        return path;
-    const auto previous = docs / ".dagdocdiff-approvals.json";
-    return fs::exists(previous, ec) || ec ? previous : path;
-}
-
-llvm::Expected<Reviews> loadReviews(const fs::path &path) {
+llvm::Expected<std::optional<Reviews>> loadReviews(const fs::path &path) {
     auto buffer = llvm::MemoryBuffer::getFile(path.string());
     if (!buffer) {
         if (buffer.getError() == std::errc::no_such_file_or_directory)
-            return Reviews{};
+            return std::optional<Reviews>{};
         return fileError(path, buffer.getError());
     }
     auto value = json::parse((*buffer)->getBuffer());
@@ -621,6 +613,12 @@ llvm::Expected<Reviews> loadReviews(const fs::path &path) {
         if (!page || !section || !text || !clang || !reason)
             return error("incomplete approval in " + path.string());
         Review review{text->str(), clang->str(), reason->str(), {}, {}, {}, {}, {}, {}};
+        if (entry->get("invalidated")) {
+            const auto invalidated = entry->getBoolean("invalidated");
+            if (!invalidated)
+                return error("invalid review state for " + *page + " / " + *section);
+            review.invalidated = *invalidated;
+        }
         const auto *fileLinks = entry->get("file_links");
         const auto *declarationLinks = entry->get("declaration_links");
         const auto *sourceTextLinks = entry->get("source_text_links");
@@ -633,7 +631,7 @@ llvm::Expected<Reviews> loadReviews(const fs::path &path) {
             !result.try_emplace({page->str(), section->str()}, std::move(review)).second)
             return error("invalid or duplicate approval for " + *page + " / " + *section);
     }
-    return result;
+    return std::optional<Reviews>(std::move(result));
 }
 
 json::Object hashesJson(const Hashes &hashes) {
@@ -655,6 +653,8 @@ llvm::Error saveReviews(const fs::path &path, const Reviews &reviews) {
             {"links", std::move(links)}, {"symbols", hashesJson(review.symbols)},
             {"inputs", hashesJson(review.inputs)}
         };
+        if (review.invalidated)
+            entry["invalidated"] = true;
         if (!review.fileLinks.empty())
             entry["file_links"] = hashesJson(review.fileLinks);
         if (!review.declarationLinks.empty())
@@ -698,7 +698,7 @@ Review currentReview(const Section &section, const Snapshot &snapshot, llvm::Str
         const auto symbol = snapshot.symbols.find(id);
         if (symbol == snapshot.symbols.end())
             continue;
-        Fingerprint hash("dagdocdiff.review-input.v1");
+        Fingerprint hash("c-docc.review-input.v1");
         hash.add(symbol->second.localHash);
         for (const auto &edge : symbol->second.dependencies) {
             hash.add(edge.kind);
@@ -794,8 +794,6 @@ void reportSourceFingerprint(Issues &issues, const LinkOccurrence &link, const H
 Issues reviewIssues(const Section &section, const Review &before, const Snapshot &snapshot) {
     const auto after = currentReview(section, snapshot, "");
     Issues issues;
-    if (before.textHash != after.textHash)
-        issues.emplace_back(section.line, "section text changed");
     if (!after.links.empty() && before.clangVersion != after.clangVersion)
         issues.emplace_back(section.line, "Clang version changed");
     if (before.links != after.links)
@@ -850,6 +848,95 @@ struct PendingReview {
     Issues issues;
 };
 
+template <typename Entry>
+std::set<std::string> dependencyUrls(const Entry &entry) {
+    std::set<std::string> urls;
+    auto add = [&](const auto &links) {
+        for (const auto &[url, value] : links)
+            urls.insert(url);
+    };
+    add(entry.links);
+    add(entry.fileLinks);
+    add(entry.declarationLinks);
+    add(entry.sourceTextLinks);
+    return urls;
+}
+
+std::map<Key, Key> renamedSections(const Sections &sections, const Reviews &reviews) {
+    using Signature = std::pair<std::string, std::set<std::string>>;
+    std::map<Signature, std::vector<Key>> previous;
+    std::map<Signature, std::vector<Key>> current;
+    for (const auto &[key, review] : reviews) {
+        if (!sections.contains(key))
+            previous[{key.first, dependencyUrls(review)}].push_back(key);
+    }
+    for (const auto &[key, section] : sections) {
+        if (!reviews.contains(key) && section.issues.empty())
+            current[{key.first, dependencyUrls(section)}].push_back(key);
+    }
+
+    // Match by dependencies only when the old and new headings identify one section each.
+    std::map<Key, Key> matches;
+    for (const auto &[signature, keys] : current) {
+        const auto candidates = previous.find(signature);
+        if (keys.size() == 1 && candidates != previous.end() && candidates->second.size() == 1)
+            matches.emplace(keys.front(), candidates->second.front());
+    }
+    return matches;
+}
+
+Key approvalKey(const Key &key, const Sections &sections, const Reviews &reviews) {
+    if (reviews.contains(key))
+        return key;
+    const auto matches = renamedSections(sections, reviews);
+    const auto previous = matches.find(key);
+    return previous == matches.end() ? key : previous->second;
+}
+
+Reviews reconcileReviews(const Inputs &inputs, const Reviews &before) {
+    Reviews updated;
+    const auto renames = renamedSections(inputs.sections, before);
+    for (const auto &[key, section] : inputs.sections) {
+        const auto renamed = renames.find(key);
+        const auto previous = before.find(renamed == renames.end() ? key : renamed->second);
+        if (previous != before.end() &&
+            (!section.issues.empty() || previous->second.textHash == section.textHash)) {
+            updated.emplace(key, previous->second);
+        } else if (section.issues.empty()) {
+            updated.emplace(key, currentReview(section, inputs.snapshot, ""));
+        }
+    }
+    return updated;
+}
+
+llvm::Expected<Reviews> syncReviews(const Inputs &inputs) {
+    const auto path = inputs.docs / approvalName;
+    auto stored = loadReviews(path);
+    if (!stored)
+        return stored.takeError();
+    const Reviews empty;
+    auto updated = reconcileReviews(inputs, *stored ? **stored : empty);
+    if (*stored && updated == **stored)
+        return updated;
+
+    llvm::LockFileManager lock(path.string());
+    auto acquired = lock.tryLock();
+    if (!acquired)
+        return acquired.takeError();
+    if (!*acquired)
+        return error("another approval is being written; retry after it finishes");
+    auto current = loadReviews(path);
+    if (!current)
+        return current.takeError();
+    if (*current && **current == updated)
+        return updated;
+    if (*current != *stored)
+        return error("approvals changed during the check; try again");
+    if (auto result = saveReviews(path, updated))
+        return std::move(result);
+    return updated;
+}
+
 std::vector<PendingReview> pendingReviews(const Inputs &inputs, const Reviews &reviews) {
     std::vector<PendingReview> result;
     for (const auto &[key, section] : inputs.sections) {
@@ -857,18 +944,12 @@ std::vector<PendingReview> pendingReviews(const Inputs &inputs, const Reviews &r
             result.push_back({key, section.line, &section, section.issues});
             continue;
         }
-        const auto previous = reviews.find(key);
-        if (previous == reviews.end()) {
-            result.push_back({key, section.line, &section, {{section.line, "approval required"}}});
-        } else if (auto issues = reviewIssues(section, previous->second, inputs.snapshot); !issues.empty()) {
+        const auto &previous = reviews.at(key);
+        auto issues = reviewIssues(section, previous, inputs.snapshot);
+        if (previous.invalidated)
+            issues.emplace(issues.begin(), section.line, "approval manually invalidated");
+        if (!issues.empty())
             result.push_back({key, section.line, &section, std::move(issues)});
-        }
-    }
-    for (const auto &[key, review] : reviews) {
-        if (!inputs.sections.contains(key)) {
-            result.push_back({key, 0, nullptr,
-                              {{0, "approved section or its tracked links were removed; approve the removal"}}});
-        }
     }
     llvm::sort(result, [](const PendingReview &a, const PendingReview &b) {
         return std::tie(a.key.first, a.line, a.key.second) < std::tie(b.key.first, b.line, b.key.second);
@@ -876,33 +957,40 @@ std::vector<PendingReview> pendingReviews(const Inputs &inputs, const Reviews &r
     return result;
 }
 
-llvm::Error updateReviews(const fs::path &path, llvm::function_ref<llvm::Error(Reviews &)> update) {
+llvm::Error updateReviews(const Inputs &inputs, llvm::function_ref<llvm::Error(Reviews &)> update) {
+    const auto path = inputs.docs / approvalName;
     llvm::LockFileManager lock(path.string());
     auto acquired = lock.tryLock();
     if (!acquired)
         return acquired.takeError();
     if (!*acquired)
         return error("another approval is being written; retry after it finishes");
-    auto reviews = loadReviews(path);
-    if (!reviews)
-        return reviews.takeError();
-    if (auto result = update(*reviews))
+    auto stored = loadReviews(path);
+    if (!stored)
+        return stored.takeError();
+    auto reviews = *stored ? std::move(**stored) : reconcileReviews(inputs, {});
+    if (auto result = update(reviews))
         return result;
-    return saveReviews(path, *reviews);
+    return saveReviews(path, reviews);
 }
 
-llvm::Error recordReview(const fs::path &path, const Key &key, std::optional<Review> review,
+llvm::Error recordReview(const Inputs &inputs, const Key &key, std::optional<Review> review,
                          const Reviews *baseline = nullptr) {
-    auto result = updateReviews(path, [&](Reviews &reviews) -> llvm::Error {
+    auto result = updateReviews(inputs, [&](Reviews &reviews) -> llvm::Error {
+        const auto previous = review ? approvalKey(key, inputs.sections, reviews) : key;
         if (baseline) {
-            const auto before = baseline->find(key);
-            const auto current = reviews.find(key);
+            const auto expected = review ? approvalKey(key, inputs.sections, *baseline) : key;
+            const auto before = baseline->find(expected);
+            const auto current = reviews.find(previous);
             const bool hadApproval = before != baseline->end();
             const bool hasApproval = current != reviews.end();
-            if (hadApproval != hasApproval || (hasApproval && before->second != current->second))
+            if (expected != previous || hadApproval != hasApproval ||
+                (hasApproval && before->second != current->second))
                 return error("approval changed during review for " + key.first + " / " + key.second + "; run approve again");
         }
         if (review) {
+            if (previous != key)
+                reviews.erase(previous);
             reviews.insert_or_assign(key, std::move(*review));
         } else if (reviews.erase(key) == 0) {
             return error("no linked section or existing approval for " + key.first + " / " + key.second);
@@ -951,7 +1039,7 @@ void printStatus(const Inputs &inputs, const std::vector<PendingReview> &pending
         }
         items.push_back(json::Object{
             {"page", review.key.first}, {"section", review.key.second}, {"line", review.line},
-            {"approvable", !review.section || review.section->issues.empty()}, {"issues", std::move(issues)}
+            {"approvable", review.section->issues.empty()}, {"issues", std::move(issues)}
         });
     }
     json::Array references;
@@ -980,7 +1068,7 @@ llvm::Error checkDocs(llvm::StringRef source, llvm::StringRef build, llvm::Strin
     auto inputs = loadInputs(source, build, docs);
     if (!inputs)
         return inputs.takeError();
-    auto reviews = loadReviews(approvalPath(inputs->docs));
+    auto reviews = syncReviews(*inputs);
     if (!reviews)
         return reviews.takeError();
     const auto pending = pendingReviews(*inputs, *reviews);
@@ -1011,8 +1099,7 @@ llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::Stri
     auto inputs = loadInputs(source, build, docs);
     if (!inputs)
         return inputs.takeError();
-    const auto path = approvalPath(inputs->docs);
-    auto reviews = loadReviews(path);
+    auto reviews = syncReviews(*inputs);
     if (!reviews)
         return reviews.takeError();
     const auto pending = pendingReviews(*inputs, *reviews);
@@ -1029,7 +1116,7 @@ llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::Stri
                 llvm::outs() << "Line " << issue.line << ": ";
             llvm::outs() << issue.message << '\n';
         }
-        if (item.section && !item.section->issues.empty()) {
+        if (!item.section->issues.empty()) {
             llvm::outs() << "Fix the broken links before approving this section.\n";
             continue;
         }
@@ -1041,10 +1128,8 @@ llvm::Error reviewDocs(llvm::StringRef source, llvm::StringRef build, llvm::Stri
             llvm::outs() << "Left for revision.\n";
             continue;
         case Decision::Approve:
-            std::optional<Review> review;
-            if (item.section)
-                review = currentReview(*item.section, inputs->snapshot, reason.trim());
-            if (auto result = recordReview(path, item.key, std::move(review), &*reviews))
+            auto review = currentReview(*item.section, inputs->snapshot, reason.trim());
+            if (auto result = recordReview(*inputs, item.key, std::move(review), &*reviews))
                 return result;
             break;
         }
@@ -1074,7 +1159,7 @@ llvm::Error approvePage(llvm::StringRef source, llvm::StringRef build, llvm::Str
     if (blocked)
         return error("resolve links before approving this page");
 
-    auto result = updateReviews(approvalPath(inputs->docs), [&](Reviews &reviews) -> llvm::Error {
+    auto result = updateReviews(*inputs, [&](Reviews &reviews) -> llvm::Error {
         const auto count = std::erase_if(reviews, [&](const auto &entry) {
             return entry.first.first == pagePath;
         });
@@ -1105,7 +1190,50 @@ llvm::Error approveDocs(llvm::StringRef source, llvm::StringRef build, llvm::Str
         }
         review = currentReview(current->second, inputs->snapshot, reason.trim());
     }
-    return recordReview(approvalPath(inputs->docs), key, std::move(review));
+    return recordReview(*inputs, key, std::move(review));
+}
+
+llvm::Error invalidateDocs(llvm::StringRef source, llvm::StringRef build, llvm::StringRef docs,
+                           llvm::StringRef path) {
+    auto inputs = loadInputs(source, build, docs);
+    if (!inputs)
+        return inputs.takeError();
+    std::error_code ec;
+    const auto requested = inputs->docs / fs::path(path.str());
+    const auto target = fs::canonical(requested, ec);
+    if (ec)
+        return fileError(requested, ec);
+    if (!inside(target, inputs->docs))
+        return error("invalidation path must be inside the docs directory");
+    const bool directory = fs::is_directory(target, ec);
+    if (ec)
+        return fileError(target, ec);
+    if (!directory && !markdownFile(target))
+        return error("invalidation requires a Markdown file or directory");
+
+    unsigned count = 0;
+    auto result = updateReviews(*inputs, [&](Reviews &reviews) -> llvm::Error {
+        const auto renames = renamedSections(inputs->sections, reviews);
+        for (const auto &[key, section] : inputs->sections) {
+            const auto page = inputs->docs / key.first;
+            if (!(directory ? inside(page, target) : page == target) || !section.issues.empty())
+                continue;
+            const auto renamed = renames.find(key);
+            const auto previous = reviews.find(renamed == renames.end() ? key : renamed->second);
+            auto review = previous != reviews.end() && previous->second.textHash == section.textHash
+                ? previous->second : currentReview(section, inputs->snapshot, "");
+            if (renamed != renames.end())
+                reviews.erase(renamed->second);
+            review.invalidated = true;
+            reviews.insert_or_assign(key, std::move(review));
+            ++count;
+        }
+        return llvm::Error::success();
+    });
+    if (result)
+        return result;
+    llvm::outs() << "Invalidated documentation sections: " << count << '\n';
+    return llvm::Error::success();
 }
 
 } // namespace c_docc

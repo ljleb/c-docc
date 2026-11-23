@@ -22,7 +22,7 @@ The [repository README](../README.md#build) has the build commands for a checkou
 
 ## [Tutorials](tutorials/)
 
-- [Change a retry limit and update its docs](tutorials/first-doc-check.md) follows one linked section from an approved starting point through a code change and a new approval.
+- [Change a retry limit and update its docs](tutorials/first-doc-check.md) follows a retry limit change from the C function to the troubleshooting guide.
 - [Trace a change in a delivery estimate](tutorials/first-diff.md) follows a change in depot sorting time through a caller to a guide.
 
 ## [How-to guides](how-to/)
@@ -30,7 +30,7 @@ The [repository README](../README.md#build) has the build commands for a checkou
 - [Git revision comparison](how-to/compare-revisions.md) covers checkout setup, compilation databases, and dependency paths in the diff.
 - [Code changes and linked docs](how-to/review-linked-docs.md) covers broken links, changed dependencies, and section approvals.
 - [c-docc symbol index](how-to/scan-repository.md) covers symbol IDs, declarations, and definition locations.
-- [Published 1.0.0 build](how-to/build-release.md) covers building the analyzer from the release tag.
+- [Build from a release tag](how-to/build-release.md) covers building the analyzer from the release tag.
 
 ## [Explanation](explanation/)
 

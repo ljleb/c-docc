@@ -49,36 +49,15 @@ Create [`compile_commands.json`](../../examples/photo-backup/compile_commands.js
 
 Switch to your example folder in the shell that Nix opened. The command `pwd` prints the folder's full path. Save that path in the `directory` field in place of `REPLACE_WITH_ABSOLUTE_PATH`. Run the remaining commands from this folder.
 
-## The first approval
+## The first check
 
-Run c-docc against the guide. By default, it looks for the source, compilation database, and Markdown in your current folder.
-
-```sh
-c-docc check
-```
-
-You should see `retries.md:1: Retries: approval required`. The link works. c-docc is asking you to choose a starting point for future comparisons.
-
-Suppose you first run c-docc after someone raises the limit to 5 while the guide still says 3. If c-docc accepts those versions automatically, later runs can pass while the guide still gives the wrong number. The first approval gives you a chance to catch that mismatch.
-
-In this example, the guide says the app retries up to 3 times, and `retry_limit` returns 3. Approve `retries.md` to record the guide and code you just compared. Future runs use that record to flag changes.
-
-```sh
-c-docc approve retries.md
-```
-
-You should see `Recorded review for retries.md`. Run `check` again.
+Run c-docc from the example folder.
 
 ```sh
 c-docc check
 ```
 
-You should see the number of approved sections followed by the section you just approved.
-
-```text
-Approved documentation sections: 1
-  retries.md:1: Retries
-```
+The first check records the current guide and its linked code in `.c-docc-approvals.json`. You should see `retries.md:1: Retries` under `Approved documentation sections: 1`.
 
 ## Five retries in the code
 
@@ -104,19 +83,21 @@ Change “up to 3 times” to “up to 5 times” in `retries.md`. Save the file
 c-docc check
 ```
 
-The command should still exit with status `1`. You should see a new message, `Retries: section text changed`, alongside the code change. The sentence now matches the function, and the approval still records the earlier version of both.
+The check should pass. c-docc treats the new sentence as your response to the warning and records it with the current code. If the limit changes again while this sentence stays the same, the check can flag it again.
 
-## A recorded review of the change
+## Request a review
 
-The guide now describes the new limit of 5. Approve the revised file.
+You can ask c-docc to flag the guide even when its code and Markdown are stable.
+
+```sh
+c-docc invalidate retries.md
+c-docc check
+```
+
+You should see `approval manually invalidated`. The guide still matches the code, so record that review without changing the guide.
 
 ```sh
 c-docc approve retries.md
-```
-
-You should see `Recorded review for retries.md` again. The updated record is in `.c-docc-approvals.json`. Run c-docc once more to see what it reports for the updated guide.
-
-```sh
 c-docc check
 ```
 

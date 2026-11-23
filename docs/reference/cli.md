@@ -14,6 +14,7 @@ This reference covers the CLI built from this checkout. Scan and diff output use
 | `c-docc approve [options]` | Prompts for each section that needs approval. |
 | `c-docc approve <page> [options]` | Records a review of all linked sections in a Markdown file. |
 | `c-docc approve <page> <section> [options]` | Records an explicit review of one section. |
+| `c-docc invalidate <file-or-directory> [options]` | Requests review of linked sections in a Markdown file or directory. |
 
 | Argument | Meaning |
 | --- | --- |
@@ -22,8 +23,9 @@ This reference covers the CLI built from this checkout. Scan and diff output use
 | `docs-root` | Directory inside the source root that contains the Markdown pages and approvals. |
 | `page` | Markdown path relative to `docs-root`. |
 | `section` | Heading path, with ` / ` between nested headings. |
+| `file-or-directory` | Markdown file or directory relative to the docs directory, or an absolute path inside it. |
 
-The directory options for `check` and `approve` default to the current directory. Relative directory paths start there.
+The directory options for `check`, `approve`, and `invalidate` default to the current directory. Relative directory paths start there.
 
 | Option | Meaning |
 | --- | --- |
@@ -54,7 +56,7 @@ Relative paths start at the referring page. A link that starts with `/` starts a
 
 A whole-file link tracks the contents of the target file. A link to a heading in another page tracks that heading and its contents, including nested headings. Directory links without a heading and links within the current page check that the destination exists.
 
-When tracked contents change, c-docc reports the link in the referring page. Review that page and approve it again.
+When tracked contents change, c-docc reports the link in the referring page if the referring section still matches its recorded text.
 
 ## Common JSON fields
 
@@ -106,8 +108,10 @@ A range combines the declarations and definitions it touches. Each dependency is
 
 The approval file is `.c-docc-approvals.json` under the docs root. It records the page path, heading path, section text hash, resolved symbol IDs, and tracked code fingerprints. It also stores fingerprints of linked declarations, source text, files, or Markdown headings and any reason supplied with the approval. Approval applies to the selected build configuration. A section outside any heading uses `(preamble)` as its name.
 
-Projects with an existing `.dagdocdiff-approvals.json` can rename it to `.c-docc-approvals.json` to carry their reviews forward. c-docc uses the existing file until the new filename is present.
+The first check records a baseline for existing sections with valid links. Later checks report dependency changes in sections whose Markdown still matches their baseline. A check records new or edited sections once their links resolve and drops records for sections you removed.
 
-Passing only the page to `approve` updates all its linked sections and clears approvals for sections or links removed from that page. If any source link in the page fails to resolve, the command leaves the page's approvals as they were.
+`invalidate` accepts a Markdown path relative to the docs directory or an absolute path inside it. A directory includes its nested Markdown files. The check reports invalidated sections until you edit or approve them. Use `approve` when you review the linked change and the Markdown already says what it should.
 
-The `check` command exits with status `1` for an unresolved link, an absent approval, or a change that requires review. The page and heading path also identify an approval for removal of the section or all its source links. Building the code and viewing the Markdown work independently of this command.
+Passing only the page to `approve` updates all its linked sections. If any source link in the page fails to resolve, the command leaves the page's approvals as they were.
+
+The `check` command exits with status `1` for an unresolved link or a section that needs review. Building the code and viewing the Markdown work independently of this command.

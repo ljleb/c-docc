@@ -119,7 +119,7 @@ void hashComponents(Snapshot &snapshot) {
             component->members.push_back(node->id);
         }
 
-        Fingerprint hash("dagdocdiff.scc.v1");
+        Fingerprint hash("c-docc.scc.v1");
         for (const auto *node : members) {
             hash.add("member");
             hash.add(node->id);

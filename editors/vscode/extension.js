@@ -308,22 +308,26 @@ class Project {
     }
 
     async approve(file) {
-        if (this.approving || this.abort.signal.aborted || !vscode.workspace.isTrusted) {
-            return;
-        }
         const reviews = this.pages.get(file);
         if (!reviews?.length || reviews.some(review => !review.approvable)) {
             return;
         }
-        this.approving = true;
+        await this.writeReview('approve', reviews[0].page);
+    }
+
+    async writeReview(command, target) {
+        if (!this.options || this.writingReview || this.abort.signal.aborted || !vscode.workspace.isTrusted) {
+            return;
+        }
+        this.writingReview = true;
         try {
-            const result = await runTool(this.options, 'approve', ['--', reviews[0].page], this.abort.signal);
+            const result = await runTool(this.options, command, ['--', target], this.abort.signal);
             if (result.status !== 0) {
-                throw new Error(result.stderr.trim().split('\n').at(-1) || 'Could not approve documentation.');
+                throw new Error(result.stderr.trim().split('\n').at(-1) || 'Could not ' + command + ' documentation.');
             }
             this.log.appendLine(result.stdout.trim());
         } finally {
-            this.approving = false;
+            this.writingReview = false;
             this.schedule(0);
         }
     }
@@ -409,6 +413,10 @@ function activate(context) {
             for (const uri of files) {
                 await projectFor(uri)?.approve(uri.fsPath);
             }
+        })),
+        vscode.commands.registerCommand('c-docc.invalidate', uri => reportError(async () => {
+            const target = uri || vscode.window.activeTextEditor?.document.uri;
+            await projectFor(target)?.writeReview('invalidate', target.fsPath);
         })),
         vscode.commands.registerCommand('c-docc.openReferences', (key, references) => reportError(async () => {
             const project = projects.get(key);

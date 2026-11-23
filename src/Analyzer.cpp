@@ -281,7 +281,7 @@ public:
         if (definition) {
             unit_.snapshot.sourceSpans[span].definitions.insert(id);
         } else {
-            auto hash = tokenFingerprint(decl, "dagdocdiff.source-declaration.v1");
+            auto hash = tokenFingerprint(decl, "c-docc.source-declaration.v1");
             if (!hash.empty())
                 unit_.snapshot.sourceSpans[span].declarations[id].insert(std::move(hash));
         }
@@ -348,7 +348,7 @@ private:
 
     bool add(const NamedDecl &decl, std::string id, std::string kind,
              std::set<Dependency> dependencies) {
-        auto hash = tokenFingerprint(decl, "dagdocdiff.source.v1");
+        auto hash = tokenFingerprint(decl, "c-docc.source.v1");
         if (hash.empty()) {
             unit_.note(decl.getLocation(), "no expanded tokens for " + id);
             return true;
