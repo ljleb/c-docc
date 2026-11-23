@@ -103,14 +103,16 @@ int usageError(const llvm::Twine &message) {
 }
 
 int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
-    if (args.size() == 1 && (llvm::StringRef(args[0]) == "--help" || llvm::StringRef(args[0]) == "-h")) {
+    if (args.size() == 1 &&
+        (llvm::StringRef(args[0]) == "--help" || llvm::StringRef(args[0]) == "-h")) {
         usage(llvm::outs());
         return 0;
     }
 
     const bool approve = command == "approve";
     const bool invalidate = command == "invalidate";
-    llvm::StringRef source = ".", build = ".", docs = ".", reason;
+    llvm::StringRef source = ".", build = ".", docs = ".";
+    llvm::StringRef reason;
     bool json = false;
     llvm::SmallVector<llvm::StringRef, 2> positional;
     bool options = true;
@@ -147,30 +149,42 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
             return usageError("missing value for " + name);
         *destination = value;
     }
-    if (approve && positional.size() > 2)
-        return usageError("approve accepts a page and an optional section");
+    if (approve) {
+        if (positional.size() > 2)
+            return usageError("approve accepts a page and an optional section");
+        if (positional.empty()) {
+            if (auto result = reviewDocs(source, build, docs, reason))
+                return fail(std::move(result));
+            return 0;
+        }
+
+        const auto page = positional[0];
+        if (positional.size() == 1) {
+            if (auto result = approvePage(source, build, docs, page, reason))
+                return fail(std::move(result));
+            return 0;
+        }
+
+        const auto section = positional[1];
+        if (auto result = approveDocs(source, build, docs, page, section, reason))
+            return fail(std::move(result));
+        return 0;
+    }
+
     if (invalidate) {
         if (positional.size() != 1)
             return usageError("invalidate requires a Markdown file or directory");
-        auto result = invalidateDocs(source, build, docs, positional[0]);
-        return result ? fail(std::move(result)) : 0;
+        const auto target = positional[0];
+        if (auto result = invalidateDocs(source, build, docs, target))
+            return fail(std::move(result));
+        return 0;
     }
-    if (!approve && !positional.empty())
-        return usageError("check takes no positional arguments");
 
-    if (approve && positional.empty()) {
-        if (auto result = reviewDocs(source, build, docs, reason))
-            return fail(std::move(result));
-        return 0;
-    }
-    if (approve && positional.size() == 1) {
-        if (auto result = approvePage(source, build, docs, positional[0], reason))
-            return fail(std::move(result));
-        return 0;
-    }
-    auto result = approve ? approveDocs(source, build, docs, positional[0], positional[1], reason)
-                          : checkDocs(source, build, docs, json);
-    return result ? fail(std::move(result)) : 0;
+    if (!positional.empty())
+        return usageError("check takes no positional arguments");
+    if (auto result = checkDocs(source, build, docs, json))
+        return fail(std::move(result));
+    return 0;
 }
 
 } // namespace
@@ -178,7 +192,8 @@ int docsCommand(llvm::StringRef command, llvm::ArrayRef<char *> args) {
 int main(int argc, char **argv) {
     llvm::InitLLVM init(argc, argv);
     const llvm::StringRef command = argc > 1 ? argv[1] : "";
-    if (command == "--help" || command == "-h") {
+    if (command == "--help" ||
+        command == "-h") {
         usage(llvm::outs());
         return 0;
     }
@@ -187,17 +202,23 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (command == "scan" && argc == 4) {
-        auto snapshot = c_docc::analyze(argv[2], argv[3]);
+        const llvm::StringRef sourceRoot = argv[2];
+        const llvm::StringRef buildDir = argv[3];
+        auto snapshot = c_docc::analyze(sourceRoot, buildDir);
         if (!snapshot)
             return fail(snapshot.takeError());
         print(scanJson(*snapshot));
         return 0;
     }
     if (command == "diff" && argc == 6) {
-        auto base = c_docc::analyze(argv[2], argv[3]);
+        const llvm::StringRef baseRoot = argv[2];
+        const llvm::StringRef baseBuildDir = argv[3];
+        auto base = c_docc::analyze(baseRoot, baseBuildDir);
         if (!base)
             return fail(base.takeError());
-        auto head = c_docc::analyze(argv[4], argv[5]);
+        const llvm::StringRef headRoot = argv[4];
+        const llvm::StringRef headBuildDir = argv[5];
+        auto head = c_docc::analyze(headRoot, headBuildDir);
         if (!head)
             return fail(head.takeError());
         print(diffJson(*base, *head));

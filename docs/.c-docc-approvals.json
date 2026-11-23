@@ -46,7 +46,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "reference/cli.md": "1ec7b9485a37022dadb2f9631e3da01aaa4013f6664febf762f621425b7e6f58"
+        "reference/cli.md": "7aabe16f6e5fcbdec486cd719d222ccb915af9fef2f838f828c5c36f15c98024"
       },
       "inputs": {},
       "links": {},
@@ -210,7 +210,7 @@
     {
       "clang_version": "clang version 23.1.0",
       "file_links": {
-        "cli.md": "1ec7b9485a37022dadb2f9631e3da01aaa4013f6664febf762f621425b7e6f58"
+        "cli.md": "7aabe16f6e5fcbdec486cd719d222ccb915af9fef2f838f828c5c36f15c98024"
       },
       "inputs": {},
       "links": {},
@@ -244,7 +244,7 @@
         "c_docc::hashComponents(c_docc::Snapshot &)": "4a02f3ffc77ce82801d3a780898dab810ec39f17bbbfda470d3b6586fbf0de3c",
         "c_docc::invalidateDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "4bb13d4b8cfc2195cdde94f0e5ac1e0872af3e4a5d5ff25922c0d3700b01a846",
         "c_docc::reviewDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "2cf98b37a7dbbe5cf4ce16b0b91987bd1cc685c07defc0c9becd0511ec4b8291",
-        "main(int, char **)": "154d88a46dfcdd92df75f0961820df1a3f1cec24bb73dcc11806e6d481175449",
+        "main(int, char **)": "bebd2004a9ce209899a8298c58754874979838da16a0f6326cc484e485f203a4",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "50bd17bdb373b456d96642964c65108739c992df91cf43c9aaee999fcd4ee2b1",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "3585a081be8f49d61f4a6d8c090c6c9e57aa57d30d6deb4e1da87898973614e0",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "56403247e961f509c2bc4a5ed7fce400416c239cd38c94ce61d60411da0634b8",
@@ -312,32 +312,41 @@
         "src/Graph.cpp::c_docc::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "ff177e1c1ed3db4315322a933bfc005b4a598e9c05de75ef7e16e8489c8f7436",
         "src/Graph.cpp::c_docc::(anonymous namespace)::sharesComponent(const c_docc::Snapshot &, const std::vector<std::basic_string<char>> &)": "99d6984f97696d88c9c53de20e1071352ebf89b57bda583510ad53d9b3d8f8fa",
         "src/main.cpp::(anonymous namespace)::diffJson(const c_docc::Snapshot &, const c_docc::Snapshot &)": "cef0e404a320e4f544c0e1419ae9d91d15d857f0b1ebdd84b5e12eb3b19ab5b1",
-        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "d44e1d8650218fdec7e4e06233428c9097ecf32ac29d769cd69ab218b19dd836",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "30f7e2cdb036a8ea9454ae742e4fb552e50ae5ce559ee5222e46771f55041639",
         "src/main.cpp::(anonymous namespace)::fail(llvm::Error)": "2194bc22d0a5dae32e58ce2f22eae9ee16133a4af222adb48ca9b40c80e74352",
         "src/main.cpp::(anonymous namespace)::findings(const c_docc::Snapshot &)": "335f73ddaff65acbf3ad025fb9f498f564148932e8fc6a338597f2626dc2a001",
         "src/main.cpp::(anonymous namespace)::location(const c_docc::Location &)": "2dedfffc852f653f762a2924da52273013493c535b674223a9ad24e89d0a7aba",
-        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "bd34463d18a7467c8f99046397883dc47aa5547e6391d8cba003e7ca0488a83e",
+        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "1dea13099fdda3e548be70ea2c7caea9b475fee8a590fd029c56f74f0ecd7c9a",
         "src/main.cpp::(anonymous namespace)::scanJson(const c_docc::Snapshot &)": "1a47739c697400bf9d9564da7c672552e2be3a57cbda020d98f4c3161e199ea7",
         "src/main.cpp::(anonymous namespace)::usage(llvm::raw_ostream &)": "b5fd1fb5e8097c9eb7a279b75fc3d935cc75c813b851253f9877c7a0382146e1",
         "src/main.cpp::(anonymous namespace)::usageError(const llvm::Twine &)": "ffb2ea13c4d30626d0f99d1dd046843d626eb4d626207c712be6da606c23ce78"
       },
       "links": {
-        "../../src/main.cpp#L155": [
+        "../../src/main.cpp#L161": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L167": [
+        "../../src/main.cpp#L168": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L171": [
+        "../../src/main.cpp#L177": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L190": [
+        "../../src/main.cpp#L205": [
           "main(int, char **)"
         ],
-        "../../src/main.cpp#L197": [
+        "../../src/main.cpp#L206": [
           "main(int, char **)"
         ],
-        "../../src/main.cpp#L200": [
+        "../../src/main.cpp#L214": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L215": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L219": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L220": [
           "main(int, char **)"
         ]
       },
@@ -345,10 +354,10 @@
       "reason": "",
       "section": "c-docc command and output reference / Arguments",
       "symbols": {
-        "main(int, char **)": "97c966ac7f260de19d150160cda634b1ad41309778fb6f1f98f7abb4205f436c",
-        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "4d291def89bf67f9a62c66764f43df2507db9ea7271d89152ccd2a78573928bb"
+        "main(int, char **)": "07fd60b0503250078df19c9d2159946628f8ddf2efe87e9aa40c36809a409d89",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "9381dd509c7233b46965c43508dd873f28ed133208582aec989c4005c519ad6d"
       },
-      "text_hash": "1b6db85b14a9b6187a105cd5a48483c957ef5139e4e8365d68f2eedf2cdb60b5"
+      "text_hash": "23a969b6e43bc6538e356d7e48901e2248df80877212e020674c6f595ed6bbd8"
     },
     {
       "clang_version": "clang version 23.1.0",
@@ -374,7 +383,7 @@
         "c_docc::hashComponents(c_docc::Snapshot &)": "4a02f3ffc77ce82801d3a780898dab810ec39f17bbbfda470d3b6586fbf0de3c",
         "c_docc::invalidateDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "4bb13d4b8cfc2195cdde94f0e5ac1e0872af3e4a5d5ff25922c0d3700b01a846",
         "c_docc::reviewDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "2cf98b37a7dbbe5cf4ce16b0b91987bd1cc685c07defc0c9becd0511ec4b8291",
-        "main(int, char **)": "154d88a46dfcdd92df75f0961820df1a3f1cec24bb73dcc11806e6d481175449",
+        "main(int, char **)": "bebd2004a9ce209899a8298c58754874979838da16a0f6326cc484e485f203a4",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "50bd17bdb373b456d96642964c65108739c992df91cf43c9aaee999fcd4ee2b1",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "3585a081be8f49d61f4a6d8c090c6c9e57aa57d30d6deb4e1da87898973614e0",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "56403247e961f509c2bc4a5ed7fce400416c239cd38c94ce61d60411da0634b8",
@@ -442,44 +451,44 @@
         "src/Graph.cpp::c_docc::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "ff177e1c1ed3db4315322a933bfc005b4a598e9c05de75ef7e16e8489c8f7436",
         "src/Graph.cpp::c_docc::(anonymous namespace)::sharesComponent(const c_docc::Snapshot &, const std::vector<std::basic_string<char>> &)": "99d6984f97696d88c9c53de20e1071352ebf89b57bda583510ad53d9b3d8f8fa",
         "src/main.cpp::(anonymous namespace)::diffJson(const c_docc::Snapshot &, const c_docc::Snapshot &)": "cef0e404a320e4f544c0e1419ae9d91d15d857f0b1ebdd84b5e12eb3b19ab5b1",
-        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "d44e1d8650218fdec7e4e06233428c9097ecf32ac29d769cd69ab218b19dd836",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "30f7e2cdb036a8ea9454ae742e4fb552e50ae5ce559ee5222e46771f55041639",
         "src/main.cpp::(anonymous namespace)::fail(llvm::Error)": "2194bc22d0a5dae32e58ce2f22eae9ee16133a4af222adb48ca9b40c80e74352",
         "src/main.cpp::(anonymous namespace)::findings(const c_docc::Snapshot &)": "335f73ddaff65acbf3ad025fb9f498f564148932e8fc6a338597f2626dc2a001",
         "src/main.cpp::(anonymous namespace)::location(const c_docc::Location &)": "2dedfffc852f653f762a2924da52273013493c535b674223a9ad24e89d0a7aba",
-        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "bd34463d18a7467c8f99046397883dc47aa5547e6391d8cba003e7ca0488a83e",
+        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "1dea13099fdda3e548be70ea2c7caea9b475fee8a590fd029c56f74f0ecd7c9a",
         "src/main.cpp::(anonymous namespace)::scanJson(const c_docc::Snapshot &)": "1a47739c697400bf9d9564da7c672552e2be3a57cbda020d98f4c3161e199ea7",
         "src/main.cpp::(anonymous namespace)::usage(llvm::raw_ostream &)": "b5fd1fb5e8097c9eb7a279b75fc3d935cc75c813b851253f9877c7a0382146e1",
         "src/main.cpp::(anonymous namespace)::usageError(const llvm::Twine &)": "ffb2ea13c4d30626d0f99d1dd046843d626eb4d626207c712be6da606c23ce78"
       },
       "links": {
-        "../../src/main.cpp#L152": [
+        "../../src/main.cpp#L156": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L161": [
+        "../../src/main.cpp#L163": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L166": [
-          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
-        ],
-        "../../src/main.cpp#L171": [
-          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
-        ],
-        "../../src/main.cpp#L172": [
+        "../../src/main.cpp#L169": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
         "../../src/main.cpp#L178": [
-          "main(int, char **)"
-        ],
-        "../../src/main.cpp#L181": [
-          "main(int, char **)"
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
         "../../src/main.cpp#L185": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L192": [
           "main(int, char **)"
         ],
-        "../../src/main.cpp#L189": [
+        "../../src/main.cpp#L195": [
           "main(int, char **)"
         ],
-        "../../src/main.cpp#L196": [
+        "../../src/main.cpp#L200": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L204": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L213": [
           "main(int, char **)"
         ]
       },
@@ -487,10 +496,10 @@
       "reason": "",
       "section": "c-docc command and output reference / Commands",
       "symbols": {
-        "main(int, char **)": "97c966ac7f260de19d150160cda634b1ad41309778fb6f1f98f7abb4205f436c",
-        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "4d291def89bf67f9a62c66764f43df2507db9ea7271d89152ccd2a78573928bb"
+        "main(int, char **)": "07fd60b0503250078df19c9d2159946628f8ddf2efe87e9aa40c36809a409d89",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "9381dd509c7233b46965c43508dd873f28ed133208582aec989c4005c519ad6d"
       },
-      "text_hash": "e7653a823dc7ab105601ef9680927fd75b6f7cfc0c7774f2786836f1600a8610"
+      "text_hash": "06f4b0a259e3743e97574e225c415ce9011de0c386be3bb290065d15e6ed1cbf"
     },
     {
       "clang_version": "clang version 23.1.0",
@@ -516,7 +525,7 @@
         "c_docc::hashComponents(c_docc::Snapshot &)": "4a02f3ffc77ce82801d3a780898dab810ec39f17bbbfda470d3b6586fbf0de3c",
         "c_docc::invalidateDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "4bb13d4b8cfc2195cdde94f0e5ac1e0872af3e4a5d5ff25922c0d3700b01a846",
         "c_docc::reviewDocs(llvm::StringRef, llvm::StringRef, llvm::StringRef, llvm::StringRef)": "2cf98b37a7dbbe5cf4ce16b0b91987bd1cc685c07defc0c9becd0511ec4b8291",
-        "main(int, char **)": "154d88a46dfcdd92df75f0961820df1a3f1cec24bb73dcc11806e6d481175449",
+        "main(int, char **)": "bebd2004a9ce209899a8298c58754874979838da16a0f6326cc484e485f203a4",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor": "50bd17bdb373b456d96642964c65108739c992df91cf43c9aaee999fcd4ee2b1",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::Extractor::Extractor(const std::filesystem::path &, c_docc::Snapshot &)": "3585a081be8f49d61f4a6d8c090c6c9e57aa57d30d6deb4e1da87898973614e0",
         "src/Analyzer.cpp::c_docc::(anonymous namespace)::failure(llvm::Twine)": "56403247e961f509c2bc4a5ed7fce400416c239cd38c94ce61d60411da0634b8",
@@ -584,11 +593,11 @@
         "src/Graph.cpp::c_docc::(anonymous namespace)::pathToCause(const std::map<std::basic_string<char>, std::basic_string<char>> &, const std::basic_string<char> &)": "ff177e1c1ed3db4315322a933bfc005b4a598e9c05de75ef7e16e8489c8f7436",
         "src/Graph.cpp::c_docc::(anonymous namespace)::sharesComponent(const c_docc::Snapshot &, const std::vector<std::basic_string<char>> &)": "99d6984f97696d88c9c53de20e1071352ebf89b57bda583510ad53d9b3d8f8fa",
         "src/main.cpp::(anonymous namespace)::diffJson(const c_docc::Snapshot &, const c_docc::Snapshot &)": "cef0e404a320e4f544c0e1419ae9d91d15d857f0b1ebdd84b5e12eb3b19ab5b1",
-        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "d44e1d8650218fdec7e4e06233428c9097ecf32ac29d769cd69ab218b19dd836",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "30f7e2cdb036a8ea9454ae742e4fb552e50ae5ce559ee5222e46771f55041639",
         "src/main.cpp::(anonymous namespace)::fail(llvm::Error)": "2194bc22d0a5dae32e58ce2f22eae9ee16133a4af222adb48ca9b40c80e74352",
         "src/main.cpp::(anonymous namespace)::findings(const c_docc::Snapshot &)": "335f73ddaff65acbf3ad025fb9f498f564148932e8fc6a338597f2626dc2a001",
         "src/main.cpp::(anonymous namespace)::location(const c_docc::Location &)": "2dedfffc852f653f762a2924da52273013493c535b674223a9ad24e89d0a7aba",
-        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "bd34463d18a7467c8f99046397883dc47aa5547e6391d8cba003e7ca0488a83e",
+        "src/main.cpp::(anonymous namespace)::print(llvm::json::Object)": "1dea13099fdda3e548be70ea2c7caea9b475fee8a590fd029c56f74f0ecd7c9a",
         "src/main.cpp::(anonymous namespace)::scanJson(const c_docc::Snapshot &)": "1a47739c697400bf9d9564da7c672552e2be3a57cbda020d98f4c3161e199ea7",
         "src/main.cpp::(anonymous namespace)::usage(llvm::raw_ostream &)": "b5fd1fb5e8097c9eb7a279b75fc3d935cc75c813b851253f9877c7a0382146e1",
         "src/main.cpp::(anonymous namespace)::usageError(const llvm::Twine &)": "ffb2ea13c4d30626d0f99d1dd046843d626eb4d626207c712be6da606c23ce78"
@@ -600,22 +609,16 @@
         "../../src/main.cpp#L106": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L113": [
+        "../../src/main.cpp#L114": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L123": [
+        "../../src/main.cpp#L125": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L128": [
-          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
-        ],
-        "../../src/main.cpp#L132-L147": [
+        "../../src/main.cpp#L130": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
         "../../src/main.cpp#L134": [
-          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
-        ],
-        "../../src/main.cpp#L135": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
         "../../src/main.cpp#L136": [
@@ -624,13 +627,25 @@
         "../../src/main.cpp#L137": [
           "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
         ],
-        "../../src/main.cpp#L178": [
+        "../../src/main.cpp#L138": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L139": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L146": [
+          "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)"
+        ],
+        "../../src/main.cpp#L192": [
           "main(int, char **)"
         ],
-        "../../src/main.cpp#L181": [
+        "../../src/main.cpp#L195": [
           "main(int, char **)"
         ],
-        "../../src/main.cpp#L185": [
+        "../../src/main.cpp#L196": [
+          "main(int, char **)"
+        ],
+        "../../src/main.cpp#L200": [
           "main(int, char **)"
         ]
       },
@@ -638,10 +653,10 @@
       "reason": "",
       "section": "c-docc command and output reference / Options",
       "symbols": {
-        "main(int, char **)": "97c966ac7f260de19d150160cda634b1ad41309778fb6f1f98f7abb4205f436c",
-        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "4d291def89bf67f9a62c66764f43df2507db9ea7271d89152ccd2a78573928bb"
+        "main(int, char **)": "07fd60b0503250078df19c9d2159946628f8ddf2efe87e9aa40c36809a409d89",
+        "src/main.cpp::(anonymous namespace)::docsCommand(llvm::StringRef, llvm::ArrayRef<char *>)": "9381dd509c7233b46965c43508dd873f28ed133208582aec989c4005c519ad6d"
       },
-      "text_hash": "28406c421ee42d2ce9f28f6d7bd69a4b0a53e85f2f5d9876d0b96a98710003ba"
+      "text_hash": "197b57502c562091a9edca3ab4a928a3dbedb210f62d2e5229bb612629f51d13"
     },
     {
       "clang_version": "clang version 23.1.0",
