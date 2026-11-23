@@ -76,10 +76,10 @@ function atLine(number) {
     return new vscode.Range(position, position);
 }
 
-async function openDocument(uri, number, viewColumn) {
+async function openDocument(uri, number) {
     const doc = await vscode.workspace.openTextDocument(uri);
     const line = Math.min(Math.max(1, number), doc.lineCount);
-    return vscode.window.showTextDocument(doc, { selection: atLine(line), preview: true, viewColumn });
+    return vscode.window.showTextDocument(doc, { selection: atLine(line), preview: true });
 }
 
 async function pick(items, placeHolder) {
@@ -270,43 +270,6 @@ class Project {
         await openDocument(uri, line);
     }
 
-    codeLenses(document) {
-        if (document.isDirty) {
-            return [];
-        }
-        const lenses = [];
-        const add = (line, title, tooltip, target) => {
-            if (line < 1 || line > document.lineCount) {
-                return;
-            }
-            const command = { title, tooltip, command: '' };
-            if (target) {
-                command.command = 'c-docc.openTarget';
-                command.arguments = [this.sourceUri(target.file), target.line];
-            }
-            lenses.push(new vscode.CodeLens(atLine(line), command));
-        };
-        const references = this.pageReferences.get(document.uri.fsPath) || [];
-        for (const reference of references) {
-            const label = path.basename(reference.file) + ':' + reference.first_line;
-            add(reference.line, 'Open ' + label, reference.text + ' → ' + reference.file + ':' + reference.first_line,
-                { file: reference.file, line: reference.first_line });
-        }
-        const reviews = this.pages.get(document.uri.fsPath) || [];
-        for (const review of reviews) {
-            for (const issue of review.issues) {
-                const line = issue.line || review.line || 1;
-                if (issue.cause) {
-                    const label = path.basename(issue.cause.file) + ':' + issue.cause.line;
-                    add(line, 'Changed definition in ' + label, issue.message, issue.cause);
-                } else {
-                    add(line, issue.message, issue.message);
-                }
-            }
-        }
-        return lenses;
-    }
-
     async approve(file) {
         const reviews = this.pages.get(file);
         if (!reviews?.length || reviews.some(review => !review.approvable)) {
@@ -354,42 +317,7 @@ function activate(context) {
             [...projects.values()].find(project => project.pages.has(uri.fsPath) ||
                 project.pageReferences.has(uri.fsPath) || project.references.has(uri.fsPath));
     };
-    const backlink = vscode.window.createTextEditorDecorationType({
-        after: {
-            contentText: '↗',
-            color: new vscode.ThemeColor('editorCodeLens.foreground'),
-            margin: '0 0 0 0.5em',
-        },
-    });
-    const updateBacklinks = editor => {
-        const document = editor.document;
-        const project = projectFor(document.uri);
-        const references = project?.references.get(document.uri.fsPath);
-        if (!references || document.isDirty) {
-            editor.setDecorations(backlink, []);
-            return;
-        }
-
-        const lines = new Map();
-        for (const reference of references) {
-            const first = reference.first_line - 1;
-            const last = Math.min(reference.last_line, document.lineCount) - 1;
-            for (let line = first; line <= last; ++line) {
-                append(lines, line, reference);
-            }
-        }
-        const decorations = [];
-        for (const [line, matches] of lines) {
-            const end = document.lineAt(line).range.end;
-            const args = encodeURIComponent(JSON.stringify([project.folder.uri.toString(), matches]));
-            const link = 'command:c-docc.openReferences?' + args;
-            const hoverMessage = new vscode.MarkdownString('[Open referring documentation](' + link + ')');
-            hoverMessage.isTrusted = { enabledCommands: ['c-docc.openReferences'] };
-            decorations.push({ range: new vscode.Range(end, end), hoverMessage });
-        }
-        editor.setDecorations(backlink, decorations);
-    };
-    const updateVisibleBacklinks = () => vscode.window.visibleTextEditors.forEach(updateBacklinks);
+    const backlinkLenses = new WeakMap();
     const add = folder => {
         if (folder.uri.scheme === 'file') {
             const project = new Project(folder, changeNavigation, log, installer);
@@ -415,19 +343,8 @@ function activate(context) {
     const fileChanged = uri => projectFor(uri)?.schedule();
     context.subscriptions.push(
         { dispose: () => { for (const project of projects.values()) { project.dispose(); } } },
-        changeNavigation, log, watcher, installer, backlink,
-        changeNavigation.event(updateVisibleBacklinks),
-        vscode.window.onDidChangeVisibleTextEditors(updateVisibleBacklinks),
+        changeNavigation, log, watcher, installer,
         watcher.onDidCreate(fileChanged), watcher.onDidChange(fileChanged), watcher.onDidDelete(fileChanged),
-        vscode.workspace.onDidChangeTextDocument(({ document, contentChanges }) => {
-            if (contentChanges.length) {
-                for (const editor of vscode.window.visibleTextEditors) {
-                    if (editor.document === document) {
-                        updateBacklinks(editor);
-                    }
-                }
-            }
-        }),
         vscode.workspace.onDidSaveTextDocument(document => fileChanged(document.uri)),
         vscode.workspace.onDidChangeConfiguration(event => {
             if (event.affectsConfiguration('c-docc')) {
@@ -447,8 +364,6 @@ function activate(context) {
         vscode.commands.registerCommand('c-docc.install', () => installer.install()),
         vscode.commands.registerCommand('c-docc.openReview', (key, reviews) =>
             reportError(() => projects.get(key)?.openReview(reviews))),
-        vscode.commands.registerCommand('c-docc.openTarget', (uri, line) =>
-            reportError(() => openDocument(uri, line, vscode.ViewColumn.Beside))),
         vscode.commands.registerCommand('c-docc.approve', (...resources) => reportError(async () => {
             const files = resources.map(resource => resource?.resourceUri).filter(Boolean);
             if (!files.length) {
@@ -479,10 +394,54 @@ function activate(context) {
                 await openDocument(project.pageUri(item.reference.page), item.reference.line);
             }
         })),
-        vscode.languages.registerCodeLensProvider({ language: 'markdown', scheme: 'file' }, {
+        vscode.languages.registerCodeLensProvider({ scheme: 'file' }, {
             onDidChangeCodeLenses: changeNavigation.event,
             provideCodeLenses(document) {
-                return projectFor(document.uri)?.codeLenses(document) || [];
+                const project = projectFor(document.uri);
+                const references = project?.references.get(document.uri.fsPath);
+                if (!references || document.isDirty) {
+                    return [];
+                }
+
+                const lines = new Map();
+                for (const reference of references) {
+                    const last = Math.min(reference.last_line, document.lineCount);
+                    for (let line = reference.first_line; line <= last; ++line) {
+                        append(lines, line, reference);
+                    }
+                }
+                return Array.from(lines, ([line, matches]) => {
+                    const lens = new vscode.CodeLens(atLine(line));
+                    backlinkLenses.set(lens, { project, matches });
+                    return lens;
+                });
+            },
+            async resolveCodeLens(lens, token) {
+                const { project, matches } = backlinkLenses.get(lens);
+                const previews = await Promise.all(matches.map(async reference => {
+                    try {
+                        const page = await vscode.workspace.openTextDocument(project.pageUri(reference.page));
+                        if (reference.line <= page.lineCount) {
+                            return page.lineAt(reference.line - 1).text;
+                        }
+                    } catch {
+                        // The page can move before the next check refreshes its references.
+                    }
+                }));
+                if (token.isCancellationRequested) {
+                    return lens;
+                }
+                const [reference] = matches;
+                const title = matches.length === 1
+                    ? 'Open ' + path.basename(reference.page) + ':' + reference.line
+                    : 'Open ' + matches.length + ' documentation references';
+                lens.command = {
+                    command: 'c-docc.openReferences',
+                    title,
+                    tooltip: [...new Set(previews.filter(Boolean))].join('\n\n'),
+                    arguments: [project.folder.uri.toString(), matches],
+                };
+                return lens;
             },
         }),
     );

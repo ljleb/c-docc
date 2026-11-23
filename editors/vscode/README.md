@@ -1,10 +1,10 @@
 # c-docc for VS Code
 
-Review documentation in VS Code’s Source Control view. c-docc groups files with pending reviews and broken links. Click a file to open its first flagged line. The scrollbar marks the other lines that need review. Above each flagged line, c-docc shows the reason or a link to the changed definition. Hover over a changed definition link to see how the change reached the Markdown. The links above Markdown references open the referred code or file beside the guide. Use the check mark next to a file to approve all its linked sections. Files with broken links need those links fixed before approval.
+Review documentation in VS Code’s Source Control view. c-docc groups files with pending reviews and broken links. Click a file to open its first flagged line. The scrollbar marks the other lines that need review. Hover over a diagnostic or open the Problems panel to see why the line was flagged. The diagnostic links to the changed definition when c-docc finds it. Use the check mark next to a file to approve all its linked sections. Files with broken links need those links fixed before approval.
 
 Save an edit to a linked section to clear its review. To put a file or folder back in Needs Review, right-click it in Explorer and choose **Invalidate Documentation**.
 
-In C and C++ files, hover over an end-of-line arrow and click **Open referring documentation**. If several links reach the same line, choose one from the list. The arrow works with inlay hints turned off.
+In C and C++ files, the CodeLens above a linked line gives the Markdown file and line number. Click the label to open the Markdown, or hover to read the referring line. If several links reach the same line, the label opens a list of references. CodeLens works with inlay hints turned off.
 
 ## Install the extension
 
